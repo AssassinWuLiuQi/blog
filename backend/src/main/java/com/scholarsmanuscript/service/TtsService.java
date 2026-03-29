@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -17,7 +18,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class TtsService {
 
-    private static final String MINI_MAX_API_URL = "https://api.minimaxi.com/v1/t2a_v2";
+    private static final String MINI_MAX_API_URL = "https://api.minimaxi.com/v1";
 
     @Value("${miniMax.api-key:}")
     private String apiKey;
@@ -54,5 +55,20 @@ public class TtsService {
                 .bodyValue(body)
                 .retrieve()
                 .bodyToFlux(byte[].class);
+    }
+
+    public List<Map<String, Object>> getVoices() {
+        Map<String, Object> body = Map.of("voice_type", "all");
+
+        log.info("Fetching voice list from MiniMax API");
+
+        return webClient.post()
+                .uri("/t2a_v2/voices")
+                .header("Authorization", "Bearer " + apiKey)
+                .bodyValue(body)
+                .retrieve()
+                .bodyToFlux(Map.class)
+                .collectList()
+                .block();
     }
 }
