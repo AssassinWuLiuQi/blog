@@ -3,4 +3,4 @@ spring:
     show-sql: true
 
 jwt:
-  secret: dev-secret-key-for-local-development-only-must-be-at-least-256-bits
+  secret: gBMbiE9fTWqGaKO1wO88d1TD/VyYCRywpgj2QPoo/ZA=

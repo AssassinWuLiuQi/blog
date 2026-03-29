@@ -1,0 +1,45 @@
+# Java
+target/
+*.class
+*.jar
+*.war
+*.ear
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+/.idea/
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+# Maven
+.mvn/
+mvnw
+mvnw.cmd
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment (contains secrets)
+.env
+.env.*
+*.env
+
+# Application configs
+# Keep application.yml (template with placeholders)
+# Keep application-dev.yml (dev config)
+# Exclude application-local.yml (local secrets)
+backend/src/main/resources/application-local.yml
+
+# Build artifacts
+backend/target/
