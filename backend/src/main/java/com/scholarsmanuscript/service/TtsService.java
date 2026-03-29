@@ -1,6 +1,7 @@
 package com.scholarsmanuscript.service;
 
 import com.scholarsmanuscript.dto.request.TtsRequest;
+import com.scholarsmanuscript.dto.response.VoiceResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -57,12 +58,13 @@ public class TtsService {
                 .bodyToFlux(byte[].class);
     }
 
-    public List<Map<String, Object>> getVoices() {
+    public List<VoiceResponse> getVoices() {
         Map<String, Object> body = Map.of("voice_type", "all");
 
         log.info("Fetching voice list from MiniMax API");
 
-        return webClient.post()
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> rawVoices = webClient.post()
                 .uri("/t2a_v2/voices")
                 .header("Authorization", "Bearer " + apiKey)
                 .bodyValue(body)
@@ -70,5 +72,18 @@ public class TtsService {
                 .bodyToFlux(Map.class)
                 .collectList()
                 .block();
+
+        if (rawVoices == null) {
+            return List.of();
+        }
+
+        return rawVoices.stream()
+                .map(voice -> VoiceResponse.builder()
+                        .voiceId((String) voice.get("voice_id"))
+                        .name((String) voice.get("name"))
+                        .language((String) voice.get("language"))
+                        .gender((String) voice.get("gender"))
+                        .build())
+                .toList();
     }
 }

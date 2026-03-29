@@ -2,6 +2,7 @@ package com.scholarsmanuscript.controller;
 
 import com.scholarsmanuscript.dto.request.TtsRequest;
 import com.scholarsmanuscript.dto.response.ApiResponse;
+import com.scholarsmanuscript.dto.response.VoiceResponse;
 import com.scholarsmanuscript.service.TtsService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/tts")
@@ -22,8 +22,8 @@ public class TtsController {
     private final TtsService ttsService;
 
     @GetMapping("/voices")
-    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getVoices() {
-        List<Map<String, Object>> voices = ttsService.getVoices();
+    public ResponseEntity<ApiResponse<List<VoiceResponse>>> getVoices() {
+        List<VoiceResponse> voices = ttsService.getVoices();
         return ResponseEntity.ok(ApiResponse.success(voices));
     }
 
