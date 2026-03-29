@@ -3,4 +3,4 @@ spring:
     show-sql: true
 
 jwt:
-  secret: gBMbiE9fTWqGaKO1wO88d1TD/VyYCRywpgj2QPoo/ZA=
+  secret: ${JWT_SECRET:}
