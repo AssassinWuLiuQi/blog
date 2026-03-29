@@ -44,8 +44,14 @@ public class AuthService {
                 .build();
     }
 
+    private static final long MAX_USERS = 3;
+
     @Transactional
     public AuthResponse register(RegisterRequest request) {
+        if (userRepository.count() >= MAX_USERS) {
+            throw new BusinessException(ErrorCode.USER_LIMIT_EXCEEDED);
+        }
+
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new BusinessException(ErrorCode.USERNAME_ALREADY_EXISTS);
         }

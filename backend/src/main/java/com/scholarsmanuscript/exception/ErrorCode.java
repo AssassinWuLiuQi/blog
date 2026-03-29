@@ -11,7 +11,8 @@ public enum ErrorCode {
     ARTICLE_NOT_FOUND("ARTICLE_001", "Article not found"),
     CATEGORY_NOT_FOUND("CATEGORY_001", "Category not found"),
     UNAUTHORIZED("AUTH_000", "Unauthorized access"),
-    FORBIDDEN("AUTH_004", "Forbidden access");
+    FORBIDDEN("AUTH_004", "Forbidden access"),
+    USER_LIMIT_EXCEEDED("USER_004", "User registration limit exceeded");
 
     private final String code;
     private final String message;
