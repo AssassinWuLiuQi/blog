@@ -1,0 +1,6 @@
+spring:
+  jpa:
+    show-sql: true
+
+jwt:
+  secret: dev-secret-key-for-local-development-only-must-be-at-least-256-bits

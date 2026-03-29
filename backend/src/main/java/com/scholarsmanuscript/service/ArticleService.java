@@ -71,15 +71,17 @@ public class ArticleService {
             article.setPublishedAt(LocalDateTime.now());
         }
 
+        Article savedArticle = articleRepository.save(article);
+
         if (request.getCategoryIds() != null && !request.getCategoryIds().isEmpty()) {
             for (Long categoryId : request.getCategoryIds()) {
                 Category category = categoryRepository.findById(categoryId)
                         .orElseThrow(() -> new BusinessException(ErrorCode.CATEGORY_NOT_FOUND));
-                article.addCategory(category);
+                savedArticle.addCategory(category);
             }
+            savedArticle = articleRepository.save(savedArticle);
         }
 
-        Article savedArticle = articleRepository.save(article);
         return mapToArticleResponse(savedArticle);
     }
 

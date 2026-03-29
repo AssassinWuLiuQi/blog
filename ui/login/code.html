@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>登录 - MxJin The Scholar's Manuscript</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Noto+Sans+SC:wght@300;400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-bright": "#f7f9fb",
+              "tertiary-fixed-dim": "#ffb694",
+              "on-primary": "#ffffff",
+              "inverse-on-surface": "#eff1f3",
+              "surface-container-low": "#f2f4f6",
+              "on-secondary-container": "#475a7f",
+              "on-error": "#ffffff",
+              "on-error-container": "#93000a",
+              "on-surface-variant": "#424752",
+              "on-secondary-fixed-variant": "#34476a",
+              "surface-variant": "#e0e3e5",
+              "on-tertiary": "#ffffff",
+              "inverse-surface": "#2d3133",
+              "on-background": "#191c1e",
+              "surface": "#f7f9fb",
+              "on-surface": "#191c1e",
+              "on-tertiary-fixed-variant": "#7b2f00",
+              "on-primary-fixed": "#001a40",
+              "error-container": "#ffdad6",
+              "primary": "#003f87",
+              "on-tertiary-fixed": "#351000",
+              "error": "#ba1a1a",
+              "surface-dim": "#d8dadc",
+              "surface-container-highest": "#e0e3e5",
+              "surface-container-high": "#e6e8ea",
+              "secondary-fixed-dim": "#b3c7f1",
+              "on-secondary": "#ffffff",
+              "outline-variant": "#c2c6d4",
+              "on-primary-container": "#bbd0ff",
+              "on-secondary-fixed": "#041b3c",
+              "secondary": "#4c5e84",
+              "secondary-container": "#bfd2fd",
+              "inverse-primary": "#acc7ff",
+              "tertiary-fixed": "#ffdbcc",
+              "background": "#f7f9fb",
+              "surface-tint": "#115cb9",
+              "secondary-fixed": "#d7e2ff",
+              "on-primary-fixed-variant": "#004491",
+              "primary-fixed-dim": "#acc7ff",
+              "tertiary": "#722b00",
+              "tertiary-container": "#983c00",
+              "outline": "#727784",
+              "surface-container-lowest": "#ffffff",
+              "surface-container": "#eceef0",
+              "primary-container": "#0056b3",
+              "primary-fixed": "#d7e2ff",
+              "on-tertiary-container": "#ffc2a7"
+            },
+            fontFamily: {
+              "headline": ["Inter", "Noto Sans SC"],
+              "body": ["Inter", "Noto Sans SC"],
+              "label": ["Inter", "Noto Sans SC"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #f7f9fb;
+        }
+        .manuscript-shadow {
+            box-shadow: 0 40px 100px -20px rgba(25, 28, 30, 0.04);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="font-body text-on-surface antialiased min-h-screen flex flex-col items-center">
+<main class="flex-grow w-full max-w-[1920px] flex items-center justify-center px-6 py-20">
+<div class="w-full max-w-md manuscript-shadow bg-surface-container-lowest overflow-hidden rounded-xl border border-outline-variant/10 p-8 md:p-12">
+<header class="mb-10 text-center">
+<h1 class="text-3xl font-headline font-bold text-primary tracking-wide mb-3" style="">MxJin</h1>
+<p class="text-on-surface-variant text-sm font-light" style="">欢迎归来，记录您的思想碎片。</p>
+</header>
+<form class="space-y-8">
+<div class="space-y-6">
+<div class="relative">
+<label class="block text-[11px] uppercase tracking-widest text-on-surface-variant mb-2 ml-1" style="">账号 / 邮箱</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-0 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors duration-300" style="">person</span>
+<input class="w-full bg-transparent border-none border-b-2 border-outline-variant/30 focus:ring-0 focus:border-primary pl-8 pb-3 text-sm transition-all duration-300 placeholder:text-outline/50" placeholder="输入您的账号" type="text"/>
+</div>
+</div>
+<div class="relative">
+<label class="block text-[11px] uppercase tracking-widest text-on-surface-variant mb-2 ml-1" style="">访问密码</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-0 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors duration-300" style="">lock</span>
+<input class="w-full bg-transparent border-none border-b-2 border-outline-variant/30 focus:ring-0 focus:border-primary pl-8 pb-3 text-sm transition-all duration-300 placeholder:text-outline/50" placeholder="输入您的密码" type="password"/>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between text-xs">
+<label class="flex items-center cursor-pointer group" style="">
+<input class="w-4 h-4 rounded-sm border-outline-variant text-primary focus:ring-primary/20 transition-all" type="checkbox"/>
+<span class="ml-2 text-on-surface-variant group-hover:text-on-surface transition-colors" style="">记住我</span>
+</label>
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="#" style="">忘记密码？</a>
+</div>
+<button class="w-full py-4 bg-gradient-to-r from-primary to-primary-container text-on-primary font-semibold rounded-md shadow-lg shadow-primary/10 hover:shadow-xl hover:shadow-primary/20 transition-all duration-300 transform active:scale-[0.98] tracking-widest" style="" type="submit">
+                    立即登录
+                </button>
+</form>
+<div class="mt-10 text-center">
+<p class="text-sm text-on-surface-variant font-light" style="">
+                    还没有账号？
+                    <a class="text-primary font-medium hover:underline underline-offset-4 ml-1 transition-all" href="#" style="">立即注册</a>
+</p>
+</div>
+</div>
+</main>
+<footer class="w-full py-12 border-t border-slate-100 dark:border-slate-800">
+<div class="max-w-[1080px] mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
+<div class="flex flex-col items-center md:items-start gap-1">
+<span class="font-bold text-slate-700" style="">MxJin</span>
+<p class="font-['PingFang SC'] text-sm leading-relaxed text-slate-500" style="">MxJin</p>
+</div>
+</div>
+</footer>
+</body></html>
