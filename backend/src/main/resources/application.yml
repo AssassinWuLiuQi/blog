@@ -26,3 +26,6 @@ jwt:
 app:
   cors:
     allowed-origins: http://localhost:5173
+
+miniMax:
+  api-key: ${MINI_MAX_API_KEY:}
