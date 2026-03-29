@@ -1,6 +1,7 @@
 package com.scholarsmanuscript.dto.response;
 
 import lombok.*;
+import java.util.List;
 
 @Data
 @Builder
@@ -9,7 +10,8 @@ import lombok.*;
 public class VoiceResponse {
 
     private String voiceId;
-    private String name;
-    private String language;
-    private String gender;
+    private String voiceName;
+    private List<String> description;
+    private String createdTime;
+    private String type;  // system_voice, voice_cloning, voice_generation
 }

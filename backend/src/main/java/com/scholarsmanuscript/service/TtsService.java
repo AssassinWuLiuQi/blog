@@ -58,32 +58,60 @@ public class TtsService {
                 .bodyToFlux(byte[].class);
     }
 
+    @SuppressWarnings("unchecked")
     public List<VoiceResponse> getVoices() {
         Map<String, Object> body = Map.of("voice_type", "all");
 
         log.info("Fetching voice list from MiniMax API");
 
-        @SuppressWarnings("unchecked")
-        List<Map<String, Object>> rawVoices = webClient.post()
+        Map<String, Object> response = webClient.post()
                 .uri("/t2a_v2/voices")
                 .header("Authorization", "Bearer " + apiKey)
                 .bodyValue(body)
                 .retrieve()
-                .bodyToFlux(Map.class)
-                .collectList()
+                .bodyToMono(Map.class)
                 .block();
 
-        if (rawVoices == null) {
+        if (response == null) {
             return List.of();
         }
 
-        return rawVoices.stream()
-                .map(voice -> VoiceResponse.builder()
-                        .voiceId((String) voice.get("voice_id"))
-                        .name((String) voice.get("name"))
-                        .language((String) voice.get("language"))
-                        .gender((String) voice.get("gender"))
-                        .build())
-                .toList();
+        List<VoiceResponse> voices = new java.util.ArrayList<>();
+
+        // Parse system_voice
+        List<Map<String, Object>> systemVoices = (List<Map<String, Object>>) response.get("system_voice");
+        if (systemVoices != null) {
+            for (Map<String, Object> voice : systemVoices) {
+                voices.add(parseVoice(voice, "system_voice"));
+            }
+        }
+
+        // Parse voice_cloning
+        List<Map<String, Object>> cloningVoices = (List<Map<String, Object>>) response.get("voice_cloning");
+        if (cloningVoices != null) {
+            for (Map<String, Object> voice : cloningVoices) {
+                voices.add(parseVoice(voice, "voice_cloning"));
+            }
+        }
+
+        // Parse voice_generation
+        List<Map<String, Object>> generationVoices = (List<Map<String, Object>>) response.get("voice_generation");
+        if (generationVoices != null) {
+            for (Map<String, Object> voice : generationVoices) {
+                voices.add(parseVoice(voice, "voice_generation"));
+            }
+        }
+
+        return voices;
+    }
+
+    private VoiceResponse parseVoice(Map<String, Object> voice, String type) {
+        return VoiceResponse.builder()
+                .voiceId((String) voice.get("voice_id"))
+                .voiceName((String) voice.get("voice_name"))
+                .description((List<String>) voice.get("description"))
+                .createdTime((String) voice.get("created_time"))
+                .type(type)
+                .build();
     }
 }
