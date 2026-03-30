@@ -1,6 +1,8 @@
 spring:
   application:
     name: scholars-manuscript
+  profiles:
+    active: local
   datasource:
     url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/scholars_manuscript?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&characterEncoding=UTF-8
     username: ${DB_USERNAME:root}
@@ -19,7 +21,7 @@ server:
   port: 8080
 
 jwt:
-  secret: ${JWT_SECRET:your-256-bit-secret-key-here-must-be-long-enough-for-hs256}
+  secret: ${JWT_SECRET:}
   expiration: 900000
   refresh-expiration: 604800000
 

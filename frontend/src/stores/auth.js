@@ -2,7 +2,6 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 
 export const useAuthStore = defineStore('auth', () => {
-  // State
   const user = ref({
     name: 'Scholar Admin',
     email: 'admin@scholar.com',
@@ -10,10 +9,8 @@ export const useAuthStore = defineStore('auth', () => {
     avatar: 'account_circle'
   })
 
-  const isAuthenticated = ref(false)
   const isPremium = ref(true)
 
-  // Preferences
   const preferences = ref({
     theme: 'light',
     fontSize: 'medium',
@@ -21,13 +18,10 @@ export const useAuthStore = defineStore('auth', () => {
     voiceSpeed: 1.0
   })
 
-  // Getters
   const userName = computed(() => user.value?.name || 'Guest')
   const userRole = computed(() => user.value?.role || 'Free Access')
 
-  // Actions
   function login(credentials) {
-    // Mock implementation
     isAuthenticated.value = true
     user.value = {
       name: 'Scholar Admin',
@@ -38,7 +32,8 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   function logout() {
-    isAuthenticated.value = false
+    localStorage.removeItem('accessToken')
+    localStorage.removeItem('refreshToken')
     user.value = null
   }
 
@@ -48,7 +43,6 @@ export const useAuthStore = defineStore('auth', () => {
 
   return {
     user,
-    isAuthenticated,
     isPremium,
     preferences,
     userName,
@@ -58,3 +52,5 @@ export const useAuthStore = defineStore('auth', () => {
     updatePreferences
   }
 })
+
+export const isAuthenticated = () => !!localStorage.getItem('accessToken')

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onBeforeUnmount } from 'vue'
+import { ref, onBeforeUnmount, watch } from 'vue'
 import { useEditor, EditorContent } from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
@@ -8,7 +8,14 @@ import Color from '@tiptap/extension-color'
 import { TextAlign } from '@tiptap/extension-text-align'
 import GradientButton from '@/components/common/GradientButton.vue'
 
-const emit = defineEmits(['export'])
+const props = defineProps({
+  modelValue: {
+    type: String,
+    default: ''
+  }
+})
+
+const emit = defineEmits(['export', 'update:modelValue'])
 
 const editor = useEditor({
   extensions: [
@@ -22,7 +29,7 @@ const editor = useEditor({
       placeholder: '开始输入内容...'
     })
   ],
-  content: `
+  content: props.modelValue || `
     <h2>论数字时代的学术文本演进</h2>
     <p>在数字人文研究的宏大叙事中，文本不再仅仅是静态的知识载体，而是演变成了一种动态的、可交互的数据集。随着大规模语言模型与自然语言处理技术的飞速发展，研究者们得以从全新的维度审视文学作品、历史文献以及学术论文之间的深层关联。</p>
     <p>学术手稿（Manuscript）的数字化过程，并非简单的格式转换，而是一个包含语义标注、关联建模及多模态呈现的复杂系统工程。</p>
@@ -33,6 +40,16 @@ const editor = useEditor({
     attributes: {
       class: 'prose prose-lg max-w-none focus:outline-none chinese-manuscript'
     }
+  },
+  onUpdate: ({ editor }) => {
+    emit('update:modelValue', editor.getText())
+  }
+})
+
+// 监听外部 content 变化
+watch(() => props.modelValue, (newVal) => {
+  if (editor.value && newVal !== editor.value.getText()) {
+    editor.value.commands.setContent(newVal)
   }
 })
 
@@ -85,6 +102,19 @@ const closeHeadingDropdown = () => {
 const closeColorDropdown = () => {
   colorDropdownOpen.value = false
 }
+
+const handleExport = () => {
+  emit('export', editor.value?.getHTML())
+}
+
+// 获取纯文本内容
+const getTextContent = () => {
+  return editor.value?.getText() || ''
+}
+
+defineExpose({
+  getTextContent
+})
 
 onBeforeUnmount(() => {
   editor.value?.destroy()

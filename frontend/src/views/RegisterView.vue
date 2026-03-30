@@ -9,43 +9,54 @@ const authStore = useAuthStore()
 
 const form = ref({
   username: '',
-  password: ''
+  email: '',
+  password: '',
+  confirmPassword: ''
 })
 
 const isLoading = ref(false)
 const error = ref('')
 
-const handleLogin = async () => {
+const handleRegister = async () => {
   error.value = ''
 
-  if (!form.value.username || !form.value.password) {
-    error.value = '请输入账号和密码'
+  if (!form.value.username || !form.value.email || !form.value.password) {
+    error.value = '请填写所有必填项'
+    return
+  }
+
+  if (form.value.password !== form.value.confirmPassword) {
+    error.value = '两次输入的密码不一致'
+    return
+  }
+
+  if (form.value.password.length < 6) {
+    error.value = '密码长度至少为6位'
     return
   }
 
   isLoading.value = true
 
   try {
-    const response = await fetch('/api/auth/login', {
+    const response = await fetch('/api/auth/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
         username: form.value.username,
+        email: form.value.email,
         password: form.value.password
       })
     })
 
     if (response.ok) {
       const data = await response.json()
-      authStore.login({ username: form.value.username, password: form.value.password })
-      localStorage.setItem('accessToken', data.data.token)
-      localStorage.setItem('refreshToken', data.data.refreshToken)
+      authStore.login({ email: form.value.email, password: form.value.password })
       router.push('/')
     } else {
       const data = await response.json()
-      error.value = data.message || '登录失败'
+      error.value = data.message || '注册失败'
     }
   } catch (e) {
     error.value = '网络错误，请稍后重试'
@@ -58,63 +69,78 @@ const handleLogin = async () => {
 <template>
   <div class="min-h-screen bg-background flex flex-col">
     <main class="flex-grow flex items-center justify-center px-6 py-20">
-      <div class="w-full max-w-md bg-surface-container-lowest overflow-hidden rounded-xl border border-outline-variant/10 p-8 md:p-12 login-card">
+      <div class="w-full max-w-md bg-surface-container-lowest overflow-hidden rounded-xl border border-outline-variant/10 p-8 md:p-12 register-card">
         <header class="mb-10 text-center">
           <h1 class="text-3xl font-headline font-bold text-primary tracking-wide mb-3">MxJin</h1>
-          <p class="text-on-surface-variant text-sm font-light">欢迎归来，记录您的思想碎片。</p>
+          <p class="text-on-surface-variant text-sm font-light">开启您的思想记录之旅</p>
         </header>
 
-        <form @submit.prevent="handleLogin" class="space-y-8">
+        <form @submit.prevent="handleRegister" class="space-y-6">
           <div v-if="error" class="bg-error/10 text-error text-sm px-4 py-3 rounded-lg">
             {{ error }}
           </div>
 
-          <div class="space-y-6">
+          <div class="space-y-5">
             <div class="relative">
-              <label class="block text-[11px] uppercase tracking-widest text-on-surface-variant mb-2 ml-1">账号 / 邮箱</label>
+              <label class="block text-[11px] uppercase tracking-widest text-on-surface-variant mb-2 ml-1">用户名</label>
               <div class="relative group">
                 <span class="material-symbols-outlined absolute left-0 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors duration-300">person</span>
                 <input
                   v-model="form.username"
                   class="w-full bg-transparent border-none border-b-2 border-outline-variant/30 focus:ring-0 focus:border-primary pl-8 pb-3 text-sm transition-all duration-300 placeholder:text-outline/50"
-                  placeholder="输入您的账号"
+                  placeholder="设置您的用户名"
                   type="text"
                 />
               </div>
             </div>
 
             <div class="relative">
-              <label class="block text-[11px] uppercase tracking-widest text-on-surface-variant mb-2 ml-1">访问密码</label>
+              <label class="block text-[11px] uppercase tracking-widest text-on-surface-variant mb-2 ml-1">邮箱</label>
+              <div class="relative group">
+                <span class="material-symbols-outlined absolute left-0 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors duration-300">mail</span>
+                <input
+                  v-model="form.email"
+                  class="w-full bg-transparent border-none border-b-2 border-outline-variant/30 focus:ring-0 focus:border-primary pl-8 pb-3 text-sm transition-all duration-300 placeholder:text-outline/50"
+                  placeholder="输入您的邮箱地址"
+                  type="email"
+                />
+              </div>
+            </div>
+
+            <div class="relative">
+              <label class="block text-[11px] uppercase tracking-widest text-on-surface-variant mb-2 ml-1">密码</label>
               <div class="relative group">
                 <span class="material-symbols-outlined absolute left-0 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors duration-300">lock</span>
                 <input
                   v-model="form.password"
                   class="w-full bg-transparent border-none border-b-2 border-outline-variant/30 focus:ring-0 focus:border-primary pl-8 pb-3 text-sm transition-all duration-300 placeholder:text-outline/50"
-                  placeholder="输入您的密码"
+                  placeholder="设置您的密码"
+                  type="password"
+                />
+              </div>
+            </div>
+
+            <div class="relative">
+              <label class="block text-[11px] uppercase tracking-widest text-on-surface-variant mb-2 ml-1">确认密码</label>
+              <div class="relative group">
+                <span class="material-symbols-outlined absolute left-0 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors duration-300">lock</span>
+                <input
+                  v-model="form.confirmPassword"
+                  class="w-full bg-transparent border-none border-b-2 border-outline-variant/30 focus:ring-0 focus:border-primary pl-8 pb-3 text-sm transition-all duration-300 placeholder:text-outline/50"
+                  placeholder="再次输入密码"
                   type="password"
                 />
               </div>
             </div>
           </div>
 
-          <div class="flex items-center justify-between text-xs">
-            <label class="flex items-center cursor-pointer group">
-              <input
-                class="w-4 h-4 rounded-sm border-outline-variant text-primary focus:ring-primary/20 transition-all"
-                type="checkbox"
-              />
-              <span class="ml-2 text-on-surface-variant group-hover:text-on-surface transition-colors">记住我</span>
-            </label>
-            <a class="text-on-surface-variant hover:text-primary transition-colors" href="#">忘记密码？</a>
-          </div>
-
-          <GradientButton label="立即登录" type="submit" class="w-full" :disabled="isLoading" />
+          <GradientButton label="立即注册" type="submit" class="w-full" :disabled="isLoading" />
         </form>
 
         <div class="mt-10 text-center">
           <p class="text-sm text-on-surface-variant font-light">
-            还没有账号？
-            <router-link class="text-primary font-medium hover:underline underline-offset-4 ml-1 transition-all" to="/register">立即注册</router-link>
+            已有账号？
+            <router-link class="text-primary font-medium hover:underline underline-offset-4 ml-1 transition-all" to="/login">立即登录</router-link>
           </p>
         </div>
       </div>
@@ -132,7 +158,7 @@ const handleLogin = async () => {
 </template>
 
 <style scoped>
-.login-card {
+.register-card {
   box-shadow: 0 40px 100px -20px rgba(25, 28, 30, 0.04);
 }
 </style>

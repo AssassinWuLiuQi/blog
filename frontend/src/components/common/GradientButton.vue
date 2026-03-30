@@ -7,6 +7,10 @@ defineProps({
   type: {
     type: String,
     default: 'button'
+  },
+  disabled: {
+    type: Boolean,
+    default: false
   }
 })
 </script>
@@ -14,7 +18,8 @@ defineProps({
 <template>
   <button
     :type="type"
-    class="bg-gradient-to-br from-primary to-primary-container text-white rounded-md shadow-sm px-4 py-1.5 font-medium hover:opacity-90 transition-opacity"
+    :disabled="disabled"
+    class="bg-gradient-to-br from-primary to-primary-container text-white rounded-md shadow-sm px-4 py-1.5 font-medium hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
   >
     {{ label }}
   </button>

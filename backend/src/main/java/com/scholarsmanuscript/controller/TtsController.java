@@ -28,12 +28,9 @@ public class TtsController {
     }
 
     @PostMapping(value = "/speech", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public ResponseEntity<Flux<byte[]>> textToSpeech(@Valid @RequestBody TtsRequest request) {
+    public Flux<byte[]> textToSpeech(@Valid @RequestBody TtsRequest request) {
         Flux<byte[]> audioStream = ttsService.streamSpeech(request);
 
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE)
-                .header("X-Content-Type-Options", "nosniff")
-                .body(audioStream);
+        return audioStream;
     }
 }

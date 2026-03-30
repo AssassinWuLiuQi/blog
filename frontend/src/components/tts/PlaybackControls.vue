@@ -1,13 +1,54 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
+import { ElMessage } from 'element-plus'
+import { useTTS } from '@/hooks/useTTS'
 
-const isPlaying = ref(true)
-const currentTime = ref('01:45')
-const totalTime = ref('05:57')
-const progress = ref(33)
+const props = defineProps({
+  text: {
+    type: String,
+    default: ''
+  },
+  voiceId: {
+    type: String,
+    default: ''
+  }
+})
 
-const togglePlay = () => {
-  isPlaying.value = !isPlaying.value
+const isPlaying = ref(false)
+const progress = ref(0)
+
+const { isPlaying: ttsPlaying, play, stop } = useTTS()
+
+watch(ttsPlaying, (val) => {
+  isPlaying.value = val
+})
+
+const togglePlay = async () => {
+  if (!props.text) {
+    ElMessage.warning('请先输入要转换的文本')
+    return
+  }
+
+  if (!props.voiceId) {
+    ElMessage.warning('请先选择音色')
+    return
+  }
+
+  if (ttsPlaying.value) {
+    stop()
+    isPlaying.value = false
+  } else {
+    await play(props.text, props.voiceId)
+    isPlaying.value = true
+  }
+}
+
+const replay10 = () => {
+  // TODO: 实现后退10秒
+}
+
+const forward30 = () => {
+  // TODO: 实现前进30秒
 }
 </script>
 
@@ -15,21 +56,21 @@ const togglePlay = () => {
   <div class="bg-gradient-to-br from-blue-900 to-blue-950 p-8 rounded-xl shadow-xl shadow-blue-900/10 text-white flex flex-col items-center">
     <!-- EQ Icon with Pulse Effect -->
     <div class="w-16 h-16 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center mb-6 relative">
-      <div class="absolute inset-0 border-2 border-white/20 rounded-full animate-pulse"></div>
+      <div class="absolute inset-0 border-2 border-white/20 rounded-full" :class="{ 'animate-pulse': isPlaying }"></div>
       <span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">graphic_eq</span>
     </div>
 
     <!-- Title -->
     <div class="text-center mb-8">
-      <h4 class="text-lg font-semibold tracking-tight">正在朗读正文</h4>
-      <p class="text-blue-200/60 text-xs mt-1">预计剩余时长: 04:12</p>
+      <h4 class="text-lg font-semibold tracking-tight">{{ isPlaying ? '正在朗读正文' : '点击播放' }}</h4>
+      <p class="text-blue-200/60 text-xs mt-1">{{ text ? `${text.length} 字符` : '请输入文本' }}</p>
     </div>
 
     <!-- Progress Bar -->
     <div class="w-full mb-8">
       <div class="flex justify-between text-[10px] text-blue-200/50 mb-2 uppercase tracking-tighter">
-        <span>{{ currentTime }}</span>
-        <span>{{ totalTime }}</span>
+        <span>00:00</span>
+        <span>--:--</span>
       </div>
       <div class="h-1 w-full bg-white/10 rounded-full overflow-hidden">
         <div class="h-full bg-blue-400 rounded-full relative" :style="{ width: progress + '%' }">
@@ -41,7 +82,7 @@ const togglePlay = () => {
     <!-- Controls -->
     <div class="flex items-center gap-8">
       <!-- Replay 10 seconds -->
-      <button class="text-blue-200/80 hover:text-white transition-colors">
+      <button @click="replay10" class="text-blue-200/80 hover:text-white transition-colors">
         <span class="material-symbols-outlined text-3xl">replay_10</span>
       </button>
 
@@ -56,7 +97,7 @@ const togglePlay = () => {
       </button>
 
       <!-- Forward 30 seconds -->
-      <button class="text-blue-200/80 hover:text-white transition-colors">
+      <button @click="forward30" class="text-blue-200/80 hover:text-white transition-colors">
         <span class="material-symbols-outlined text-3xl">forward_30</span>
       </button>
     </div>

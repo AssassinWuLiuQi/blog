@@ -43,3 +43,6 @@ backend/src/main/resources/application-local.yml
 
 # Build artifacts
 backend/target/
+
+# Frontend
+frontend/node_modules/

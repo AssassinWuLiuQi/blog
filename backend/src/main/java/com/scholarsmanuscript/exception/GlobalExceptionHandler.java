@@ -2,7 +2,9 @@ package com.scholarsmanuscript.exception;
 
 import com.scholarsmanuscript.dto.response.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
@@ -23,6 +25,7 @@ public class GlobalExceptionHandler {
         log.error("Business exception: {}", ex.getMessage());
         HttpStatus status = mapErrorCodeToHttpStatus(ex.getErrorCode());
         return ResponseEntity.status(status)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .body(ApiResponse.error(status.value(), ex.getMessage()));
     }
 
@@ -30,6 +33,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleBadCredentialsException(BadCredentialsException ex) {
         log.error("Bad credentials: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .body(ApiResponse.error(401, "Invalid username or password"));
     }
 
@@ -37,6 +41,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleAuthenticationException(AuthenticationException ex) {
         log.error("Authentication exception: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .body(ApiResponse.error(401, "Authentication failed"));
     }
 
@@ -50,6 +55,7 @@ public class GlobalExceptionHandler {
             errors.put(fieldName, errorMessage);
         });
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .body(ApiResponse.<Map<String, String>>builder()
                         .code(400)
                         .message("Validation failed")
@@ -61,6 +67,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleGenericException(Exception ex) {
         log.error("Unexpected exception: ", ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .body(ApiResponse.error(500, "Internal server error"));
     }
 

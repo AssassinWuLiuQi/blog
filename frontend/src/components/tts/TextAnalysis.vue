@@ -1,18 +1,58 @@
 <script setup>
-defineProps({
-  readingLevel: {
+import { ref, watch } from 'vue'
+
+const props = defineProps({
+  text: {
     type: String,
-    default: '学术级'
-  },
-  keyTerms: {
-    type: Number,
-    default: 12
-  },
-  syntaxComplexity: {
-    type: String,
-    default: '高'
+    default: ''
   }
 })
+
+const readingLevel = ref('学术级')
+const keyTerms = ref(0)
+const syntaxComplexity = ref('高')
+
+const analyzeText = (text) => {
+  if (!text) {
+    readingLevel.value = '学术级'
+    keyTerms.value = 0
+    syntaxComplexity.value = '高'
+    return
+  }
+
+  // 简单的字数统计
+  const charCount = text.length
+  const wordCount = text.split(/[\s,\.]+/).filter(w => w.length > 0).length
+
+  // 根据字数估算阅读难度
+  if (charCount < 100) {
+    readingLevel.value = '入门级'
+  } else if (charCount < 500) {
+    readingLevel.value = '基础级'
+  } else if (charCount < 1000) {
+    readingLevel.value = '进阶级'
+  } else {
+    readingLevel.value = '学术级'
+  }
+
+  // 估算关键术语数（简单估算）
+  keyTerms.value = Math.floor(wordCount / 10)
+
+  // 估算句法复杂度
+  const sentences = text.split(/[。！？.!?]+/).filter(s => s.trim().length > 0)
+  const avgSentenceLength = sentences.length > 0 ? charCount / sentences.length : 0
+  if (avgSentenceLength < 10) {
+    syntaxComplexity.value = '低'
+  } else if (avgSentenceLength < 20) {
+    syntaxComplexity.value = '中'
+  } else {
+    syntaxComplexity.value = '高'
+  }
+}
+
+watch(() => props.text, (newVal) => {
+  analyzeText(newVal)
+}, { immediate: true })
 </script>
 
 <template>

@@ -52,6 +52,7 @@ public class TtsService {
         log.info("Calling MiniMax TTS API for text length: {}", request.getText().length());
 
         return webClient.post()
+                .uri("/t2a_v2")
                 .header("Authorization", "Bearer " + apiKey)
                 .bodyValue(body)
                 .retrieve()
@@ -65,7 +66,7 @@ public class TtsService {
         log.info("Fetching voice list from MiniMax API");
 
         Map<String, Object> response = webClient.post()
-                .uri("/t2a_v2/voices")
+                .uri("/get_voice")
                 .header("Authorization", "Bearer " + apiKey)
                 .bodyValue(body)
                 .retrieve()
