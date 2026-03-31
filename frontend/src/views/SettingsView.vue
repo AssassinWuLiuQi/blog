@@ -6,6 +6,7 @@ import { useAuthStore } from '@/stores/auth'
 import { useUIStore } from '@/stores/ui'
 import SurfaceCard from '@/components/common/SurfaceCard.vue'
 import GradientButton from '@/components/common/GradientButton.vue'
+import { encrypt, getPublicKey } from '@/utils/crypto'
 import type { UserPreferences } from '@/types'
 
 const authStore = useAuthStore()
@@ -16,6 +17,14 @@ const fontSize = ref<string>('medium')
 const autoPlayTTS = ref<boolean>(false)
 const voiceSpeed = ref<number>(1.0)
 
+// Password change
+const showPasswordForm = ref<boolean>(false)
+const oldPassword = ref<string>('')
+const newPassword = ref<string>('')
+const confirmPassword = ref<string>('')
+const passwordError = ref<string>('')
+const isPasswordLoading = ref<boolean>(false)
+
 const handleSave = (): void => {
   const preferences: UserPreferences = {
     theme: theme.value as 'light' | 'dark',
@@ -25,6 +34,61 @@ const handleSave = (): void => {
   }
   authStore.updatePreferences(preferences)
   uiStore.showNotification('设置已保存', 'success')
+}
+
+const handlePasswordChange = async (): Promise<void> => {
+  passwordError.value = ''
+
+  if (!oldPassword.value || !newPassword.value) {
+    passwordError.value = '请填写所有密码字段'
+    return
+  }
+
+  if (newPassword.value.length < 6) {
+    passwordError.value = '新密码长度至少为6位'
+    return
+  }
+
+  if (newPassword.value !== confirmPassword.value) {
+    passwordError.value = '两次输入的密码不一致'
+    return
+  }
+
+  if (!getPublicKey()) {
+    passwordError.value = '加密密钥未加载，请刷新页面'
+    return
+  }
+
+  isPasswordLoading.value = true
+
+  try {
+    const response = await fetch('/api/users/password', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+      },
+      body: JSON.stringify({
+        oldPassword: encrypt(oldPassword.value),
+        newPassword: encrypt(newPassword.value)
+      })
+    })
+
+    if (response.ok) {
+      oldPassword.value = ''
+      newPassword.value = ''
+      confirmPassword.value = ''
+      showPasswordForm.value = false
+      uiStore.showNotification('密码修改成功', 'success')
+    } else {
+      const data = await response.json()
+      passwordError.value = data.message || '密码修改失败'
+    }
+  } catch {
+    passwordError.value = '网络错误，请稍后重试'
+  } finally {
+    isPasswordLoading.value = false
+  }
 }
 </script>
 
@@ -142,6 +206,70 @@ const handleSave = (): void => {
             <input type="checkbox" class="w-5 h-5 accent-primary" />
             <span class="text-sm text-on-surface">系统公告</span>
           </label>
+        </div>
+      </SurfaceCard>
+
+      <!-- Password Change -->
+      <SurfaceCard class="mb-6">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-semibold text-on-surface">修改密码</h3>
+          <button
+            v-if="!showPasswordForm"
+            @click="showPasswordForm = true"
+            class="text-sm text-primary hover:underline"
+          >
+            修改密码
+          </button>
+          <button
+            v-else
+            @click="showPasswordForm = false; passwordError = ''"
+            class="text-sm text-on-surface-variant hover:text-on-surface"
+          >
+            取消
+          </button>
+        </div>
+
+        <div v-if="showPasswordForm">
+          <div v-if="passwordError" class="bg-error/10 text-error text-sm px-4 py-3 rounded-lg mb-4">
+            {{ passwordError }}
+          </div>
+
+          <div class="space-y-4">
+            <div>
+              <label class="text-sm text-on-surface-variant mb-2 block">当前密码</label>
+              <input
+                v-model="oldPassword"
+                type="password"
+                class="w-full px-4 py-2 bg-surface-container-low border-none rounded-lg text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/20"
+                placeholder="输入当前密码"
+              />
+            </div>
+            <div>
+              <label class="text-sm text-on-surface-variant mb-2 block">新密码</label>
+              <input
+                v-model="newPassword"
+                type="password"
+                class="w-full px-4 py-2 bg-surface-container-low border-none rounded-lg text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/20"
+                placeholder="输入新密码"
+              />
+            </div>
+            <div>
+              <label class="text-sm text-on-surface-variant mb-2 block">确认新密码</label>
+              <input
+                v-model="confirmPassword"
+                type="password"
+                class="w-full px-4 py-2 bg-surface-container-low border-none rounded-lg text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/20"
+                placeholder="再次输入新密码"
+              />
+            </div>
+            <div class="flex justify-end">
+              <GradientButton
+                label="确认修改"
+                @click="handlePasswordChange"
+                :disabled="isPasswordLoading"
+              />
+            </div>
+          </div>
         </div>
       </SurfaceCard>
 
