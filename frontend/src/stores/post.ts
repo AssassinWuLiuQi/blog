@@ -1,9 +1,10 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref, computed, type Ref, type ComputedRef } from 'vue'
+import type { Post, Category } from '@/types'
 
 export const usePostStore = defineStore('post', () => {
   // State
-  const posts = ref([
+  const posts: Ref<Post[]> = ref([
     {
       id: 1,
       title: '深度学习在自然语言处理中的应用',
@@ -61,7 +62,7 @@ export const usePostStore = defineStore('post', () => {
     }
   ])
 
-  const categories = ref([
+  const categories: Ref<Category[]> = ref([
     { id: 'all', name: '全部', subItems: [] },
     { id: 'frontend', name: '前端', subItems: ['Vue', 'React', 'TypeScript'] },
     { id: 'backend', name: '后端', subItems: ['Node.js', 'Python', 'Go'] },
@@ -71,25 +72,25 @@ export const usePostStore = defineStore('post', () => {
   ])
 
   // Getters
-  const recentPosts = computed(() => {
+  const recentPosts: ComputedRef<Post[]> = computed(() => {
     return posts.value.slice(0, 5)
   })
 
-  const featuredPosts = computed(() => {
+  const featuredPosts: ComputedRef<Post[]> = computed(() => {
     return posts.value.filter(post => post.featured)
   })
 
   // Actions
-  function getPostById(id) {
+  function getPostById(id: number | string): Post | undefined {
     return posts.value.find(post => post.id === Number(id))
   }
 
-  function getPostsByCategory(category) {
+  function getPostsByCategory(category: string): Post[] {
     if (!category || category === 'all') return posts.value
     return posts.value.filter(post => post.category.toLowerCase() === category.toLowerCase())
   }
 
-  function searchPosts(query) {
+  function searchPosts(query: string): Post[] {
     if (!query) return posts.value
     const lowerQuery = query.toLowerCase()
     return posts.value.filter(post =>
