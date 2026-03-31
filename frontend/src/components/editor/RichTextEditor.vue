@@ -1,6 +1,6 @@
-<script setup>
+<script setup lang="ts">
 import { ref, onBeforeUnmount, watch } from 'vue'
-import { useEditor, EditorContent } from '@tiptap/vue-3'
+import { useEditor, EditorContent, type Editor } from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
 import { TextStyle } from '@tiptap/extension-text-style'
@@ -8,14 +8,28 @@ import Color from '@tiptap/extension-color'
 import { TextAlign } from '@tiptap/extension-text-align'
 import GradientButton from '@/components/common/GradientButton.vue'
 
-const props = defineProps({
-  modelValue: {
-    type: String,
-    default: ''
-  }
+interface Props {
+  modelValue?: string
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  modelValue: ''
 })
 
-const emit = defineEmits(['export', 'update:modelValue'])
+const emit = defineEmits<{
+  'export': [html: string | undefined]
+  'update:modelValue': [text: string]
+}>()
+
+interface ColorOption {
+  name: string
+  value: string
+}
+
+interface FontSizeOption {
+  name: string
+  value: string
+}
 
 const editor = useEditor({
   extensions: [
@@ -41,13 +55,13 @@ const editor = useEditor({
       class: 'prose prose-lg max-w-none focus:outline-none chinese-manuscript'
     }
   },
-  onUpdate: ({ editor }) => {
+  onUpdate: ({ editor }: { editor: Editor }) => {
     emit('update:modelValue', editor.getText())
   }
 })
 
 // 监听外部 content 变化
-watch(() => props.modelValue, (newVal) => {
+watch(() => props.modelValue, (newVal: string) => {
   if (editor.value && newVal !== editor.value.getText()) {
     editor.value.commands.setContent(newVal)
   }
@@ -57,7 +71,7 @@ const autoSaveTime = ref('14:20')
 const headingDropdownOpen = ref(false)
 const colorDropdownOpen = ref(false)
 
-const colors = [
+const colors: ColorOption[] = [
   { name: '默认', value: '#191c1e' },
   { name: '蓝色', value: '#003f87' },
   { name: '深蓝', value: '#002b59' },
@@ -67,7 +81,7 @@ const colors = [
   { name: '红色', value: '#ba1a1a' },
 ]
 
-const fontSizes = [
+const fontSizes: FontSizeOption[] = [
   { name: '小', value: '14px' },
   { name: '正常', value: '16px' },
   { name: '中', value: '18px' },
@@ -75,40 +89,40 @@ const fontSizes = [
   { name: '特大', value: '24px' },
 ]
 
-const toggleBold = () => editor.value?.chain().focus().toggleBold().run()
-const toggleItalic = () => editor.value?.chain().focus().toggleItalic().run()
-const toggleStrike = () => editor.value?.chain().focus().toggleStrike().run()
-const toggleBulletList = () => editor.value?.chain().focus().toggleBulletList().run()
-const toggleOrderedList = () => editor.value?.chain().focus().toggleOrderedList().run()
-const toggleCodeBlock = () => editor.value?.chain().focus().toggleCodeBlock().run()
-const toggleBlockquote = () => editor.value?.chain().focus().toggleBlockquote().run()
-const toggleHeading = (level) => {
+const toggleBold = (): void => { editor.value?.chain().focus().toggleBold().run() }
+const toggleItalic = (): void => { editor.value?.chain().focus().toggleItalic().run() }
+const toggleStrike = (): void => { editor.value?.chain().focus().toggleStrike().run() }
+const toggleBulletList = (): void => { editor.value?.chain().focus().toggleBulletList().run() }
+const toggleOrderedList = (): void => { editor.value?.chain().focus().toggleOrderedList().run() }
+const toggleCodeBlock = (): void => { editor.value?.chain().focus().toggleCodeBlock().run() }
+const toggleBlockquote = (): void => { editor.value?.chain().focus().toggleBlockquote().run() }
+const toggleHeading = (level: number): void => {
   editor.value?.chain().focus().toggleHeading({ level }).run()
   headingDropdownOpen.value = false
 }
-const setColor = (color) => {
+const setColor = (color: string): void => {
   editor.value?.chain().focus().setColor(color).run()
   colorDropdownOpen.value = false
 }
-const setFontSize = (size) => {
+const setFontSize = (size: string): void => {
   editor.value?.chain().focus().setMarkAttribute('textStyle', 'fontSize', size).run()
 }
 
-const isActive = (type) => editor.value?.isActive(type)
+const isActive = (type: string): boolean | undefined => editor.value?.isActive(type)
 
-const closeHeadingDropdown = () => {
+const closeHeadingDropdown = (): void => {
   headingDropdownOpen.value = false
 }
-const closeColorDropdown = () => {
+const closeColorDropdown = (): void => {
   colorDropdownOpen.value = false
 }
 
-const handleExport = () => {
+const handleExport = (): void => {
   emit('export', editor.value?.getHTML())
 }
 
 // 获取纯文本内容
-const getTextContent = () => {
+const getTextContent = (): string => {
   return editor.value?.getText() || ''
 }
 

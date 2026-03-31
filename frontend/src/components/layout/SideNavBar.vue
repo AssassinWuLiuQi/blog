@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
@@ -7,16 +7,16 @@ const route = useRoute()
 
 const techPreviewOpen = ref(true)
 
-const isActive = (path) => {
+const isActive = (path: string): boolean => {
   if (path === '/') return route.path === '/'
   return route.path.startsWith(path)
 }
 
-const navigate = (path) => {
+const navigate = (path: string): void => {
   router.push(path)
 }
 
-const toggleTechPreview = () => {
+const toggleTechPreview = (): void => {
   techPreviewOpen.value = !techPreviewOpen.value
 }
 </script>

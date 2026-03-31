@@ -1,17 +1,16 @@
-<script setup>
+<script setup lang="ts">
 import { ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useTTS } from '@/hooks/useTTS'
 
-const props = defineProps({
-  text: {
-    type: String,
-    default: ''
-  },
-  voiceId: {
-    type: String,
-    default: ''
-  }
+interface Props {
+  text?: string
+  voiceId?: string
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  text: '',
+  voiceId: ''
 })
 
 const isPlaying = ref(false)
@@ -19,11 +18,11 @@ const progress = ref(0)
 
 const { isPlaying: ttsPlaying, play, stop } = useTTS()
 
-watch(ttsPlaying, (val) => {
+watch(ttsPlaying, (val: boolean) => {
   isPlaying.value = val
 })
 
-const togglePlay = async () => {
+const togglePlay = async (): Promise<void> => {
   if (!props.text) {
     ElMessage.warning('请先输入要转换的文本')
     return
@@ -43,11 +42,11 @@ const togglePlay = async () => {
   }
 }
 
-const replay10 = () => {
+const replay10 = (): void => {
   // TODO: 实现后退10秒
 }
 
-const forward30 = () => {
+const forward30 = (): void => {
   // TODO: 实现前进30秒
 }
 </script>

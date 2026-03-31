@@ -1,4 +1,6 @@
-<script setup>
+<script setup lang="ts">
+// TextEditor is a simple container component that provides slots for toolbar and content
+// It does not have any props or emits - content is passed via slots
 </script>
 
 <template>

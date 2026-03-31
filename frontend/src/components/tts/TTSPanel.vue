@@ -1,19 +1,20 @@
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
 import VoiceProfile from './VoiceProfile.vue'
 import PlaybackControls from './PlaybackControls.vue'
 import TextAnalysis from './TextAnalysis.vue'
 
-const props = defineProps({
-  text: {
-    type: String,
-    default: ''
-  }
+interface Props {
+  text?: string
+}
+
+withDefaults(defineProps<Props>(), {
+  text: ''
 })
 
 const selectedVoiceId = ref('')
 
-const handleVoiceChange = (voiceId) => {
+const handleVoiceChange = (voiceId: string): void => {
   selectedVoiceId.value = voiceId
 }
 </script>

@@ -1,16 +1,17 @@
-<script setup>
-defineProps({
-  modelValue: {
-    type: String,
-    default: ''
-  },
-  placeholder: {
-    type: String,
-    default: '搜索文献...'
-  }
+<script setup lang="ts">
+interface Props {
+  modelValue: string
+  placeholder?: string
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  modelValue: '',
+  placeholder: '搜索文献...'
 })
 
-defineEmits(['update:modelValue'])
+const emit = defineEmits<{
+  'update:modelValue': [value: string]
+}>()
 </script>
 
 <template>

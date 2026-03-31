@@ -1,9 +1,10 @@
-<script setup>
-defineProps({
-  border: {
-    type: Boolean,
-    default: false
-  }
+<script setup lang="ts">
+interface Props {
+  border?: boolean
+}
+
+withDefaults(defineProps<Props>(), {
+  border: false
 })
 </script>
 

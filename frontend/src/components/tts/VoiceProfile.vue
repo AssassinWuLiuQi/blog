@@ -1,10 +1,17 @@
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
 import { fetchWithAuth } from '@/utils/api'
 
-const emit = defineEmits(['voiceChange'])
+interface Voice {
+  voiceId: string
+  voiceName: string
+}
 
-const voices = ref([])
+const emit = defineEmits<{
+  'voiceChange': [voiceId: string]
+}>()
+
+const voices = ref<Voice[]>([])
 const selectedVoiceId = ref('')
 const playbackSpeed = ref(1.2)
 const isLoading = ref(true)
@@ -30,11 +37,11 @@ onMounted(async () => {
   }
 })
 
-watch(selectedVoiceId, (newVal) => {
+watch(selectedVoiceId, (newVal: string) => {
   emit('voiceChange', newVal)
 })
 
-const selectedVoice = () => {
+const selectedVoice = (): string => {
   return voices.value.find(v => v.voiceId === selectedVoiceId.value)?.voiceName || '请选择音色'
 }
 </script>

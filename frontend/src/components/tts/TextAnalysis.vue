@@ -1,18 +1,19 @@
-<script setup>
+<script setup lang="ts">
 import { ref, watch } from 'vue'
 
-const props = defineProps({
-  text: {
-    type: String,
-    default: ''
-  }
+interface Props {
+  text?: string
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  text: ''
 })
 
 const readingLevel = ref('学术级')
 const keyTerms = ref(0)
 const syntaxComplexity = ref('高')
 
-const analyzeText = (text) => {
+const analyzeText = (text: string): void => {
   if (!text) {
     readingLevel.value = '学术级'
     keyTerms.value = 0
@@ -22,7 +23,7 @@ const analyzeText = (text) => {
 
   // 简单的字数统计
   const charCount = text.length
-  const wordCount = text.split(/[\s,\.]+/).filter(w => w.length > 0).length
+  const wordCount = text.split(/[\s,\.]+/).filter((w: string) => w.length > 0).length
 
   // 根据字数估算阅读难度
   if (charCount < 100) {
@@ -39,7 +40,7 @@ const analyzeText = (text) => {
   keyTerms.value = Math.floor(wordCount / 10)
 
   // 估算句法复杂度
-  const sentences = text.split(/[。！？.!?]+/).filter(s => s.trim().length > 0)
+  const sentences = text.split(/[。！？.!?]+/).filter((s: string) => s.trim().length > 0)
   const avgSentenceLength = sentences.length > 0 ? charCount / sentences.length : 0
   if (avgSentenceLength < 10) {
     syntaxComplexity.value = '低'
@@ -50,7 +51,7 @@ const analyzeText = (text) => {
   }
 }
 
-watch(() => props.text, (newVal) => {
+watch(() => props.text, (newVal: string) => {
   analyzeText(newVal)
 }, { immediate: true })
 </script>

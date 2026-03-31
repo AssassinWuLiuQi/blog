@@ -1,12 +1,13 @@
-<script setup>
+<script setup lang="ts">
 import SideNavBar from './SideNavBar.vue'
 import TopAppBar from './TopAppBar.vue'
 
-defineProps({
-  sectionTitle: {
-    type: String,
-    default: '首页'
-  }
+interface Props {
+  sectionTitle?: string
+}
+
+withDefaults(defineProps<Props>(), {
+  sectionTitle: '首页'
 })
 </script>
 
