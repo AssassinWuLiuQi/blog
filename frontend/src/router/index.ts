@@ -54,6 +54,12 @@ const routes: RouteRecordRaw[] = [
     name: 'settings',
     component: SettingsView,
     meta: { requiresAuth: true }
+  },
+  {
+    path: '/gadgets/cyber-burning',
+    name: 'cyber-burning',
+    component: () => import('@/views/gadgets/CyberBurningView.vue'),
+    meta: { requiresAuth: true }
   }
 ]
 
