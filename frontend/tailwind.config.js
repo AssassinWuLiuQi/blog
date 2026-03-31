@@ -9,7 +9,9 @@ export default {
       colors: {
         primary: '#003f87',
         'primary-container': '#0056b3',
+        'primary/8': 'rgba(0, 63, 135, 0.08)',
         surface: '#f7f9fb',
+        background: '#f7f9fb',
         'surface-container-low': '#eceef0',
         'surface-container': '#eceef0',
         'surface-container-lowest': '#ffffff',
@@ -19,6 +21,11 @@ export default {
         tertiary: '#722b00',
         'tertiary-container': '#ffdbcc',
         outline: '#c2c6d4',
+        'outline-variant': '#c2c6d4',
+        error: '#dc2626',
+        'error/5': 'rgba(220, 38, 38, 0.05)',
+        success: '#16a34a',
+        'success/10': 'rgba(22, 163, 74, 0.1)',
       },
       fontFamily: {
         display: ['Inter', 'PingFang SC', 'Noto Sans SC', 'sans-serif'],

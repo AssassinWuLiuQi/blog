@@ -4,7 +4,8 @@ import type { Ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import GradientButton from '@/components/common/GradientButton.vue'
-import type { LoginRequest } from '@/types'
+import { encrypt, getPublicKey } from '@/utils/crypto'
+import { ElMessage } from 'element-plus'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -26,7 +27,12 @@ const handleLogin = async (): Promise<void> => {
   error.value = ''
 
   if (!form.value.username || !form.value.password) {
-    error.value = '请输入账号和密码'
+    ElMessage.error('请输入账号和密码')
+    return
+  }
+
+  if (!getPublicKey()) {
+    ElMessage.error('加密密钥未加载，请刷新页面')
     return
   }
 
@@ -40,22 +46,22 @@ const handleLogin = async (): Promise<void> => {
       },
       body: JSON.stringify({
         username: form.value.username,
-        password: form.value.password
-      } as LoginRequest)
+        encryptedPassword: encrypt(form.value.password)
+      })
     })
 
     if (response.ok) {
       const data = await response.json()
-      authStore.login({ username: form.value.username, password: form.value.password })
       localStorage.setItem('accessToken', data.data.token)
       localStorage.setItem('refreshToken', data.data.refreshToken)
+      await authStore.login({ username: form.value.username })
       router.push('/')
     } else {
       const data = await response.json()
-      error.value = data.message || '登录失败'
+      ElMessage.error(data.message || '登录失败')
     }
   } catch {
-    error.value = '网络错误，请稍后重试'
+    ElMessage.error('网络错误，请稍后重试')
   } finally {
     isLoading.value = false
   }
@@ -72,9 +78,6 @@ const handleLogin = async (): Promise<void> => {
         </header>
 
         <form @submit.prevent="handleLogin" class="space-y-8">
-          <div v-if="error" class="bg-error/10 text-error text-sm px-4 py-3 rounded-lg">
-            {{ error }}
-          </div>
 
           <div class="space-y-6">
             <div class="relative">

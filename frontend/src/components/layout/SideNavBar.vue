@@ -1,12 +1,15 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+
+const emit = defineEmits<{
+  'update:collapsed': [collapsed: boolean]
+}>()
 
 const router = useRouter()
 const route = useRoute()
 
 const isCollapsed = ref(false)
-const techPreviewOpen = ref(true)
 const gadgetsOpen = ref(true)
 
 const isActive = (path: string): boolean => {
@@ -18,164 +21,134 @@ const navigate = (path: string): void => {
   router.push(path)
 }
 
-const toggleTechPreview = (): void => {
-  techPreviewOpen.value = !techPreviewOpen.value
-}
-
 const toggleGadgets = (): void => {
   gadgetsOpen.value = !gadgetsOpen.value
 }
 
 const toggleCollapse = (): void => {
   isCollapsed.value = !isCollapsed.value
+  emit('update:collapsed', isCollapsed.value)
+}
+
+const navItems = [
+  { path: '/', icon: 'home', label: '首页', exact: true },
+  { path: '/tech-preview', icon: 'science', label: '技术预览', exact: false },
+  { path: '/logs', icon: 'history', label: '日志', exact: false },
+  { path: '/gadgets', icon: 'widgets', label: '小工具', exact: false, hasChildren: true },
+]
+
+const isItemActive = (item: typeof navItems[0]): boolean => {
+  if (item.exact) return route.path === item.path
+  return route.path.startsWith(item.path)
 }
 </script>
 
 <template>
   <aside
-    class="relative flex-none h-screen flex flex-col py-6 gap-4 bg-white/80 backdrop-blur-md z-50 border-r border-outline-variant/10 transition-all duration-300 ease-in-out"
+    class="fixed left-0 top-0 h-screen flex flex-col bg-white border-r border-outline-variant/10 transition-all duration-300 ease-in-out z-50"
     :class="isCollapsed ? 'w-16' : 'w-64'"
   >
     <!-- Toggle Button -->
     <button
-      class="absolute -right-3 top-6 w-6 h-6 bg-white border border-outline-variant/20 rounded-full flex items-center justify-center shadow-md hover:shadow-lg hover:scale-110 transition-all duration-200 z-10"
+      class="absolute -right-3 top-20 w-6 h-6 bg-white border border-outline-variant/20 rounded-full flex items-center justify-center shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
       @click="toggleCollapse"
     >
       <span
-        class="material-symbols-outlined text-xs text-slate-500 transition-transform duration-300"
+        class="material-symbols-outlined text-sm text-on-surface-variant transition-transform duration-300"
         :class="isCollapsed ? 'rotate-180' : ''"
       >chevron_right</span>
     </button>
 
     <!-- Logo Section -->
-    <transition name="fade-slide">
-      <div v-if="!isCollapsed" class="flex items-center gap-3 px-2">
-        <div class="w-9 h-9 bg-primary rounded-lg flex items-center justify-center text-white shadow-md shrink-0">
-          <span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">menu_book</span>
+    <div class="h-16 flex items-center px-4 border-b border-outline-variant/10">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 bg-gradient-to-br from-primary to-primary-container rounded-xl flex items-center justify-center shadow-md shrink-0">
+          <span class="material-symbols-outlined text-sm text-white" style="font-variation-settings: 'FILL' 1;">menu_book</span>
         </div>
-        <div class="overflow-hidden">
-          <h1 class="text-xl font-bold text-blue-900 tracking-tight leading-none whitespace-nowrap">Manuscript</h1>
-          <p class="text-[9px] uppercase tracking-widest text-on-surface-variant font-medium mt-0.5 whitespace-nowrap">Technical Blog</p>
-        </div>
-      </div>
-    </transition>
-
-    <!-- Navigation -->
-    <nav class="flex-1 overflow-y-auto px-2 space-y-1 scrollbar-hide">
-      <!-- 首页 -->
-      <div v-if="false" class="relative">
-        <div v-if="isActive('/')" class="nav-indicator" />
-        <a
-          class="nav-item flex items-center gap-3 py-2.5 rounded-lg transition-colors duration-200"
-          :class="[
-            isActive('/') ? 'text-blue-800 font-medium bg-blue-50/70' : 'text-slate-500 hover:text-blue-900 hover:bg-slate-50/70',
-            isCollapsed ? 'justify-center px-0 w-12 mx-auto' : 'px-3'
-          ]"
-          href="#"
-          @click.prevent="navigate('/')"
-        >
-          <span class="material-symbols-outlined text-lg shrink-0" :style="isActive('/') ? 'font-variation-settings: \'FILL\' 1;' : ''">home</span>
-          <transition name="fade-slide">
-            <span v-if="!isCollapsed" class="font-medium text-sm whitespace-nowrap overflow-hidden">首页</span>
-          </transition>
-        </a>
-      </div>
-
-      <!-- 技术预览 -->
-      <div v-if="false" class="relative">
-        <div v-if="isActive('/tech-preview')" class="nav-indicator" />
-        <a
-          class="nav-item flex items-center gap-3 py-2.5 rounded-lg transition-colors duration-200 cursor-pointer"
-          :class="[
-            isActive('/tech-preview') ? 'text-blue-800 font-medium bg-blue-50/70' : 'text-slate-500 hover:text-blue-900 hover:bg-slate-50/70',
-            isCollapsed ? 'justify-center px-0 w-12 mx-auto' : 'px-3'
-          ]"
-          href="#"
-          @click.prevent="toggleTechPreview"
-        >
-          <span class="material-symbols-outlined text-lg shrink-0" :style="isActive('/tech-preview') ? 'font-variation-settings: \'FILL\' 1;' : ''">menu_book</span>
-          <transition name="fade-slide">
-            <div v-if="!isCollapsed" class="flex-1 flex items-center justify-between overflow-hidden">
-              <span class="font-medium text-sm whitespace-nowrap">技术预览</span>
-              <span
-                class="material-symbols-outlined text-sm transition-transform duration-200"
-                :class="techPreviewOpen ? 'rotate-180' : ''"
-              >expand_more</span>
-            </div>
-          </transition>
-        </a>
-
-        <!-- Sub-items -->
-        <transition name="expand">
-          <div v-show="techPreviewOpen && !isCollapsed" class="ml-4 py-1 space-y-0.5 overflow-hidden">
-            <a
-              class="sub-item flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-colors duration-200"
-              :class="isActive('/tech-preview/text') ? 'text-primary font-medium bg-primary/5' : 'text-slate-400 hover:text-primary hover:bg-slate-50'"
-              href="#"
-              @click.prevent="navigate('/tech-preview/text')"
-            >
-              <span class="w-1.5 h-1.5 rounded-full shrink-0" :class="isActive('/tech-preview/text') ? 'bg-primary' : 'bg-slate-300'" />
-              <span class="whitespace-nowrap">文本处理</span>
-            </a>
+        <transition name="fade-slide">
+          <div v-if="!isCollapsed" class="overflow-hidden">
+            <h1 class="text-lg font-bold text-on-surface tracking-tight leading-none">MxJin</h1>
+            <p class="text-[10px] text-on-surface-variant tracking-wider">Mxjin's Blog</p>
           </div>
         </transition>
       </div>
+    </div>
 
-      <!-- 更多小工具 -->
-      <div class="relative">
-        <div v-if="isActive('/gadgets')" class="nav-indicator" />
-        <a
-          class="nav-item flex items-center gap-3 py-2.5 rounded-lg transition-colors duration-200 cursor-pointer"
-          :class="[
-            isActive('/gadgets') ? 'text-blue-800 font-medium bg-blue-50/70' : 'text-slate-500 hover:text-blue-900 hover:bg-slate-50/70',
-            isCollapsed ? 'justify-center px-0 w-12 mx-auto' : 'px-3'
-          ]"
-          href="#"
-          @click.prevent="toggleGadgets"
-        >
-          <span class="material-symbols-outlined text-lg shrink-0" :style="isActive('/gadgets') ? 'font-variation-settings: \'FILL\' 1;' : ''">widgets</span>
-          <transition name="fade-slide">
-            <div v-if="!isCollapsed" class="flex-1 flex items-center justify-between overflow-hidden">
-              <span class="font-medium text-sm whitespace-nowrap">更多</span>
-              <span
-                class="material-symbols-outlined text-sm transition-transform duration-200"
-                :class="gadgetsOpen ? 'rotate-180' : ''"
-              >expand_more</span>
-            </div>
-          </transition>
-        </a>
+    <!-- Navigation -->
+    <nav class="flex-1 overflow-y-auto py-4 px-2 space-y-1">
+      <template v-for="item in navItems" :key="item.path">
+        <!-- Parent Item -->
+        <div class="relative">
+          <a
+            class="nav-item group flex items-center gap-3 py-2.5 rounded-xl transition-all duration-200 cursor-pointer"
+            :class="[
+              isItemActive(item) && !item.hasChildren
+                ? 'bg-primary/8 text-primary font-medium'
+                : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface',
+              isCollapsed ? 'justify-center px-0 w-12 mx-auto' : 'px-3'
+            ]"
+            :href="'#'"
+            @click.prevent="item.hasChildren ? toggleGadgets() : navigate(item.path)"
+          >
+            <span
+              class="material-symbols-outlined text-xl shrink-0 transition-colors duration-200"
+              :class="isItemActive(item) && !item.hasChildren ? 'text-primary' : 'text-on-surface-variant group-hover:text-on-surface'"
+              :style="isItemActive(item) && !item.hasChildren ? 'font-variation-settings: \'FILL\' 1;' : ''"
+            >{{ item.icon }}</span>
+            <transition name="fade-slide">
+              <div v-if="!isCollapsed" class="flex-1 flex items-center justify-between overflow-hidden">
+                <span class="text-sm whitespace-nowrap">{{ item.label }}</span>
+                <span
+                  v-if="item.hasChildren"
+                  class="material-symbols-outlined text-base transition-transform duration-200"
+                  :class="gadgetsOpen ? 'rotate-180' : ''"
+                >expand_more</span>
+              </div>
+            </transition>
+          </a>
 
-        <!-- Sub-items -->
+          <!-- Active Indicator -->
+          <div
+            v-if="isItemActive(item) && !item.hasChildren && !isCollapsed"
+            class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary rounded-r-full"
+          />
+        </div>
+
+        <!-- Sub-items (Gadgets) -->
         <transition name="expand">
-          <div v-show="gadgetsOpen && !isCollapsed" class="ml-4 py-1 space-y-0.5 overflow-hidden">
+          <div v-show="gadgetsOpen && !isCollapsed && item.hasChildren" class="ml-4 py-1 space-y-0.5">
             <a
-              class="sub-item flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-colors duration-200"
-              :class="isActive('/gadgets/cyber-burning') ? 'text-primary font-medium bg-primary/5' : 'text-slate-400 hover:text-primary hover:bg-slate-50'"
+              class="sub-item flex items-center gap-2 py-2 pl-3 pr-2 rounded-lg text-sm transition-all duration-200"
+              :class="isActive('/gadgets/cyber-burning') ? 'text-primary font-medium bg-primary/5' : 'text-on-surface-variant hover:text-primary hover:bg-surface-container-low'"
               href="#"
               @click.prevent="navigate('/gadgets/cyber-burning')"
             >
-              <span class="w-1.5 h-1.5 rounded-full shrink-0" :class="isActive('/tech-preview/text') ? 'bg-primary' : 'bg-slate-300'" />
-              <span class="whitespace-nowrap">赛博烧纸</span>
+              <span
+                class="w-1.5 h-1.5 rounded-full shrink-0 transition-colors duration-200"
+                :class="isActive('/gadgets/cyber-burning') ? 'bg-primary' : 'bg-outline'"
+              />
+              <span>赛博烧纸</span>
             </a>
           </div>
         </transition>
-      </div>
+      </template>
     </nav>
 
-    <!-- Settings Link -->
-    <div class="pt-3 px-2 border-t border-outline-variant/10">
+    <!-- Bottom Section -->
+    <div class="p-2 border-t border-outline-variant/10 space-y-1">
+      <!-- Settings -->
       <a
-        class="nav-item flex items-center gap-3 py-2.5 rounded-lg transition-colors duration-200"
+        class="nav-item group flex items-center gap-3 py-2.5 rounded-xl transition-all duration-200"
         :class="[
-          isActive('/settings') ? 'text-blue-800 font-medium bg-blue-50/70' : 'text-slate-500 hover:text-blue-900 hover:bg-slate-50/70',
+          isActive('/settings') ? 'bg-primary/8 text-primary font-medium' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface',
           isCollapsed ? 'justify-center px-0 w-12 mx-auto' : 'px-3'
         ]"
         href="#"
         @click.prevent="navigate('/settings')"
       >
-        <span class="material-symbols-outlined text-lg shrink-0">settings</span>
+        <span class="material-symbols-outlined text-xl shrink-0">settings</span>
         <transition name="fade-slide">
-          <span v-if="!isCollapsed" class="font-medium text-sm whitespace-nowrap overflow-hidden">设置</span>
+          <span v-if="!isCollapsed" class="text-sm">设置</span>
         </transition>
       </a>
     </div>
@@ -183,34 +156,22 @@ const toggleCollapse = (): void => {
 </template>
 
 <style scoped>
-/* 导航指示器 */
-.nav-indicator {
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 3px;
-  height: 50%;
-  background-color: #003f87;
-  border-radius: 0 2px 2px 0;
-}
-
-/* 过渡动画 */
+/* Transitions */
 .fade-slide-enter-active,
 .fade-slide-leave-active {
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition: opacity 0.15s ease, transform 0.15s ease;
 }
 .fade-slide-enter-from,
 .fade-slide-leave-to {
   opacity: 0;
-  transform: translateX(-8px);
+  transform: translateX(-6px);
 }
 
-/* 子菜单展开 */
 .expand-enter-active,
 .expand-leave-active {
-  transition: max-height 0.25s ease, opacity 0.2s ease;
+  transition: max-height 0.2s ease, opacity 0.15s ease;
   max-height: 200px;
+  overflow: hidden;
 }
 .expand-enter-from,
 .expand-leave-to {
@@ -218,12 +179,18 @@ const toggleCollapse = (): void => {
   opacity: 0;
 }
 
-/* 隐藏滚动条 */
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
 }
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background-color: var(--outline-variant);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--outline);
 }
 </style>

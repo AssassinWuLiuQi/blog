@@ -4,12 +4,25 @@ import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 import App from './App.vue'
 import router from './router'
+import { useAuthStore } from './stores/auth'
+import { setPublicKey } from './utils/crypto'
 import './assets/main.css'
 
 const app = createApp(App)
 
-app.use(createPinia())
+const pinia = createPinia()
+app.use(pinia)
 app.use(router)
 app.use(ElementPlus)
 
+// Initialize auth and encryption key AFTER pinia is installed
+fetch('/api/auth/public-key')
+  .then(res => res.json())
+  .then(data => { if (data.data?.publicKey) setPublicKey(data.data.publicKey) })
+  .catch(console.error)
+
 app.mount('#app')
+
+// Fetch current user after app is mounted
+const authStore = useAuthStore()
+authStore.fetchCurrentUser()

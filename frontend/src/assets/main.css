@@ -129,3 +129,36 @@ body {
 .shadow-ambient {
   box-shadow: 0 40px 80px rgba(25, 28, 30, 0.04);
 }
+
+/* Element Plus Message Custom Styles */
+.el-message {
+  --el-message-bg-color: var(--surface-container-lowest);
+  --el-message-border-color: var(--outline-variant);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--outline-variant);
+  box-shadow: 0 8px 24px rgba(25, 28, 30, 0.08);
+}
+
+.el-message--error {
+  --el-message-bg-color: #fef2f2;
+  --el-message-border-color: #fecaca;
+  --el-message-text-color: #991b1b;
+}
+
+.el-message--success {
+  --el-message-bg-color: #f0fdf4;
+  --el-message-border-color: #bbf7d0;
+  --el-message-text-color: #166534;
+}
+
+.el-message--warning {
+  --el-message-bg-color: #fffbeb;
+  --el-message-border-color: #fed7aa;
+  --el-message-text-color: #92400e;
+}
+
+.el-message--info {
+  --el-message-bg-color: var(--surface-container-lowest);
+  --el-message-border-color: var(--outline-variant);
+  --el-message-text-color: var(--on-surface);
+}

@@ -4,7 +4,8 @@ import type { Ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import GradientButton from '@/components/common/GradientButton.vue'
-import type { RegisterRequest } from '@/types'
+import { encrypt, getPublicKey } from '@/utils/crypto'
+import { ElMessage } from 'element-plus'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -30,17 +31,22 @@ const handleRegister = async (): Promise<void> => {
   error.value = ''
 
   if (!form.value.username || !form.value.email || !form.value.password) {
-    error.value = '请填写所有必填项'
+    ElMessage.error('请填写所有必填项')
     return
   }
 
   if (form.value.password !== form.value.confirmPassword) {
-    error.value = '两次输入的密码不一致'
+    ElMessage.error('两次输入的密码不一致')
     return
   }
 
   if (form.value.password.length < 6) {
-    error.value = '密码长度至少为6位'
+    ElMessage.error('密码长度至少为6位')
+    return
+  }
+
+  if (!getPublicKey()) {
+    ElMessage.error('加密密钥未加载，请刷新页面')
     return
   }
 
@@ -55,19 +61,22 @@ const handleRegister = async (): Promise<void> => {
       body: JSON.stringify({
         username: form.value.username,
         email: form.value.email,
-        password: form.value.password
-      } as RegisterRequest)
+        encryptedPassword: encrypt(form.value.password)
+      })
     })
 
     if (response.ok) {
-      authStore.login({ email: form.value.email, password: form.value.password })
+      const data = await response.json()
+      localStorage.setItem('accessToken', data.data.token)
+      localStorage.setItem('refreshToken', data.data.refreshToken)
+      await authStore.login({ email: form.value.email })
       router.push('/')
     } else {
       const data = await response.json()
-      error.value = data.message || '注册失败'
+      ElMessage.error(data.message || '注册失败')
     }
   } catch {
-    error.value = '网络错误，请稍后重试'
+    ElMessage.error('网络错误，请稍后重试')
   } finally {
     isLoading.value = false
   }
@@ -84,9 +93,6 @@ const handleRegister = async (): Promise<void> => {
         </header>
 
         <form @submit.prevent="handleRegister" class="space-y-6">
-          <div v-if="error" class="bg-error/10 text-error text-sm px-4 py-3 rounded-lg">
-            {{ error }}
-          </div>
 
           <div class="space-y-5">
             <div class="relative">
