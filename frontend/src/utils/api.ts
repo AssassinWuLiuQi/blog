@@ -1,9 +1,9 @@
-export function authHeaders() {
+export function authHeaders(): Record<string, string> {
   const token = localStorage.getItem('accessToken')
   return token ? { 'Authorization': `Bearer ${token}` } : {}
 }
 
-export async function fetchWithAuth(url, options = {}) {
+export async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Response> {
   const response = await fetch(url, {
     ...options,
     headers: {
