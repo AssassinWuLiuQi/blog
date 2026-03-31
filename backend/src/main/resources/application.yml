@@ -16,18 +16,28 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
         format_sql: true
+  data:
+    mongodb:
+      host: ${MONGO_HOST:localhost}
+      port: ${MONGO_PORT:27017}
+      database: ${MONGO_DATABASE:scholars_manuscript}
+      username: ${MONGO_USERNAME:}
+      password: ${MONGO_PASSWORD:}
 
 server:
   port: 8080
 
 jwt:
-  secret: ${JWT_SECRET:}
   expiration: 900000
   refresh-expiration: 604800000
 
 app:
   cors:
-    allowed-origins: http://localhost:5173
+    allowed-origins: ${CORS_ORIGINS:http://localhost:5173}
+
+encryption:
+  public-key: ${RSA_PUBLIC_KEY:}
+  private-key: ${RSA_PRIVATE_KEY:}
 
 miniMax:
   api-key: ${MINI_MAX_API_KEY:}

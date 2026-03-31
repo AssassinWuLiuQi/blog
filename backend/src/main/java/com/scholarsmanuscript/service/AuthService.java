@@ -9,6 +9,7 @@ import com.scholarsmanuscript.exception.BusinessException;
 import com.scholarsmanuscript.exception.ErrorCode;
 import com.scholarsmanuscript.repository.UserRepository;
 import com.scholarsmanuscript.security.JwtTokenProvider;
+import com.scholarsmanuscript.utils.RsaEncryptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,10 +26,14 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
+    private final RsaEncryptor rsaEncryptor;
 
     public AuthResponse login(LoginRequest request) {
+        // Decrypt the RSA encrypted password
+        String decryptedPassword = rsaEncryptor.decrypt(request.getEncryptedPassword());
+
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
+                new UsernamePasswordAuthenticationToken(request.getUsername(), decryptedPassword)
         );
 
         String accessToken = jwtTokenProvider.generateAccessToken(authentication);
@@ -60,10 +65,13 @@ public class AuthService {
             throw new BusinessException(ErrorCode.EMAIL_ALREADY_EXISTS);
         }
 
+        // Decrypt the RSA encrypted password
+        String decryptedPassword = rsaEncryptor.decrypt(request.getEncryptedPassword());
+
         User user = User.builder()
                 .username(request.getUsername())
                 .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
+                .password(passwordEncoder.encode(decryptedPassword))
                 .build();
 
         User savedUser = userRepository.save(user);
@@ -107,6 +115,7 @@ public class AuthService {
                 .id(user.getId())
                 .username(user.getUsername())
                 .email(user.getEmail())
+                .role("Free Access")
                 .build();
     }
 }

@@ -6,11 +6,14 @@ import com.scholarsmanuscript.dto.response.ApiResponse;
 import com.scholarsmanuscript.dto.response.AuthResponse;
 import com.scholarsmanuscript.dto.response.UserResponse;
 import com.scholarsmanuscript.service.AuthService;
+import com.scholarsmanuscript.utils.RsaEncryptor;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -18,6 +21,14 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
+    private final RsaEncryptor rsaEncryptor;
+
+    @GetMapping("/public-key")
+    public ResponseEntity<ApiResponse<Map<String, String>>> getPublicKey() {
+        return ResponseEntity.ok(ApiResponse.success(Map.of(
+            "publicKey", rsaEncryptor.getPublicKeyBase64()
+        )));
+    }
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<AuthResponse>> login(@Valid @RequestBody LoginRequest request) {

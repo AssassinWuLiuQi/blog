@@ -12,7 +12,8 @@ public enum ErrorCode {
     CATEGORY_NOT_FOUND("CATEGORY_001", "Category not found"),
     UNAUTHORIZED("AUTH_000", "Unauthorized access"),
     FORBIDDEN("AUTH_004", "Forbidden access"),
-    USER_LIMIT_EXCEEDED("USER_004", "User registration limit exceeded");
+    USER_LIMIT_EXCEEDED("USER_004", "User registration limit exceeded"),
+    INVALID_PASSWORD("AUTH_005", "Invalid old password");
 
     private final String code;
     private final String message;

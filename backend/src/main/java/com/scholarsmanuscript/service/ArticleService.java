@@ -31,6 +31,7 @@ public class ArticleService {
     private final ArticleRepository articleRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
+    private final ArticleContentService articleContentService;
 
     public Page<ArticleResponse> getArticles(int page, int size, String status, Long categoryId) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
@@ -48,8 +49,14 @@ public class ArticleService {
     }
 
     public ArticleDetailResponse getArticleById(Long id) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Article article = articleRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ARTICLE_NOT_FOUND));
+
+        if (article.getStatus() == Article.Status.DRAFT && !article.getAuthor().getUsername().equals(username)) {
+            throw new BusinessException(ErrorCode.FORBIDDEN);
+        }
+
         return mapToArticleDetailResponse(article);
     }
 
@@ -81,6 +88,9 @@ public class ArticleService {
             }
             savedArticle = articleRepository.save(savedArticle);
         }
+
+        // Save content to MongoDB
+        articleContentService.saveContent(savedArticle.getId(), request.getContent());
 
         return mapToArticleResponse(savedArticle);
     }
@@ -115,6 +125,10 @@ public class ArticleService {
         }
 
         Article updatedArticle = articleRepository.save(article);
+
+        // Update content in MongoDB
+        articleContentService.saveContent(id, request.getContent());
+
         return mapToArticleResponse(updatedArticle);
     }
 
@@ -127,6 +141,9 @@ public class ArticleService {
         if (!article.getAuthor().getUsername().equals(username)) {
             throw new BusinessException(ErrorCode.FORBIDDEN);
         }
+
+        // Delete content from MongoDB
+        articleContentService.deleteContent(id);
 
         articleRepository.delete(article);
     }
@@ -154,7 +171,7 @@ public class ArticleService {
                 .createdAt(article.getCreatedAt())
                 .publishedAt(article.getPublishedAt())
                 .categories(categories)
-                .readTime(calculateReadTime(article.getContent()))
+                .readTime(calculateReadTime(articleContentService.getContent(article.getId())))
                 .build();
     }
 
@@ -170,7 +187,7 @@ public class ArticleService {
         return ArticleDetailResponse.builder()
                 .id(article.getId())
                 .title(article.getTitle())
-                .content(article.getContent())
+                .content(articleContentService.getContent(article.getId()))
                 .excerpt(article.getExcerpt())
                 .status(article.getStatus().name())
                 .author(article.getAuthor().getUsername())
