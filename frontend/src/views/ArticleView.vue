@@ -1,25 +1,27 @@
-<script setup>
+<script setup lang="ts">
 import { ref, computed } from 'vue'
-import AppLayout from '@/components/layout/AppLayout.vue'
+import type { Ref, ComputedRef } from 'vue'
 import { useRoute } from 'vue-router'
+import AppLayout from '@/components/layout/AppLayout.vue'
 import { usePostStore } from '@/stores/post'
 import { useUIStore } from '@/stores/ui'
 import SurfaceCard from '@/components/common/SurfaceCard.vue'
 import GradientButton from '@/components/common/GradientButton.vue'
+import type { Post } from '@/types'
 
 const route = useRoute()
 const postStore = usePostStore()
 const uiStore = useUIStore()
 
-const post = computed(() => postStore.getPostById(route.params.id))
-const ttsPlaying = ref(false)
+const post = computed<Post | undefined>(() => postStore.getPostById(route.params.id as string))
+const ttsPlaying = ref<boolean>(false)
 
-const toggleTTS = () => {
+const toggleTTS = (): void => {
   ttsPlaying.value = !ttsPlaying.value
   uiStore.setTTSPlaying(ttsPlaying.value)
 }
 
-const similarPosts = computed(() => {
+const similarPosts = computed<Post[]>(() => {
   if (!post.value) return []
   return postStore.getPostsByCategory(post.value.category).filter(p => p.id !== post.value.id).slice(0, 3)
 })

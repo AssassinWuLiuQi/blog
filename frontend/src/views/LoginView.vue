@@ -1,21 +1,28 @@
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
+import type { Ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import GradientButton from '@/components/common/GradientButton.vue'
+import type { LoginRequest } from '@/types'
 
 const router = useRouter()
 const authStore = useAuthStore()
 
-const form = ref({
+interface LoginForm {
+  username: string
+  password: string
+}
+
+const form = ref<LoginForm>({
   username: '',
   password: ''
 })
 
-const isLoading = ref(false)
-const error = ref('')
+const isLoading = ref<boolean>(false)
+const error = ref<string>('')
 
-const handleLogin = async () => {
+const handleLogin = async (): Promise<void> => {
   error.value = ''
 
   if (!form.value.username || !form.value.password) {
@@ -34,7 +41,7 @@ const handleLogin = async () => {
       body: JSON.stringify({
         username: form.value.username,
         password: form.value.password
-      })
+      } as LoginRequest)
     })
 
     if (response.ok) {
@@ -47,7 +54,7 @@ const handleLogin = async () => {
       const data = await response.json()
       error.value = data.message || '登录失败'
     }
-  } catch (e) {
+  } catch {
     error.value = '网络错误，请稍后重试'
   } finally {
     isLoading.value = false

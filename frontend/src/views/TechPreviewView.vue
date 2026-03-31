@@ -1,16 +1,17 @@
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
+import type { Ref } from 'vue'
 import AppLayout from '@/components/layout/AppLayout.vue'
 import RichTextEditor from '@/components/editor/RichTextEditor.vue'
 import TTSPanel from '@/components/tts/TTSPanel.vue'
 
-const editorText = ref('')
+const editorText = ref<string>('')
 
-const handleTextChange = (text) => {
+const handleTextChange = (text: string): void => {
   editorText.value = text
 }
 
-const handleExport = (content) => {
+const handleExport = (content: string): void => {
   console.log('Export article:', content)
 }
 </script>

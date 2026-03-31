@@ -1,21 +1,23 @@
-<script setup>
+<script setup lang="ts">
 import { ref, computed } from 'vue'
+import type { Ref, ComputedRef } from 'vue'
 import AppLayout from '@/components/layout/AppLayout.vue'
 import { usePostStore } from '@/stores/post'
 import SearchInput from '@/components/common/SearchInput.vue'
 import SurfaceCard from '@/components/common/SurfaceCard.vue'
 import GradientButton from '@/components/common/GradientButton.vue'
+import type { Post } from '@/types'
 
 const postStore = usePostStore()
 
-const searchQuery = ref('')
-const selectedYear = ref('all')
+const searchQuery = ref<string>('')
+const selectedYear = ref<string>('all')
 
-const allPosts = computed(() => postStore.posts)
+const allPosts = computed<Post[]>(() => postStore.posts)
 
 // Group posts by year
-const postsByYear = computed(() => {
-  const grouped = {}
+const postsByYear = computed<Record<string, Post[]>>(() => {
+  const grouped: Record<string, Post[]> = {}
   allPosts.value.forEach(post => {
     const year = post.date.split('-')[0]
     if (!grouped[year]) {
@@ -26,7 +28,7 @@ const postsByYear = computed(() => {
   return grouped
 })
 
-const filteredPosts = computed(() => {
+const filteredPosts = computed<Post[]>(() => {
   let posts = allPosts.value
   if (searchQuery.value) {
     posts = postStore.searchPosts(searchQuery.value)
@@ -34,7 +36,7 @@ const filteredPosts = computed(() => {
   return posts
 })
 
-const years = computed(() => {
+const years = computed<string[]>(() => {
   return Object.keys(postsByYear.value).sort().reverse()
 })
 </script>

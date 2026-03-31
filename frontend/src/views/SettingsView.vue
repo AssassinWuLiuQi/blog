@@ -1,26 +1,29 @@
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
+import type { Ref } from 'vue'
 import AppLayout from '@/components/layout/AppLayout.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useUIStore } from '@/stores/ui'
 import SurfaceCard from '@/components/common/SurfaceCard.vue'
 import GradientButton from '@/components/common/GradientButton.vue'
+import type { UserPreferences } from '@/types'
 
 const authStore = useAuthStore()
 const uiStore = useUIStore()
 
-const theme = ref('light')
-const fontSize = ref('medium')
-const autoPlayTTS = ref(false)
-const voiceSpeed = ref(1.0)
+const theme = ref<string>('light')
+const fontSize = ref<string>('medium')
+const autoPlayTTS = ref<boolean>(false)
+const voiceSpeed = ref<number>(1.0)
 
-const handleSave = () => {
-  authStore.updatePreferences({
-    theme: theme.value,
-    fontSize: fontSize.value,
+const handleSave = (): void => {
+  const preferences: UserPreferences = {
+    theme: theme.value as 'light' | 'dark',
+    fontSize: fontSize.value as 'small' | 'medium' | 'large',
     autoPlayTTS: autoPlayTTS.value,
     voiceSpeed: voiceSpeed.value
-  })
+  }
+  authStore.updatePreferences(preferences)
   uiStore.showNotification('设置已保存', 'success')
 }
 </script>

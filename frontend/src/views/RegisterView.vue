@@ -1,23 +1,32 @@
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
+import type { Ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import GradientButton from '@/components/common/GradientButton.vue'
+import type { RegisterRequest } from '@/types'
 
 const router = useRouter()
 const authStore = useAuthStore()
 
-const form = ref({
+interface RegisterForm {
+  username: string
+  email: string
+  password: string
+  confirmPassword: string
+}
+
+const form = ref<RegisterForm>({
   username: '',
   email: '',
   password: '',
   confirmPassword: ''
 })
 
-const isLoading = ref(false)
-const error = ref('')
+const isLoading = ref<boolean>(false)
+const error = ref<string>('')
 
-const handleRegister = async () => {
+const handleRegister = async (): Promise<void> => {
   error.value = ''
 
   if (!form.value.username || !form.value.email || !form.value.password) {
@@ -47,18 +56,17 @@ const handleRegister = async () => {
         username: form.value.username,
         email: form.value.email,
         password: form.value.password
-      })
+      } as RegisterRequest)
     })
 
     if (response.ok) {
-      const data = await response.json()
       authStore.login({ email: form.value.email, password: form.value.password })
       router.push('/')
     } else {
       const data = await response.json()
       error.value = data.message || '注册失败'
     }
-  } catch (e) {
+  } catch {
     error.value = '网络错误，请稍后重试'
   } finally {
     isLoading.value = false

@@ -1,13 +1,14 @@
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue'
 import AppLayout from '@/components/layout/AppLayout.vue'
 import { usePostStore } from '@/stores/post'
 import SurfaceCard from '@/components/common/SurfaceCard.vue'
 import GradientButton from '@/components/common/GradientButton.vue'
+import type { Post } from '@/types'
 
 const postStore = usePostStore()
 
-const recentPosts = computed(() => postStore.recentPosts)
+const recentPosts = computed<Post[]>(() => postStore.recentPosts)
 </script>
 
 <template>
