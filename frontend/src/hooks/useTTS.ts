@@ -1,14 +1,17 @@
 import { ref, onUnmounted } from 'vue'
 import { createSSERawStream } from '@/utils/sse'
-import type { TTSOptions } from '@/types'
+import type { TtsRequest } from '@/types/tts'
 
 const STEP_DATA = 100
 const STEP_COMPLETE = 1000
 
-export function useTTS(options: TTSOptions = {}) {
+// 目标缓冲采样点数
+const TARGET_BUFFER_SAMPLES = 8192
+
+export function useTTS(options: { sampleRate?: number; bufferSize?: number; channels?: number } = {}) {
   const {
     sampleRate = 32000,
-    bufferSize = 4096,
+    bufferSize = 8192,
     channels = 1
   } = options
 
@@ -18,6 +21,10 @@ export function useTTS(options: TTSOptions = {}) {
   const isPlaying = ref(false)
   const isStreamEnded = ref(false)
   const currentController = ref<AbortController | null>(null)
+
+  // 累积 Float32 数据的缓冲区
+  const float32Buffer = ref<Float32Array>(new Float32Array(0))
+  const targetSamples = TARGET_BUFFER_SAMPLES
 
   const initAudio = (): void => {
     if (audioContext.value) return
@@ -54,16 +61,24 @@ export function useTTS(options: TTSOptions = {}) {
       currentController.value = null
     }
     pcmQueue.value = []
+    float32Buffer.value = new Float32Array(0)
     isPlaying.value = false
     isStreamEnded.value = false
   }
 
-  const hexToFloat32 = (hexString: string, isLittleEndian: boolean = false): Float32Array => {
-    const paddedHex = hexString.length % 2 === 0 ? hexString : hexString + '0'
-    const byteLength = paddedHex.length / 2
+  /**
+   * 将 hex 字符串转换为 Float32Array
+   */
+  const hexToFloat32 = (hexString: string, isLittleEndian: boolean = false): Float32Array | null => {
+    if (hexString.length % 2 !== 0) {
+      console.warn('[TTS] Odd-length hex received, dropping last char')
+      hexString = hexString.slice(0, -1)
+      if (hexString.length === 0) return null
+    }
+    const byteLength = hexString.length / 2
     const bytes = new Uint8Array(byteLength)
-    for (let i = 0; i < paddedHex.length; i += 2) {
-      bytes[i / 2] = parseInt(paddedHex.substr(i, 2), 16)
+    for (let i = 0; i < hexString.length; i += 2) {
+      bytes[i / 2] = parseInt(hexString.substring(i, i + 2), 16)
     }
     const int16Array = new Int16Array(byteLength)
     const float32 = new Float32Array(byteLength)
@@ -83,7 +98,36 @@ export function useTTS(options: TTSOptions = {}) {
     return float32
   }
 
-  const play = async (text: string, voiceId: string): Promise<void> => {
+  /**
+   * 合并新数据到临时缓冲区
+   */
+  const mergeToFloat32Buffer = (newData: Float32Array): void => {
+    const combined = new Float32Array(float32Buffer.value.length + newData.length)
+    combined.set(float32Buffer.value, 0)
+    combined.set(newData, float32Buffer.value.length)
+    float32Buffer.value = combined
+  }
+
+  /**
+   * 处理临时缓冲区，提取固定长度的数据块
+   */
+  const processFloat32Buffer = (): void => {
+    while (float32Buffer.value.length >= targetSamples) {
+      const chunk = float32Buffer.value.subarray(0, targetSamples)
+      pcmQueue.value.push(chunk)
+      if (float32Buffer.value.length > targetSamples) {
+        float32Buffer.value = float32Buffer.value.subarray(targetSamples)
+      } else {
+        float32Buffer.value = new Float32Array(0)
+      }
+    }
+  }
+
+  /**
+   * 播放 TTS
+   * @param request TTS 请求参数
+   */
+  const play = async (request: TtsRequest): Promise<void> => {
     stop()
     initAudio()
     const ctx = audioContext.value
@@ -92,8 +136,29 @@ export function useTTS(options: TTSOptions = {}) {
     }
     isPlaying.value = true
 
+    // 构建请求体
+    const body: Record<string, unknown> = {
+      text: request.text,
+      voiceId: request.voiceId,
+      speed: request.speed ?? 1.0,
+      emotion: request.emotion ?? 'happy',
+      format: request.format ?? 'pcm',
+      vol: request.vol ?? 1,
+      pitch: request.pitch ?? 0,
+      channel: request.channel ?? 1,
+      forceCbr: request.forceCbr ?? false,
+      textNormalization: request.textNormalization ?? false,
+      latexRead: request.latexRead ?? false,
+      voicePitch: request.voicePitch ?? 0,
+      voiceIntensity: request.voiceIntensity ?? 0,
+      voiceTimbre: request.voiceTimbre ?? 0,
+      soundEffects: request.soundEffects ?? '',
+      subtitleEnable: request.subtitleEnable ?? false,
+      aigcWatermark: request.aigcWatermark ?? false
+    }
+
     currentController.value = createSSERawStream('/api/tts/speech', {
-      body: { text, voiceId },
+      body,
       onOpen: () => {},
       onMessage: (msg) => {
         const response = typeof msg.data === 'string' ? JSON.parse(msg.data) : msg.data
@@ -101,8 +166,10 @@ export function useTTS(options: TTSOptions = {}) {
         switch (response.step) {
           case STEP_DATA:
             if (response.data) {
-              const float32 = hexToFloat32(response.data, false)
-              pcmQueue.value.push(float32)
+              const float32 = hexToFloat32(response.data, true)
+              if (!float32 || float32.length === 0) break
+              mergeToFloat32Buffer(float32)
+              processFloat32Buffer()
             }
             break
           case STEP_COMPLETE:
@@ -111,6 +178,7 @@ export function useTTS(options: TTSOptions = {}) {
         }
       },
       onClose: () => {
+        float32Buffer.value = new Float32Array(0)
         isStreamEnded.value = true
         waitForQueueEmpty()
       },

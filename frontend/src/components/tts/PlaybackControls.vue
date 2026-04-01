@@ -2,10 +2,12 @@
 import { ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useTTS } from '@/hooks/useTTS'
+import type { TtsRequest } from '@/types/tts'
 
 interface Props {
   text?: string
   voiceId?: string
+  ttsRequest?: TtsRequest | null
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -37,7 +39,27 @@ const togglePlay = async (): Promise<void> => {
     stop()
     isPlaying.value = false
   } else {
-    await play(props.text, props.voiceId)
+    // 使用完整参数
+    const request: TtsRequest = {
+      text: props.text,
+      voiceId: props.voiceId,
+      speed: props.ttsRequest?.speed ?? 1.0,
+      emotion: props.ttsRequest?.emotion ?? 'happy',
+      format: props.ttsRequest?.format ?? 'pcm',
+      vol: props.ttsRequest?.vol ?? 1,
+      pitch: props.ttsRequest?.pitch ?? 0,
+      channel: props.ttsRequest?.channel ?? 1,
+      forceCbr: props.ttsRequest?.forceCbr ?? false,
+      textNormalization: props.ttsRequest?.textNormalization ?? false,
+      latexRead: props.ttsRequest?.latexRead ?? false,
+      voicePitch: props.ttsRequest?.voicePitch ?? 0,
+      voiceIntensity: props.ttsRequest?.voiceIntensity ?? 0,
+      voiceTimbre: props.ttsRequest?.voiceTimbre ?? 0,
+      soundEffects: props.ttsRequest?.soundEffects ?? '',
+      subtitleEnable: props.ttsRequest?.subtitleEnable ?? false,
+      aigcWatermark: props.ttsRequest?.aigcWatermark ?? false
+    }
+    await play(request)
     isPlaying.value = true
   }
 }

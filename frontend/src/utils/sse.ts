@@ -31,7 +31,7 @@ export function createSSEStream(url: string, options: SSEOptions = {}): AbortCon
     headers = {},
     body,
     onMessage = () => { /* noop */ },
-    onOpen = () => { console.log("sse open") },
+    onOpen = () => { /* noop */ },
     onClose = () => { /* noop */ },
     onError = () => { /* noop */ }
   } = options
