@@ -22,10 +22,10 @@ public class TtsRequest {
     private Float speed = 1.0f;
 
     @Builder.Default
-    private Float vol = 1.0f;
+    private Integer vol = 1;
 
     @Builder.Default
-    private Float pitch = 0.0f;
+    private Integer pitch = 0;
 
     @Builder.Default
     private String emotion = "happy";
@@ -37,7 +37,7 @@ public class TtsRequest {
     private Integer bitrate = 128000;
 
     @Builder.Default
-    private String format = "mp3";
+    private String format = "pcm";
 
     @Builder.Default
     private Integer channel = 1;

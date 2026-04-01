@@ -1,16 +1,21 @@
 package com.scholarsmanuscript.service;
 
+import com.alibaba.fastjson2.JSON;
 import com.scholarsmanuscript.dto.request.TtsRequest;
 import com.scholarsmanuscript.dto.response.VoiceResponse;
+import com.scholarsmanuscript.utils.OkHttpUtil;
+import com.scholarsmanuscript.utils.SseEmitterUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.Call;
+import okhttp3.Request;
+import okhttp3.RequestBody;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Flux;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -24,12 +29,9 @@ public class TtsService {
     @Value("${miniMax.api-key:}")
     private String apiKey;
 
-    private final WebClient webClient = WebClient.builder()
-            .baseUrl(MINI_MAX_API_URL)
-            .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .build();
+    public SseEmitter streamSpeech(TtsRequest request) {
+        SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
 
-    public Flux<byte[]> streamSpeech(TtsRequest request) {
         Map<String, Object> body = Map.of(
                 "model", "speech-2.8-hd",
                 "text", request.getText(),
@@ -51,59 +53,89 @@ public class TtsService {
 
         log.info("Calling MiniMax TTS API for text length: {}", request.getText().length());
 
-        return webClient.post()
-                .uri("/t2a_v2")
+        Request httpRequest = new Request.Builder()
+                .url(MINI_MAX_API_URL + "/t2a_v2")
                 .header("Authorization", "Bearer " + apiKey)
-                .bodyValue(body)
-                .retrieve()
-                .bodyToFlux(byte[].class);
+                .post(RequestBody.create(JSON.toJSONString(body), okhttp3.MediaType.parse("application/json; charset=utf-8")))
+                .build();
+
+        OkHttpUtil.executeStream(httpRequest, new OkHttpUtil.OkHttpStreamCallback() {
+            @Override
+            public void onConnect(Call call) {
+                log.info("TTS stream connected");
+                SseEmitterUtil.init(emitter, "TTS stream connected");
+            }
+
+            @Override
+            public void onResponse(Call call, String data) {
+                log.info("data: {}", data);
+                SseEmitterUtil.data(emitter, data);
+            }
+
+            @Override
+            public void onFailure(Call call, IOException e) {
+                log.error("error", e);
+                SseEmitterUtil.completeWithError(emitter, e);
+            }
+
+            @Override
+            public void onClose(Call call) {
+                SseEmitterUtil.complete(emitter);
+            }
+        });
+
+        return emitter;
     }
 
-    @SuppressWarnings("unchecked")
     public List<VoiceResponse> getVoices() {
         Map<String, Object> body = Map.of("voice_type", "all");
 
         log.info("Fetching voice list from MiniMax API");
 
-        Map<String, Object> response = webClient.post()
-                .uri("/get_voice")
+        Request request = new Request.Builder()
+                .url(MINI_MAX_API_URL + "/get_voice")
                 .header("Authorization", "Bearer " + apiKey)
-                .bodyValue(body)
-                .retrieve()
-                .bodyToMono(Map.class)
-                .block();
+                .post(RequestBody.create(JSON.toJSONString(body), okhttp3.MediaType.parse("application/json; charset=utf-8")))
+                .build();
 
-        if (response == null) {
+        try {
+            Map<String, Object> responseMap = OkHttpUtil.execute(request, Map.class);
+
+            if (responseMap == null) {
+                return List.of();
+            }
+
+            List<VoiceResponse> voices = new ArrayList<>();
+
+            // Parse system_voice
+            List<Map<String, Object>> systemVoices = (List<Map<String, Object>>) responseMap.get("system_voice");
+            if (systemVoices != null) {
+                for (Map<String, Object> voice : systemVoices) {
+                    voices.add(parseVoice(voice, "system_voice"));
+                }
+            }
+
+            // Parse voice_cloning
+            List<Map<String, Object>> cloningVoices = (List<Map<String, Object>>) responseMap.get("voice_cloning");
+            if (cloningVoices != null) {
+                for (Map<String, Object> voice : cloningVoices) {
+                    voices.add(parseVoice(voice, "voice_cloning"));
+                }
+            }
+
+            // Parse voice_generation
+            List<Map<String, Object>> generationVoices = (List<Map<String, Object>>) responseMap.get("voice_generation");
+            if (generationVoices != null) {
+                for (Map<String, Object> voice : generationVoices) {
+                    voices.add(parseVoice(voice, "voice_generation"));
+                }
+            }
+
+            return voices;
+        } catch (IOException e) {
+            log.error("Error fetching voices", e);
             return List.of();
         }
-
-        List<VoiceResponse> voices = new java.util.ArrayList<>();
-
-        // Parse system_voice
-        List<Map<String, Object>> systemVoices = (List<Map<String, Object>>) response.get("system_voice");
-        if (systemVoices != null) {
-            for (Map<String, Object> voice : systemVoices) {
-                voices.add(parseVoice(voice, "system_voice"));
-            }
-        }
-
-        // Parse voice_cloning
-        List<Map<String, Object>> cloningVoices = (List<Map<String, Object>>) response.get("voice_cloning");
-        if (cloningVoices != null) {
-            for (Map<String, Object> voice : cloningVoices) {
-                voices.add(parseVoice(voice, "voice_cloning"));
-            }
-        }
-
-        // Parse voice_generation
-        List<Map<String, Object>> generationVoices = (List<Map<String, Object>>) response.get("voice_generation");
-        if (generationVoices != null) {
-            for (Map<String, Object> voice : generationVoices) {
-                voices.add(parseVoice(voice, "voice_generation"));
-            }
-        }
-
-        return voices;
     }
 
     private VoiceResponse parseVoice(Map<String, Object> voice, String type) {

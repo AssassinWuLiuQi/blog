@@ -22,12 +22,12 @@ const handleVoiceChange = (voiceId: string): void => {
 <template>
   <aside class="flex-1 min-w-[320px] flex flex-col gap-6">
     <!-- Playback Control Panel -->
-    <PlaybackControls :text="props.text" :voice-id="selectedVoiceId" />
+    <PlaybackControls :text="text" :voice-id="selectedVoiceId" />
 
     <!-- Voice Profile Card -->
     <VoiceProfile @voice-change="handleVoiceChange" />
 
     <!-- Text Analysis Card -->
-    <TextAnalysis :text="props.text" />
+    <TextAnalysis :text="text" />
   </aside>
 </template>

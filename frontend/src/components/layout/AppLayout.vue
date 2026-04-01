@@ -19,17 +19,17 @@ const handleSidebarToggle = (collapsed: boolean) => {
 </script>
 
 <template>
-  <div class="flex min-h-screen bg-background">
+  <div class="flex min-h-screen min-w-[1280px] bg-background">
     <!-- Sidebar -->
-    <SideNavBar @update:collapsed="handleSidebarToggle" />
+    <SideNavBar class="fixed left-0 top-0 h-screen" @update:collapsed="handleSidebarToggle" />
 
-    <!-- Main Content Area -->
+    <!-- Main Container -->
     <div
       class="flex-1 flex flex-col transition-all duration-300 ease-in-out"
       :class="sidebarCollapsed ? 'ml-16' : 'ml-64'"
     >
-      <!-- Top App Bar -->
-      <TopAppBar :section-title="sectionTitle" />
+      <!-- TopAppBar -->
+      <TopAppBar class="shrink-0 h-16" :section-title="sectionTitle" />
 
       <!-- Page Content Slot -->
       <main class="flex-1 overflow-auto">

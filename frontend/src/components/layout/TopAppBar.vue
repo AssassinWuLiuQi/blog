@@ -46,7 +46,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <header class="fixed top-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-md z-40 border-b border-outline-variant/10 transition-all duration-300 flex items-center justify-between px-6">
+  <header class="bg-white/80 backdrop-blur-md border-b border-outline-variant/10 transition-all duration-300 flex items-center justify-between px-6">
     <!-- Left: Section Title -->
     <div class="flex items-center gap-3">
       <h2 class="text-lg font-semibold text-on-surface tracking-tight">{{ sectionTitle }}</h2>

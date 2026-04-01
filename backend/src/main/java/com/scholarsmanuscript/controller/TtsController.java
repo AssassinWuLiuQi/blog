@@ -6,11 +6,10 @@ import com.scholarsmanuscript.dto.response.VoiceResponse;
 import com.scholarsmanuscript.service.TtsService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Flux;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
 
@@ -27,10 +26,8 @@ public class TtsController {
         return ResponseEntity.ok(ApiResponse.success(voices));
     }
 
-    @PostMapping(value = "/speech", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public Flux<byte[]> textToSpeech(@Valid @RequestBody TtsRequest request) {
-        Flux<byte[]> audioStream = ttsService.streamSpeech(request);
-
-        return audioStream;
+    @PostMapping(value = "/speech", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter textToSpeech(@Valid @RequestBody TtsRequest request) {
+        return ttsService.streamSpeech(request);
     }
 }

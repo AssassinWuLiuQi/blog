@@ -28,7 +28,8 @@ server:
   port: 8080
 
 jwt:
-  expiration: 900000
+  secret: ${JWT_SECRET:}
+  expiration: 86400000
   refresh-expiration: 604800000
 
 app:
