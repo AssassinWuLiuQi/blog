@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onBeforeUnmount, watch } from 'vue'
+import { ref, onBeforeUnmount, watch, onMounted } from 'vue'
 import { useEditor, EditorContent, type Editor } from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
@@ -44,11 +44,7 @@ const editor = useEditor({
     })
   ],
   content: props.modelValue || `
-    <h2>论数字时代的学术文本演进</h2>
-    <p>在数字人文研究的宏大叙事中，文本不再仅仅是静态的知识载体，而是演变成了一种动态的、可交互的数据集。随着大规模语言模型与自然语言处理技术的飞速发展，研究者们得以从全新的维度审视文学作品、历史文献以及学术论文之间的深层关联。</p>
-    <p>学术手稿（Manuscript）的数字化过程，并非简单的格式转换，而是一个包含语义标注、关联建模及多模态呈现的复杂系统工程。</p>
-    <blockquote>"数字技术赋予了传统文本以'生命'，使其能够跨越时空的界限，在海量数据的海洋中寻找共鸣。" —— 某学术季刊特约社论</blockquote>
-    <p>在未来的学术生态中，文本处理技术将进一步向智能化迈进。</p>
+    <p>梨花落了春红，太匆匆</p>
   `,
   editorProps: {
     attributes: {
@@ -64,6 +60,13 @@ const editor = useEditor({
 watch(() => props.modelValue, (newVal: string) => {
   if (editor.value && newVal !== editor.value.getText()) {
     editor.value.commands.setContent(newVal)
+  }
+})
+
+// 挂载时也触发一次更新，传递默认内容
+onMounted(() => {
+  if (editor.value) {
+    emit('update:modelValue', editor.value.getText())
   }
 })
 
