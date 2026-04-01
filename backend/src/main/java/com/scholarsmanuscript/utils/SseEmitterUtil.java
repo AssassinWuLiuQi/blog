@@ -1,60 +1,45 @@
 package com.scholarsmanuscript.utils;
 
-import com.alibaba.fastjson2.JSON;
-import com.scholarsmanuscript.dto.response.SseResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 
 @Slf4j
+@Component
 public class SseEmitterUtil {
 
-    public static final String EVENT_MESSAGE = "message";
-
-    public static void send(SseEmitter emitter, String data) {
-        try {
-            emitter.send(SseEmitter.event().data(data).name(EVENT_MESSAGE));
-        } catch (IOException e) {
-            emitter.completeWithError(e);
-        }
-    }
-
-    public static void send(SseEmitter emitter, String data, String event) {
-        try {
-            emitter.send(SseEmitter.event().data(data).name(event));
-        } catch (IOException e) {
-            emitter.completeWithError(e);
-        }
-    }
-
-    public static void send(SseEmitter emitter, SseResponse response) {
-        send(emitter, JSON.toJSONString(response));
-    }
-
-    public static void send(SseEmitter emitter, SseResponse response, String event) {
-        send(emitter, JSON.toJSONString(response), event);
-    }
-
     public static void init(SseEmitter emitter, String message) {
-        send(emitter, SseResponse.init(message));
+        try {
+            emitter.send(SseEmitter.event().name("connected").data(message));
+        } catch (IOException e) {
+            log.error("Failed to send init event: {}", e.getMessage());
+            emitter.completeWithError(e);
+        }
     }
 
-    public static void data(SseEmitter emitter, Object data) {
-        send(emitter, SseResponse.data(data));
+    public static void data(SseEmitter emitter, String data) {
+        try {
+            emitter.send(SseEmitter.event().name("data").data(data));
+        } catch (IOException e) {
+            log.error("Failed to send data event: {}", e.getMessage());
+            emitter.completeWithError(e);
+        }
     }
 
-    public static void error(SseEmitter emitter, String message) {
-        send(emitter, SseResponse.error(message));
+    public static void completeWithError(SseEmitter emitter, Exception e) {
+        log.error("SSE complete with error: {}", e.getMessage());
+        emitter.completeWithError(e);
     }
 
     public static void complete(SseEmitter emitter) {
-        send(emitter, SseResponse.complete());
-        emitter.complete();
-    }
-
-    public static void completeWithError(SseEmitter emitter, Throwable t) {
-        send(emitter, SseResponse.error(t.getMessage()));
-        emitter.completeWithError(t);
+        try {
+            emitter.send(SseEmitter.event().name("close").data("complete"));
+            emitter.complete();
+        } catch (IOException e) {
+            log.error("Failed to send close event: {}", e.getMessage());
+            emitter.complete();
+        }
     }
 }
