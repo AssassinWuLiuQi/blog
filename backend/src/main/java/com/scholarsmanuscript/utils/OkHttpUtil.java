@@ -1,7 +1,11 @@
 package com.scholarsmanuscript.utils;
 
+import com.alibaba.fastjson2.JSON;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
+import okhttp3.sse.EventSource;
+import okhttp3.sse.EventSourceListener;
+import okhttp3.sse.EventSources;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -18,43 +22,50 @@ public class OkHttpUtil {
             .writeTimeout(30, TimeUnit.SECONDS)
             .build();
 
+    /**
+     * SSE 流式回调接口
+     */
     public interface OkHttpStreamCallback {
-        void onConnect(Call call);
-        void onResponse(Call call, String data);
-        void onFailure(Call call, IOException e);
-        void onClose(Call call);
+        void onOpen(EventSource eventSource);
+        void onEvent(EventSource eventSource, String id, String type, String data);
+        void onFailure(EventSource eventSource, Throwable t);
+        void onClosed(EventSource eventSource);
     }
 
+    /**
+     * 执行 SSE 流式请求
+     */
     public static void executeStream(Request request, OkHttpStreamCallback callback) {
-        CLIENT.newCall(request).enqueue(new Callback() {
+        EventSource.Factory factory = EventSources.createFactory(CLIENT);
+
+        EventSource eventSource = factory.newEventSource(request, new EventSourceListener() {
             @Override
-            public void onFailure(Call call, IOException e) {
-                log.error("OkHttp stream failure: {}", e.getMessage());
-                callback.onFailure(call, e);
+            public void onOpen(EventSource eventSource, Response response) {
+                log.info("SSE connected");
+                callback.onOpen(eventSource);
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                callback.onConnect(call);
-                if (!response.isSuccessful()) {
-                    callback.onFailure(call, new IOException("Unexpected response code: " + response.code()));
-                    return;
-                }
+            public void onEvent(EventSource eventSource, String id, String type, String data) {
+                callback.onEvent(eventSource, id, type, data);
+            }
 
-                try (ResponseBody body = response.body()) {
-                    if (body == null) {
-                        callback.onClose(call);
-                        return;
-                    }
+            @Override
+            public void onClosed(EventSource eventSource) {
+                callback.onClosed(eventSource);
+            }
 
-                    String data = body.string();
-                    callback.onResponse(call, data);
-                    callback.onClose(call);
-                }
+            @Override
+            public void onFailure(EventSource eventSource, Throwable t, Response response) {
+                log.error("SSE failure: {}", t.getMessage());
+                callback.onFailure(eventSource, t);
             }
         });
     }
 
+    /**
+     * 执行普通 HTTP 请求
+     */
     public static <T> T execute(Request request, Class<T> responseClass) throws IOException {
         try (Response response = CLIENT.newCall(request).execute()) {
             if (!response.isSuccessful()) {
@@ -74,8 +85,8 @@ public class OkHttpUtil {
     @SuppressWarnings("unchecked")
     private static <T> T parseJson(String json, Class<T> responseClass) {
         if (responseClass == Map.class) {
-            return (T) com.alibaba.fastjson2.JSON.parseObject(json, Map.class);
+            return (T) JSON.parseObject(json, Map.class);
         }
-        return com.alibaba.fastjson2.JSON.parseObject(json, responseClass);
+        return JSON.parseObject(json, responseClass);
     }
 }

@@ -42,4 +42,13 @@ public class SseEmitterUtil {
             emitter.complete();
         }
     }
+
+    public static void error(SseEmitter emitter, String message) {
+        try {
+            emitter.send(SseEmitter.event().name("error").data(message));
+        } catch (IOException e) {
+            log.error("Failed to send error event: {}", e.getMessage());
+        }
+        emitter.complete();
+    }
 }
