@@ -33,6 +33,7 @@ const toggleCollapse = (): void => {
 const navItems = [
   { path: '/', icon: 'home', label: '首页', exact: true },
   { path: '/tech-preview', icon: 'science', label: '技术预览', exact: false },
+  { path: '/image-generation', icon: 'image', label: '图像生成', exact: false },
   { path: '/logs', icon: 'history', label: '日志', exact: false },
   { path: '/gadgets', icon: 'widgets', label: '小工具', exact: false, hasChildren: true },
 ]

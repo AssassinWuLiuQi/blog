@@ -3,6 +3,7 @@ import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
 import RegisterView from '../views/RegisterView.vue'
 import TechPreviewView from '../views/TechPreviewView.vue'
+import ImageGenerationView from '../views/ImageGenerationView.vue'
 import ArticleView from '../views/ArticleView.vue'
 import ArchiveView from '../views/ArchiveView.vue'
 import SettingsView from '../views/SettingsView.vue'
@@ -65,6 +66,12 @@ const routes: RouteRecordRaw[] = [
     path: '/gadgets/cyber-burning',
     name: 'cyber-burning',
     component: () => import('@/views/gadgets/CyberBurningView.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/image-generation',
+    name: 'image-generation',
+    component: ImageGenerationView,
     meta: { requiresAuth: true }
   }
 ]
