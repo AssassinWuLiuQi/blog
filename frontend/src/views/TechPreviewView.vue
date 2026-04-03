@@ -17,7 +17,7 @@ const handleExport = (content: string): void => {
 </script>
 
 <template>
-  <AppLayout section-title="技术预览 - 文本相关">
+  <AppLayout section-title="Editor-TTS - 文本相关">
     <div class="p-8 flex gap-8 flex-1 overflow-hidden h-[calc(100vh-8rem)]">
       <!-- Left Column: Rich Text Editor -->
       <div class="flex-[3] flex flex-col">

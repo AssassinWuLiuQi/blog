@@ -72,8 +72,8 @@ public class ImageService {
         // Parse metadata
         Map<String, Object> metadata = (Map<String, Object>) responseMap.get("metadata");
         if (metadata != null) {
-            builder.successCount((Integer) metadata.get("success_count"));
-            builder.failedCount((Integer) metadata.get("failed_count"));
+            builder.successCount(Integer.valueOf((String) metadata.get("success_count")));
+            builder.failedCount(Integer.valueOf((String) metadata.get("failed_count")));
         }
 
         // Parse image URLs

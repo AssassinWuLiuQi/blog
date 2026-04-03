@@ -6,7 +6,7 @@ Based on `ui/code.html`, the design includes:
 
 | Section | Components |
 |---------|------------|
-| **SideNavBar** | Logo, Navigation items (首页, 技术预览, 子菜单), Settings |
+| **SideNavBar** | Logo, Navigation items (首页, Editor-TTS, 子菜单), Settings |
 | **TopAppBar** | Section title, Search input, User profile |
 | **Main Content** | Split layout: Editor (3/4) + TTS Panel (1/4) |
 | **Editor** | Toolbar, Auto-save status, Export button, Article content |
@@ -20,7 +20,7 @@ Based on `ui/code.html`, the design includes:
 ### 1.1 Router Configuration
 - [ ] Configure Vue Router with routes:
   - `/` - Home (首页)
-  - `/tech-preview` - Technical Preview list (技术预览)
+  - `/tech-preview` - Technical Preview list (Editor-TTS)
   - `/tech-preview/:category` - Category view (e.g., 文本处理)
   - `/article/:id` - Article detail
   - `/archive` - Archive

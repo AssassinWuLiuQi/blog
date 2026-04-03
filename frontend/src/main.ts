@@ -6,14 +6,17 @@ import App from './App.vue'
 import router from './router'
 import { useAuthStore } from './stores/auth'
 import { setPublicKey } from './utils/crypto'
+import componentPlugins from './plugins/components'
 import './assets/main.css'
+// Import SVG sprite
+import 'virtual:svg-icons-register'
 
 const app = createApp(App)
-
 const pinia = createPinia()
 app.use(pinia)
 app.use(router)
 app.use(ElementPlus)
+app.use(componentPlugins)
 
 // Initialize auth and encryption key AFTER pinia is installed
 fetch('/api/auth/public-key')

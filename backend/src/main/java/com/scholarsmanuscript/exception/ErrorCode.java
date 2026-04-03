@@ -13,7 +13,8 @@ public enum ErrorCode {
     UNAUTHORIZED("AUTH_000", "Unauthorized access"),
     FORBIDDEN("AUTH_004", "Forbidden access"),
     USER_LIMIT_EXCEEDED("USER_004", "User registration limit exceeded"),
-    INVALID_PASSWORD("AUTH_005", "Invalid old password");
+    INVALID_PASSWORD("AUTH_005", "Invalid old password"),
+    NOT_FOUND("GEN_001", "Resource not found");
 
     private final String code;
     private final String message;

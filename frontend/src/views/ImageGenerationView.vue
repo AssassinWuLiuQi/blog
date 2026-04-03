@@ -2,25 +2,12 @@
 import { ref, watch } from 'vue'
 import AppLayout from '@/components/layout/AppLayout.vue'
 import ImagePanel from '@/components/image/ImagePanel.vue'
+import { fetchImageHistory, type ImageHistoryItem } from '@/utils/imageApi'
 
 const searchQuery = ref('')
 const generatedImages = ref<string[]>([])
 const historyDrawerVisible = ref(false)
-
-interface HistoryItem {
-  id: number
-  title: string
-  date: string
-  description: string
-  thumbnail: string
-  imageUrls: string[]
-  model: string
-  aspectRatio: string
-  style: string
-  successCount: number
-  failedCount: number
-  createdAt: string
-}
+const imagePanelRef = ref<InstanceType<typeof ImagePanel> | null>(null)
 
 const selectedIds = ref<Set<number>>(new Set())
 
@@ -29,56 +16,12 @@ const pageSize = ref(10)
 const hasMore = ref(true)
 const loadingMore = ref(false)
 
-const historyList = ref<HistoryItem[]>([])
-
-const formatDate = (dateStr: string): string => {
-  const d = new Date(dateStr)
-  const pad = (n: number) => n.toString().padStart(2, '0')
-  return `${d.getFullYear()}.${pad(d.getMonth() + 1)}.${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`
-}
-
-const fetchHistory = async (page: number, size: number): Promise<HistoryItem[]> => {
-  try {
-    const token = localStorage.getItem('token')
-    const res = await fetch(`/api/image/history?page=${page}&size=${size}`, {
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
-      }
-    })
-    if (!res.ok) {
-      console.error('Failed to fetch history:', res.status, res.statusText)
-      return []
-    }
-    const json = await res.json()
-    if (json.code !== 200) {
-      console.error('Failed to fetch history:', json.message)
-      return []
-    }
-    return json.data.content.map((item: any) => ({
-      id: item.id,
-      title: item.prompt.length > 30 ? item.prompt.substring(0, 30) + '...' : item.prompt,
-      date: formatDate(item.createdAt),
-      description: item.prompt,
-      thumbnail: item.imageUrls && item.imageUrls.length > 0 ? item.imageUrls[0] : '',
-      imageUrls: item.imageUrls || [],
-      model: item.model,
-      aspectRatio: item.aspectRatio,
-      style: item.style,
-      successCount: item.successCount,
-      failedCount: item.failedCount,
-      createdAt: item.createdAt
-    }))
-  } catch (error) {
-    console.error('Failed to fetch history:', error)
-    return []
-  }
-}
+const historyList = ref<ImageHistoryItem[]>([])
 
 const loadHistory = async (): Promise<void> => {
   if (loadingMore.value || !hasMore.value) return
   loadingMore.value = true
-  const items = await fetchHistory(currentPage.value, pageSize.value)
+  const items = await fetchImageHistory(currentPage.value, pageSize.value)
   if (items.length < pageSize.value) {
     hasMore.value = false
   }
@@ -96,17 +39,22 @@ const handleDownload = (url: string, index: number): void => {
 }
 
 const detailsDialogVisible = ref(false)
-const currentDetailsItem = ref<HistoryItem | null>(null)
+const currentDetailsItem = ref<ImageHistoryItem | null>(null)
 
-const openDetails = (item: HistoryItem): void => {
+const openDetails = (item: ImageHistoryItem): void => {
   currentDetailsItem.value = item
   detailsDialogVisible.value = true
 }
 
-const handleReuse = (item: HistoryItem): void => {
+const handleReuse = (item: ImageHistoryItem): void => {
   historyDrawerVisible.value = false
-  console.log('Reuse prompt:', item.description)
-  // TODO: 回填到 ImagePanel（等 ImagePanel 改造后对接）
+  detailsDialogVisible.value = false
+  imagePanelRef.value?.fillForm({
+    description: item.description,
+    model: item.model,
+    aspectRatio: item.aspectRatio,
+    style: item.style
+  })
 }
 
 const handleHistoryScroll = (event: Event): void => {
@@ -120,7 +68,7 @@ const handleHistoryScroll = (event: Event): void => {
 const contextmenuVisible = ref(false)
 const contextmenuPosition = ref({ x: 0, y: 0 })
 
-const handleContextMenu = (event: MouseEvent, item: HistoryItem): void => {
+const handleContextMenu = (event: MouseEvent, item: ImageHistoryItem): void => {
   event.preventDefault()
   selectedIds.value.clear()
   selectedIds.value.add(item.id)
@@ -169,7 +117,7 @@ watch(historyDrawerVisible, (visible) => {
   <AppLayout section-title="图像生成">
     <div class="flex flex-1 h-[calc(100vh-4rem)]">
       <!-- Left Column: Image Generation Panel (1/3) -->
-      <ImagePanel v-model="generatedImages" class="w-1/3" />
+      <ImagePanel ref="imagePanelRef" v-model="generatedImages" class="w-1/3" />
 
       <!-- Right Column: Results Gallery (2/3) -->
       <div class="flex-1 w-2/3 bg-white p-8 flex flex-col">
@@ -268,12 +216,12 @@ watch(historyDrawerVisible, (visible) => {
         v-model="historyDrawerVisible"
         title=""
         direction="rtl"
-        size="448px"
+        size="600px"
         :with-header="false"
       >
-        <div class="h-full flex flex-col">
+        <div class="h-full flex flex-col overflow-hidden">
           <!-- Drawer Header -->
-          <div class="flex items-center justify-between px-6 py-5 border-b border-[#c2c6d4]/10">
+          <div class="shrink-0 flex items-center justify-between px-6 py-5 border-b border-[#c2c6d4]/10">
             <div class="flex items-center gap-3">
               <div class="w-9 h-9 rounded-lg bg-[#003f87]/10 flex items-center justify-center">
                 <span class="material-symbols-outlined text-[#003f87]">history</span>
@@ -352,21 +300,22 @@ watch(historyDrawerVisible, (visible) => {
           </div>
         </div>
 
-        <!-- Right-click Context Menu -->
-        <el-contextmenu
-          v-model:visible="contextmenuVisible"
-          :x="contextmenuPosition.x"
-          :y="contextmenuPosition.y"
-          :key="`${contextmenuPosition.x}-${contextmenuPosition.y}`"
-        >
-          <el-contextmenu-item @click="handleSelectAll">
-            全选
-          </el-contextmenu-item>
-          <el-contextmenu-item @click="handleDeleteSelected" :disabled="selectedIds.size === 0">
-            删除选中 ({{ selectedIds.size }})
-          </el-contextmenu-item>
-        </el-contextmenu>
       </el-drawer>
+
+      <!-- Right-click Context Menu (outside drawer to avoid scroll issues) -->
+      <!-- <el-contextmenu
+        v-model:visible="contextmenuVisible"
+        :x="contextmenuPosition.x"
+        :y="contextmenuPosition.y"
+        :key="`${contextmenuPosition.x}-${contextmenuPosition.y}`"
+      >
+        <el-contextmenu-item @click="handleSelectAll">
+          全选
+        </el-contextmenu-item>
+        <el-contextmenu-item @click="handleDeleteSelected" :disabled="selectedIds.size === 0">
+          删除选中 ({{ selectedIds.size }})
+        </el-contextmenu-item>
+      </el-contextmenu> -->
 
       <!-- Details Dialog -->
       <el-dialog

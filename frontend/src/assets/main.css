@@ -162,3 +162,68 @@ body {
   --el-message-border-color: var(--outline-variant);
   --el-message-text-color: var(--on-surface);
 }
+
+/* Element Plus Collapse Custom Styles */
+.el-collapse {
+  --el-collapse-border-color: var(--outline);
+  --el-collapse-header-bg-color: var(--surface);
+  --el-collapse-content-bg-color: transparent;
+  border: none;
+}
+
+.el-collapse-item__header {
+  --el-text-color-regular: var(--on-surface-variant);
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+
+.el-collapse-item__wrap {
+  border: none;
+}
+
+.el-collapse-item__content {
+  padding-top: 16px;
+  color: var(--on-surface-variant);
+}
+
+/* Element Plus Input Custom Styles */
+.el-input__wrapper {
+  background-color: var(--surface) !important;
+  box-shadow: none !important;
+  border-radius: 6px;
+}
+
+.el-input__wrapper:hover {
+  box-shadow: 0 0 0 1px var(--primary) inset !important;
+}
+
+.el-input__wrapper:focus {
+  box-shadow: 0 0 0 1px var(--primary) inset !important;
+}
+
+.el-input__inner {
+  color: var(--on-surface-variant);
+}
+
+.el-input__inner::placeholder {
+  color: var(--outline);
+}
+
+/* Element Plus Switch Custom Styles */
+.el-switch {
+  --el-switch-off-color: var(--outline);
+  --el-switch-on-color: var(--primary);
+}
+
+/* Element Plus Button Custom Styles */
+.el-button {
+  --el-button-bg-color: var(--surface);
+  --el-button-border-color: var(--outline);
+  --el-button-text-color: var(--on-surface-variant);
+  --el-button-hover-bg-color: var(--surface-container);
+  --el-button-hover-border-color: var(--outline);
+  --el-button-hover-text-color: var(--on-surface);
+  border-radius: 6px;
+}
