@@ -2,6 +2,7 @@ import { fetchWithAuth } from './api'
 import type { ImageGenerationRequest, ImageGenerationResponse } from '@/types/image'
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api'
+const API_SUCCESS_CODE = 200
 
 export async function generateImage(
   request: ImageGenerationRequest
@@ -55,7 +56,7 @@ export async function fetchImageHistory(page: number, size: number): Promise<Ima
       return []
     }
     const json = await res.json()
-    if (json.code !== 200) {
+    if (json.code !== API_SUCCESS_CODE) {
       console.error('Failed to fetch history:', json.message)
       return []
     }

@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,15 +31,14 @@ public class ImageService {
     public ImageGenerationResponse generateImage(ImageGenerationRequest request) {
         log.info("Calling MiniMax Image Generation API for prompt length: {}", request.getPrompt().length());
 
-        Map<String, Object> body = Map.of(
-                "model", request.getModel(),
-                "prompt", request.getPrompt(),
-                "aspect_ratio", request.getAspectRatio(),
-                "n", request.getN(),
-                "response_format", request.getResponseFormat(),
-                "prompt_optimizer", request.getPromptOptimizer(),
-                "aigc_watermark", request.getAigcWatermark()
-        );
+        Map<String, Object> body = new HashMap<>();
+        body.put("model", request.getModel());
+        body.put("prompt", request.getPrompt());
+        body.put("aspect_ratio", request.getAspectRatio());
+        body.put("n", request.getN());
+        body.put("response_format", request.getResponseFormat());
+        body.put("prompt_optimizer", request.getPromptOptimizer());
+        body.put("aigc_watermark", request.getAigcWatermark());
 
         Request httpRequest = new Request.Builder()
                 .url(MINI_MAX_API_URL + "/image_generation")
@@ -72,8 +72,8 @@ public class ImageService {
         // Parse metadata
         Map<String, Object> metadata = (Map<String, Object>) responseMap.get("metadata");
         if (metadata != null) {
-            builder.successCount(Integer.valueOf((String) metadata.get("success_count")));
-            builder.failedCount(Integer.valueOf((String) metadata.get("failed_count")));
+            builder.successCount(safeGetInt(metadata, "success_count"));
+            builder.failedCount(safeGetInt(metadata, "failed_count"));
         }
 
         // Parse image URLs
@@ -89,5 +89,13 @@ public class ImageService {
         builder.imageUrls(imageUrls);
 
         return builder.build();
+    }
+
+    private Integer safeGetInt(Map<String, Object> map, String key) {
+        Object value = map.get(key);
+        if (value == null) return null;
+        if (value instanceof Integer) return (Integer) value;
+        if (value instanceof String) return Integer.valueOf((String) value);
+        return null;
     }
 }

@@ -72,7 +72,7 @@ const handleGenerate = async (): Promise<void> => {
 
 const handleReset = (): void => {
   prompt.value = ''
-  selectedModel.value = 'minimax'
+  selectedModel.value = 'image-01'
   aspectRatio.value = '1:1'
   seed.value = ''
   useSeed.value = false

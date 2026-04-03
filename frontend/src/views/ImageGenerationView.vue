@@ -21,13 +21,18 @@ const historyList = ref<ImageHistoryItem[]>([])
 const loadHistory = async (): Promise<void> => {
   if (loadingMore.value || !hasMore.value) return
   loadingMore.value = true
-  const items = await fetchImageHistory(currentPage.value, pageSize.value)
-  if (items.length < pageSize.value) {
-    hasMore.value = false
+  try {
+    const items = await fetchImageHistory(currentPage.value, pageSize.value)
+    if (items.length < pageSize.value) {
+      hasMore.value = false
+    }
+    historyList.value.push(...items)
+    currentPage.value++
+  } catch (error) {
+    console.error('Failed to load history:', error)
+  } finally {
+    loadingMore.value = false
   }
-  historyList.value.push(...items)
-  currentPage.value++
-  loadingMore.value = false
 }
 
 const handleDownload = (url: string, index: number): void => {
