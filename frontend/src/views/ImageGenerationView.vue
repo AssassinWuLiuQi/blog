@@ -38,9 +38,23 @@ const formatDate = (dateStr: string): string => {
 }
 
 const fetchHistory = async (page: number, size: number): Promise<HistoryItem[]> => {
-  const res = await fetch(`/api/image/history?page=${page}&size=${size}`)
-  const json = await res.json()
-  if (json.code === 200) {
+  try {
+    const token = localStorage.getItem('token')
+    const res = await fetch(`/api/image/history?page=${page}&size=${size}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+      }
+    })
+    if (!res.ok) {
+      console.error('Failed to fetch history:', res.status, res.statusText)
+      return []
+    }
+    const json = await res.json()
+    if (json.code !== 200) {
+      console.error('Failed to fetch history:', json.message)
+      return []
+    }
     return json.data.content.map((item: any) => ({
       id: item.id,
       title: item.prompt.length > 30 ? item.prompt.substring(0, 30) + '...' : item.prompt,
@@ -55,8 +69,10 @@ const fetchHistory = async (page: number, size: number): Promise<HistoryItem[]> 
       failedCount: item.failedCount,
       createdAt: item.createdAt
     }))
+  } catch (error) {
+    console.error('Failed to fetch history:', error)
+    return []
   }
-  return []
 }
 
 const loadHistory = async (): Promise<void> => {
@@ -79,12 +95,18 @@ const handleDownload = (url: string, index: number): void => {
   link.click()
 }
 
-const handleReuse = (item: HistoryItem): void => {
-  console.log('Reuse:', item)
+const detailsDialogVisible = ref(false)
+const currentDetailsItem = ref<HistoryItem | null>(null)
+
+const openDetails = (item: HistoryItem): void => {
+  currentDetailsItem.value = item
+  detailsDialogVisible.value = true
 }
 
-const handleDetails = (item: HistoryItem): void => {
-  console.log('Details:', item)
+const handleReuse = (item: HistoryItem): void => {
+  historyDrawerVisible.value = false
+  console.log('Reuse prompt:', item.description)
+  // TODO: 回填到 ImagePanel（等 ImagePanel 改造后对接）
 }
 
 const handleHistoryScroll = (event: Event): void => {
@@ -114,9 +136,13 @@ const handleSelectAll = (): void => {
 const handleDeleteSelected = async (): Promise<void> => {
   if (selectedIds.value.size === 0) return
   try {
+    const token = localStorage.getItem('token')
     await fetch('/api/image/history/batch-delete', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+      },
       body: JSON.stringify({ ids: Array.from(selectedIds.value) })
     })
     historyList.value = historyList.value.filter(item => !selectedIds.value.has(item.id))
@@ -308,7 +334,7 @@ watch(historyDrawerVisible, (visible) => {
                       <span class="text-[#c2c6d4]">•</span>
                       <button
                         class="px-3 py-1 text-xs font-semibold text-[#424752] hover:bg-[#424752]/5 rounded transition-colors"
-                        @click="handleDetails(item)"
+                        @click="openDetails(item)"
                       >
                         Details
                       </button>
@@ -341,6 +367,64 @@ watch(historyDrawerVisible, (visible) => {
           </el-contextmenu-item>
         </el-contextmenu>
       </el-drawer>
+
+      <!-- Details Dialog -->
+      <el-dialog
+        v-model="detailsDialogVisible"
+        title="生成详情"
+        width="600px"
+        :close-on-click-modal="true"
+      >
+        <div v-if="currentDetailsItem" class="space-y-4">
+          <!-- Prompt -->
+          <div>
+            <h4 class="text-sm font-semibold text-[#424752] mb-1">Prompt</h4>
+            <p class="text-sm text-[#191c1e] bg-[#f7f9fb] p-3 rounded">{{ currentDetailsItem.description }}</p>
+          </div>
+
+          <!-- Images Grid -->
+          <div v-if="currentDetailsItem.imageUrls && currentDetailsItem.imageUrls.length > 0">
+            <h4 class="text-sm font-semibold text-[#424752] mb-2">生成图片</h4>
+            <div class="grid grid-cols-2 gap-2">
+              <img
+                v-for="(url, idx) in currentDetailsItem.imageUrls"
+                :key="idx"
+                :src="url"
+                class="w-full h-auto rounded object-contain bg-[#e6e8ea]"
+                alt=""
+              />
+            </div>
+          </div>
+
+          <!-- Meta Info -->
+          <div class="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <span class="text-[#424752]">模型：</span>
+              <span class="text-[#191c1e]">{{ currentDetailsItem.model }}</span>
+            </div>
+            <div>
+              <span class="text-[#424752]">比例：</span>
+              <span class="text-[#191c1e]">{{ currentDetailsItem.aspectRatio }}</span>
+            </div>
+            <div>
+              <span class="text-[#424752]">风格：</span>
+              <span class="text-[#191c1e]">{{ currentDetailsItem.style || '-' }}</span>
+            </div>
+            <div>
+              <span class="text-[#424752]">时间：</span>
+              <span class="text-[#191c1e]">{{ currentDetailsItem.date }}</span>
+            </div>
+            <div>
+              <span class="text-[#424752]">成功：</span>
+              <span class="text-[#16a34a]">{{ currentDetailsItem.successCount }}</span>
+            </div>
+            <div>
+              <span class="text-[#424752]">失败：</span>
+              <span class="text-[#dc2626]">{{ currentDetailsItem.failedCount }}</span>
+            </div>
+          </div>
+        </div>
+      </el-dialog>
     </div>
   </AppLayout>
 </template>
