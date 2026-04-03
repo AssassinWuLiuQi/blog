@@ -1,11 +1,15 @@
 package com.scholarsmanuscript.controller;
 
+import com.scholarsmanuscript.dto.request.BatchDeleteRequest;
 import com.scholarsmanuscript.dto.request.ImageGenerationRequest;
 import com.scholarsmanuscript.dto.response.ApiResponse;
+import com.scholarsmanuscript.dto.response.ImageGenerationHistoryResponse;
 import com.scholarsmanuscript.dto.response.ImageGenerationResponse;
+import com.scholarsmanuscript.service.ImageGenerationHistoryService;
 import com.scholarsmanuscript.service.ImageService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,10 +19,41 @@ import org.springframework.web.bind.annotation.*;
 public class ImageController {
 
     private final ImageService imageService;
+    private final ImageGenerationHistoryService historyService;
 
     @PostMapping("/generate")
     public ResponseEntity<ApiResponse<ImageGenerationResponse>> generate(
             @Valid @RequestBody ImageGenerationRequest request) {
-        return ResponseEntity.ok(ApiResponse.success(imageService.generateImage(request)));
+        ImageGenerationResponse response = imageService.generateImage(request);
+        // Save to history
+        historyService.saveHistory(request, response);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @GetMapping("/history")
+    public ResponseEntity<ApiResponse<Page<ImageGenerationHistoryResponse>>> getHistory(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Page<ImageGenerationHistoryResponse> histories = historyService.getHistory(page, size);
+        return ResponseEntity.ok(ApiResponse.success(histories));
+    }
+
+    @DeleteMapping("/history/{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteHistory(@PathVariable Long id) {
+        historyService.deleteHistory(id);
+        return ResponseEntity.ok(ApiResponse.success(null));
+    }
+
+    @DeleteMapping("/history")
+    public ResponseEntity<ApiResponse<Void>> deleteAllHistory() {
+        historyService.deleteAllHistory();
+        return ResponseEntity.ok(ApiResponse.success(null));
+    }
+
+    @PostMapping("/history/batch-delete")
+    public ResponseEntity<ApiResponse<Void>> batchDeleteHistory(
+            @Valid @RequestBody BatchDeleteRequest request) {
+        historyService.deleteHistories(request.getIds());
+        return ResponseEntity.ok(ApiResponse.success(null));
     }
 }
