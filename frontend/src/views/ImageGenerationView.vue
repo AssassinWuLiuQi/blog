@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import AppLayout from '@/components/layout/AppLayout.vue'
 import ImagePanel from '@/components/image/ImagePanel.vue'
 
@@ -7,40 +7,69 @@ const searchQuery = ref('')
 const generatedImages = ref<string[]>([])
 const historyDrawerVisible = ref(false)
 
-// Mock history data
 interface HistoryItem {
   id: number
   title: string
   date: string
   description: string
   thumbnail: string
+  imageUrls: string[]
+  model: string
+  aspectRatio: string
+  style: string
+  successCount: number
+  failedCount: number
+  createdAt: string
 }
 
 const selectedIds = ref<Set<number>>(new Set())
 
-const historyList = ref<HistoryItem[]>([
-  {
-    id: 1,
-    title: 'Academic Illustration',
-    date: '2024.05.20 14:30',
-    description: '17th century botanical manuscript, depicting a non-existent orchid with intricate detail and annotations.',
-    thumbnail: ''
-  },
-  {
-    id: 2,
-    title: 'Blueprints',
-    date: '2024.05.18 09:15',
-    description: 'Renaissance era flying machine blueprints on dark indigo background, technical drawing style.',
-    thumbnail: ''
-  },
-  {
-    id: 3,
-    title: 'Medieval Map',
-    date: '2024.05.15 16:45',
-    description: 'Ancient cartography style world map with sea monsters and decorative compass rose.',
-    thumbnail: ''
+const currentPage = ref(0)
+const pageSize = ref(10)
+const hasMore = ref(true)
+const loadingMore = ref(false)
+
+const historyList = ref<HistoryItem[]>([])
+
+const formatDate = (dateStr: string): string => {
+  const d = new Date(dateStr)
+  const pad = (n: number) => n.toString().padStart(2, '0')
+  return `${d.getFullYear()}.${pad(d.getMonth() + 1)}.${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`
+}
+
+const fetchHistory = async (page: number, size: number): Promise<HistoryItem[]> => {
+  const res = await fetch(`/api/image/history?page=${page}&size=${size}`)
+  const json = await res.json()
+  if (json.code === 200) {
+    return json.data.content.map((item: any) => ({
+      id: item.id,
+      title: item.prompt.length > 30 ? item.prompt.substring(0, 30) + '...' : item.prompt,
+      date: formatDate(item.createdAt),
+      description: item.prompt,
+      thumbnail: item.imageUrls && item.imageUrls.length > 0 ? item.imageUrls[0] : '',
+      imageUrls: item.imageUrls || [],
+      model: item.model,
+      aspectRatio: item.aspectRatio,
+      style: item.style,
+      successCount: item.successCount,
+      failedCount: item.failedCount,
+      createdAt: item.createdAt
+    }))
   }
-])
+  return []
+}
+
+const loadHistory = async (): Promise<void> => {
+  if (loadingMore.value || !hasMore.value) return
+  loadingMore.value = true
+  const items = await fetchHistory(currentPage.value, pageSize.value)
+  if (items.length < pageSize.value) {
+    hasMore.value = false
+  }
+  historyList.value.push(...items)
+  currentPage.value++
+  loadingMore.value = false
+}
 
 const handleDownload = (url: string, index: number): void => {
   const link = document.createElement('a')
@@ -56,6 +85,14 @@ const handleReuse = (item: HistoryItem): void => {
 
 const handleDetails = (item: HistoryItem): void => {
   console.log('Details:', item)
+}
+
+const handleHistoryScroll = (event: Event): void => {
+  const el = event.target as HTMLElement
+  const { scrollTop, scrollHeight, clientHeight } = el
+  if (scrollHeight - scrollTop - clientHeight < 50 && !loadingMore.value && hasMore.value) {
+    loadHistory()
+  }
 }
 
 const contextmenuVisible = ref(false)
@@ -91,6 +128,15 @@ const handleDeleteSelected = async (): Promise<void> => {
 }
 
 const isSelected = (id: number): boolean => selectedIds.value.has(id)
+
+watch(historyDrawerVisible, (visible) => {
+  if (visible && historyList.value.length === 0) {
+    currentPage.value = 0
+    hasMore.value = true
+    historyList.value = []
+    loadHistory()
+  }
+})
 </script>
 
 <template>
@@ -217,7 +263,7 @@ const isSelected = (id: number): boolean => selectedIds.value.has(id)
           </div>
 
           <!-- History List -->
-          <div class="flex-1 overflow-auto p-6">
+          <div class="flex-1 overflow-auto p-6" @scroll="handleHistoryScroll">
             <div class="flex flex-col gap-6">
               <div
                 v-for="item in historyList"
@@ -229,7 +275,13 @@ const isSelected = (id: number): boolean => selectedIds.value.has(id)
                 <div class="flex gap-4">
                   <!-- Thumbnail -->
                   <div class="w-24 h-24 rounded bg-[#e6e8ea] flex items-center justify-center shrink-0 overflow-hidden">
-                    <span class="material-symbols-outlined text-4xl text-[#c2c6d4]">image</span>
+                    <img
+                      v-if="item.thumbnail"
+                      :src="item.thumbnail"
+                      class="w-full h-full object-cover"
+                      alt="thumbnail"
+                    />
+                    <span v-else class="material-symbols-outlined text-4xl text-[#c2c6d4]">image</span>
                   </div>
 
                   <!-- Content -->
@@ -263,6 +315,12 @@ const isSelected = (id: number): boolean => selectedIds.value.has(id)
                     </div>
                   </div>
                 </div>
+              </div>
+              <div v-if="loadingMore" class="text-center py-4 text-[#424752] text-sm">
+                加载中...
+              </div>
+              <div v-if="!hasMore && historyList.length > 0" class="text-center py-4 text-[#424752] text-sm">
+                没有更多了
               </div>
             </div>
           </div>
