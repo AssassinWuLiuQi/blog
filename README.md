@@ -1,66 +1,64 @@
 # The Scholar's Manuscript (学者手稿)
 
-一个现代化的学术博客系统，支持富文本编辑、文本转语音、用户认证等功能。
+<p align="center">
+  <img src="https://img.shields.io/badge/Java-21+-blue.svg" alt="Java">
+  <img src="https://img.shields.io/badge/Spring%20Boot-3.3-green.svg" alt="Spring Boot">
+  <img src="https://img.shields.io/badge/Vue-3.4-brightgreen.svg" alt="Vue">
+  <img src="https://img.shields.io/badge/TypeScript-6.0-blue.svg" alt="TypeScript">
+  <img src="https://img.shields.io/badge/License-Private-red.svg" alt="License">
+</p>
+
+> 一个现代化的学术博客系统，支持富文本编辑、文本转语音、优雅的中文排版，专为学者和写作者打造。
+
+## 特性
+
+- **富文本编辑** — 基于 Tiptap 的专业编辑器，支持标题、列表、引用、代码块等格式
+- **文本转语音 (TTS)** — 集成 MiniMax API，将文章内容转换为自然语音
+- **用户认证** — JWT + RSA 加密的安全认证机制
+- **分类管理** — 灵活的文章分类体系
+- **响应式设计** — 适配桌面端和移动端
+- **中文优化** — 优雅的中文排版，适合学术文章阅读
 
 ## 技术栈
 
-### 后端
-- **Spring Boot 3.3.0** (Java 21)
-- **Spring Security** - JWT 认证 + RSA 加密
-- **Spring Data JPA** + MySQL - 关系数据存储
-- **Spring Data MongoDB** - 文章内容存储
-- **OkHttp** - HTTP 客户端
-- **Lombok** + **MapStruct** - 简化开发
-
-### 前端
-- **Vue 3** + TypeScript (严格模式)
-- **Vite** - 构建工具
-- **Tailwind CSS** - 样式框架
-- **Element Plus** - UI 组件库
-- **Tiptap** - 富文本编辑器
-- **Pinia** - 状态管理
-- **Vue Router** - 路由管理
+| 分类 | 技术 |
+|------|------|
+| 前端 | Vue 3 + TypeScript + Vite + Tailwind CSS + Pinia + Vue Router |
+| 后端 | Spring Boot 3.3 + Spring Security + Spring Data JPA |
+| 数据库 | MySQL (关系数据) + MongoDB (文章内容) |
+| 其他 | Lombok + MapStruct + JWT + MiniMax TTS API |
 
 ## 项目结构
 
 ```
 blog/
-├── backend/                    # Spring Boot 后端
-│   └── src/main/java/com/scholarsmanuscript/
-│       ├── config/             # 配置类
-│       ├── controller/         # REST 控制器
-│       ├── dto/                # 数据传输对象
-│       ├── entity/             # JPA 实体
-│       ├── repository/         # 数据访问层
-│       │   ├── jpa/            # JPA 仓库 (MySQL)
-│       │   └── mongo/          # MongoDB 仓库
-│       ├── security/           # 安全相关
-│       ├── service/           # 业务逻辑
-│       └── utils/              # 工具类
+├── frontend/                 # Vue 3 单页应用
+│   ├── src/
+│   │   ├── components/      # 复用组件
+│   │   ├── views/           # 页面视图
+│   │   ├── stores/          # Pinia 状态管理
+│   │   ├── router/          # 路由配置
+│   │   └── utils/           # 工具函数
+│   └── tailwind.config.js   # Tailwind 配置
 │
-└── frontend/                   # Vue 3 前端
-    └── src/
-        ├── assets/             # 静态资源
-        ├── components/         # Vue 组件
-        ├── router/             # 路由配置
-        ├── stores/             # Pinia 状态管理
-        ├── types/              # TypeScript 类型定义
-        ├── utils/              # 工具函数
-        └── views/              # 页面视图
+├── backend/                  # Spring Boot 后端
+│   └── src/main/java/com/scholarsmanuscript/
+│       ├── config/          # 配置类
+│       ├── controller/      # REST 控制器
+│       ├── dto/             # 数据传输对象
+│       ├── entity/          # JPA 实体
+│       ├── repository/      # 数据访问层
+│       ├── security/        # 安全认证
+│       └── service/         # 业务逻辑
+│
+├── ui/                       # 设计稿参考
+├── deploy/                   # 部署配置
+└── docs/                     # 技术文档
 ```
-
-## 功能特性
-
-- [x] 用户注册/登录 (JWT + RSA 加密)
-- [x] 文章管理 (富文本编辑)
-- [x] 分类管理
-- [x] 文本转语音 (TTS) - MiniMax API
-- [x] 操作日志 (MongoDB 存储)
-- [x] 响应式布局
 
 ## 快速开始
 
-### 环境要求
+### 前置要求
 
 - JDK 21+
 - Node.js 18+
@@ -68,73 +66,76 @@ blog/
 - MySQL 8.0+
 - MongoDB 5.0+
 
-### 后端启动
+### 克隆项目
+
+```bash
+git clone <repository-url>
+cd blog
+```
+
+### 启动后端
 
 ```bash
 cd backend
 
-# 配置环境变量或修改 application.yml
-# 设置数据库连接、MongoDB 连接、JWT 密钥等
+# 配置数据库连接 (application.yml 或环境变量)
+# DB_HOST, DB_PORT, DB_USERNAME, DB_PASSWORD
+# MONGO_HOST, MONGO_PORT
 
-# 启动
 mvn spring-boot:run
 ```
 
-### 前端启动
+### 启动前端
 
 ```bash
 cd frontend
 
-# 安装依赖
 npm install
-
-# 开发模式
 npm run dev
-
-# 构建生产版本
-npm run build
 ```
 
-### 环境变量配置
+访问 `http://localhost:5173` 即可看到应用。
 
-后端 `application.yml` 或系统环境变量：
-
-| 变量名 | 说明 | 默认值 |
-|--------|------|--------|
-| `DB_HOST` | MySQL 主机 | localhost |
-| `DB_PORT` | MySQL 端口 | 3306 |
-| `DB_USERNAME` | 数据库用户名 | root |
-| `DB_PASSWORD` | 数据库密码 | (空) |
-| `MONGO_HOST` | MongoDB 主机 | localhost |
-| `MONGO_PORT` | MongoDB 端口 | 27017 |
-| `JWT_SECRET` | JWT 密钥 | (自动生成) |
-| `CORS_ORIGINS` | CORS 允许的源 | http://localhost:5173 |
-| `MINI_MAX_API_KEY` | MiniMax API 密钥 | (空) |
-
-## API 端点
+## API 概览
 
 ### 认证
-- `POST /api/auth/register` - 用户注册
-- `POST /api/auth/login` - 用户登录
-- `GET /api/auth/public-key` - 获取 RSA 公钥
-- `GET /api/auth/me` - 获取当前用户信息
+| 方法 | 端点 | 描述 |
+|------|------|------|
+| POST | `/api/auth/register` | 用户注册 |
+| POST | `/api/auth/login` | 用户登录 |
+| GET | `/api/auth/me` | 获取当前用户 |
 
 ### 文章
-- `GET /api/articles` - 获取文章列表
-- `GET /api/articles/{id}` - 获取文章详情
-- `POST /api/articles` - 创建文章
-- `PUT /api/articles/{id}` - 更新文章
-- `DELETE /api/articles/{id}` - 删除文章
+| 方法 | 端点 | 描述 |
+|------|------|------|
+| GET | `/api/articles` | 文章列表 |
+| GET | `/api/articles/{id}` | 文章详情 |
+| POST | `/api/articles` | 创建文章 |
+| PUT | `/api/articles/{id}` | 更新文章 |
+| DELETE | `/api/articles/{id}` | 删除文章 |
 
 ### 分类
-- `GET /api/categories` - 获取分类列表
-- `POST /api/categories` - 创建分类
-- `PUT /api/categories/{id}` - 更新分类
-- `DELETE /api/categories/{id}` - 删除分类
+| 方法 | 端点 | 描述 |
+|------|------|------|
+| GET | `/api/categories` | 分类列表 |
+| GET | `/api/categories/{slug}/articles` | 按分类获取文章 |
 
 ### TTS
-- `GET /api/tts/voices` - 获取可用音色列表
-- `POST /api/tts/speech` - 文本转语音 (流式响应)
+| 方法 | 端点 | 描述 |
+|------|------|------|
+| GET | `/api/tts/voices` | 可用音色列表 |
+| POST | `/api/tts/speech` | 文本转语音 |
+
+## 路由
+
+| 路径 | 页面 |
+|------|------|
+| `/` | 首页 |
+| `/login` | 登录 |
+| `/article/:id` | 文章详情 |
+| `/archive` | 文章归档 |
+| `/settings` | 设置 |
+| `/tech-preview` | 技术预览 |
 
 ## License
 

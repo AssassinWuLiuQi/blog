@@ -16,8 +16,8 @@ const prompt = ref('')
 const selectedMode = ref<'text-to-image' | 'image-to-image'>('text-to-image')
 const referenceImage = ref<string | null>(null)
 const referenceIntensity = ref(65)
-const promptOptimizer = ref(true)
-const aigcWatermark = ref(true)
+const promptOptimizer = ref(false)
+const aigcWatermark = ref(false)
 
 // Model selection
 const models = [
@@ -28,6 +28,15 @@ const selectedModel = ref('image-01')
 
 // Dimensions
 const aspectRatio = ref('1:1')
+const imageCount = ref(1)
+
+const decrementCount = (): void => {
+  if (imageCount.value > 1) imageCount.value--
+}
+
+const incrementCount = (): void => {
+  if (imageCount.value < 4) imageCount.value++
+}
 
 // Seed
 const seed = ref('')
@@ -49,7 +58,7 @@ const handleGenerate = async (): Promise<void> => {
       prompt: prompt.value,
       model: selectedModel.value,
       aspectRatio: aspectRatio.value,
-      n: 1,
+      n: imageCount.value,
       responseFormat: 'url',
       promptOptimizer: promptOptimizer.value,
       aigcWatermark: aigcWatermark.value
@@ -78,8 +87,8 @@ const handleReset = (): void => {
   useSeed.value = false
   referenceImage.value = null
   referenceIntensity.value = 65
-  promptOptimizer.value = true
-  aigcWatermark.value = true
+  promptOptimizer.value = false
+  aigcWatermark.value = false
   emit('update:modelValue', [])
   errorMessage.value = ''
 }
@@ -125,13 +134,10 @@ defineExpose({ fillForm })
             文生图 (Text-to-Image)
           </button>
           <button
-            class="flex-1 py-2.5 px-4 rounded-md text-sm font-medium transition-all"
-            :class="selectedMode === 'image-to-image'
-              ? 'bg-white text-[#003f87] shadow-[0px_1px_1.75px_0px_rgba(0,0,0,0.05)]'
-              : 'text-[#424752]'"
-            @click="selectedMode = 'image-to-image'"
+            class="flex-1 py-2.5 px-4 rounded-md text-sm font-medium transition-all cursor-not-allowed opacity-50"
+            disabled
           >
-            图生图 (Image-to-Image)
+            图生图 (Image-to-Image) 暂未开放
           </button>
         </div>
 
@@ -187,20 +193,40 @@ defineExpose({ fillForm })
 
         <!-- Dimensions -->
         <div class="flex flex-col gap-2">
-          <label class="text-xs font-bold text-[#424752] tracking-wide uppercase">图片尺寸</label>
-          <select
-            v-model="aspectRatio"
-            class="w-full px-3 py-2 bg-[#f2f4f6] rounded text-sm text-[#424752] border border-transparent focus:border-[#003f87] focus:outline-none appearance-none cursor-pointer"
-          >
-            <option value="1:1">1:1 (正方形)</option>
-            <option value="16:9">16:9 (宽屏)</option>
-            <option value="4:3">4:3 (标准)</option>
-            <option value="3:2">3:2 (照片)</option>
-            <option value="2:3">2:3 (竖版)</option>
-            <option value="3:4">3:4 (竖版)</option>
-            <option value="9:16">9:16 (手机)</option>
-            <option value="21:9">21:9 (超宽)</option>
-          </select>
+          <div class="flex justify-between text-xs font-bold text-[#424752] tracking-wide uppercase">
+            <span>图片尺寸</span>
+            <span>生成数量</span>
+          </div>
+          <div class="flex gap-3">
+            <select
+              v-model="aspectRatio"
+              class="flex-1 px-3 py-2 bg-[#f2f4f6] rounded text-sm text-[#424752] border border-transparent focus:border-[#003f87] focus:outline-none appearance-none cursor-pointer"
+            >
+              <option value="1:1">1:1 (正方形)</option>
+              <option value="16:9">16:9 (宽屏)</option>
+              <option value="4:3">4:3 (标准)</option>
+              <option value="3:2">3:2 (照片)</option>
+              <option value="2:3">2:3 (竖版)</option>
+              <option value="3:4">3:4 (竖版)</option>
+              <option value="9:16">9:16 (手机)</option>
+              <option value="21:9">21:9 (超宽)</option>
+            </select>
+            <div class="flex items-center gap-1">
+              <button
+                class="w-8 h-8 rounded bg-[#f2f4f6] text-[#424752] hover:bg-[#e6e8ea] transition-colors flex items-center justify-center"
+                @click="decrementCount"
+              >
+                <span class="text-sm font-bold">−</span>
+              </button>
+              <span class="w-8 text-center text-sm font-bold text-[#003f87]">{{ imageCount }}</span>
+              <button
+                class="w-8 h-8 rounded bg-[#f2f4f6] text-[#424752] hover:bg-[#e6e8ea] transition-colors flex items-center justify-center"
+                @click="incrementCount"
+              >
+                <span class="text-sm font-bold">+</span>
+              </button>
+            </div>
+          </div>
         </div>
 
         <!-- Advanced Settings -->

@@ -10,16 +10,19 @@ import java.time.LocalDateTime;
 @Builder
 public class OperationLogResponse {
 
-    private String id;
+    private Long id;
+    private Long userId;
     private String username;
+    private String operation;
     private String methodName;
     private String className;
     private String httpMethod;
     private String requestUri;
     private String parameters;
-    private String result;
     private Long executionTime;
+    private String ip;
     private Boolean success;
     private String errorMessage;
+    private String errorTrace;
     private LocalDateTime createdAt;
 }

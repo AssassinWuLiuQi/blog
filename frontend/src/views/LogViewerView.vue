@@ -1,22 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
-import axios from 'axios'
 import AppLayout from '@/components/layout/AppLayout.vue'
-
-interface OperationLog {
-  id: string
-  username: string
-  methodName: string
-  className: string
-  httpMethod: string
-  requestUri: string
-  parameters: string
-  result: string
-  executionTime: number
-  success: boolean
-  errorMessage: string
-  createdAt: string
-}
+import { fetchLogs, type OperationLog } from '@/utils/logApi'
 
 const logs = ref<OperationLog[]>([])
 const page = ref(0)
@@ -24,26 +9,18 @@ const size = ref(20)
 const totalPages = ref(0)
 const totalElements = ref(0)
 const filters = ref({
-  username: '',
   success: null as boolean | null
 })
 const selectedLog = ref<OperationLog | null>(null)
 const isLoading = ref(false)
 
-const fetchLogs = async () => {
+const loadLogs = async () => {
   isLoading.value = true
   try {
-    const params = new URLSearchParams({
-      page: page.value.toString(),
-      size: size.value.toString()
-    })
-    if (filters.value.username) params.append('username', filters.value.username)
-    if (filters.value.success !== null) params.append('success', filters.value.success.toString())
-
-    const response = await axios.get(`/api/logs?${params}`)
-    logs.value = response.data.data.content || []
-    totalPages.value = response.data.data.totalPages || 0
-    totalElements.value = response.data.data.totalElements || 0
+    const response = await fetchLogs(page.value, size.value, filters.value.success)
+    logs.value = response.content || []
+    totalPages.value = response.totalPages || 0
+    totalElements.value = response.totalElements || 0
   } catch (error) {
     console.error('Failed to fetch logs:', error)
     logs.value = []
@@ -82,32 +59,31 @@ const closeDetail = () => {
 const prevPage = () => {
   if (page.value > 0) {
     page.value--
-    fetchLogs()
+    loadLogs()
   }
 }
 
 const nextPage = () => {
   if (page.value < totalPages.value - 1) {
     page.value++
-    fetchLogs()
+    loadLogs()
   }
 }
 
 const resetFilters = () => {
-  filters.value.username = ''
   filters.value.success = null
   page.value = 0
-  fetchLogs()
+  loadLogs()
 }
 
 watch(() => filters.value.success, () => {
   page.value = 0
-  fetchLogs()
+  loadLogs()
 })
 
-onMounted(fetchLogs)
+onMounted(loadLogs)
 
-defineExpose({ fetchLogs })
+defineExpose({ loadLogs })
 </script>
 
 <template>
@@ -133,7 +109,7 @@ defineExpose({ fetchLogs })
         </div>
         <button
           class="px-3 py-1.5 bg-primary text-white text-sm rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-1"
-          @click="page = 0; fetchLogs()"
+          @click="page = 0; loadLogs()"
         >
           <span class="material-symbols-outlined text-base">search</span>
         </button>
@@ -326,12 +302,6 @@ defineExpose({ fetchLogs })
               <div v-if="selectedLog.errorMessage" class="mb-4">
                 <p class="text-xs font-medium text-error mb-2">错误信息</p>
                 <pre class="bg-error/5 rounded-xl p-3 text-xs text-error overflow-x-auto">{{ selectedLog.errorMessage }}</pre>
-              </div>
-
-              <!-- Result -->
-              <div v-if="selectedLog.result">
-                <p class="text-xs font-medium text-on-surface mb-2">响应结果</p>
-                <pre class="bg-surface-container-low/50 rounded-xl p-3 text-xs text-on-surface overflow-x-auto">{{ formatJson(selectedLog.result) }}</pre>
               </div>
             </div>
           </div>

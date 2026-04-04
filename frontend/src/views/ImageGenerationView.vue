@@ -109,7 +109,7 @@ const handleDeleteSelected = async (): Promise<void> => {
 const isSelected = (id: number): boolean => selectedIds.value.has(id)
 
 watch(historyDrawerVisible, (visible) => {
-  if (visible && historyList.value.length === 0) {
+  if (visible) {
     currentPage.value = 0
     hasMore.value = true
     historyList.value = []
@@ -266,9 +266,15 @@ watch(historyDrawerVisible, (visible) => {
                   <!-- Content -->
                   <div class="flex-1 flex flex-col justify-between min-w-0">
                     <!-- Title & Date -->
-                    <div class="flex items-center justify-between">
-                      <span class="text-xs font-bold text-[#003f87] tracking-wide">{{ item.title }}</span>
-                      <span class="text-xs text-[#424752]">{{ item.date }}</span>
+                    <div class="flex items-center justify-between gap-2">
+                      <span class="text-xs font-bold text-[#003f87] tracking-wide truncate">{{ item.title }}</span>
+                      <div class="flex items-center gap-2 shrink-0">
+                        <span class="text-xs text-green-600">{{ item.successCount }} 成功</span>
+                        <span class="text-[#c2c6d4]">•</span>
+                        <span class="text-xs text-red-500">{{ item.failedCount }} 失败</span>
+                        <span class="text-[#c2c6d4]">•</span>
+                        <span class="text-xs text-[#424752]">{{ item.date }}</span>
+                      </div>
                     </div>
 
                     <!-- Description -->

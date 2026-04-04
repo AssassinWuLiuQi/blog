@@ -2,6 +2,8 @@ package com.scholarsmanuscript.controller;
 
 import com.scholarsmanuscript.dto.response.ApiResponse;
 import com.scholarsmanuscript.dto.response.OperationLogResponse;
+import com.scholarsmanuscript.entity.User;
+import com.scholarsmanuscript.repository.UserRepository;
 import com.scholarsmanuscript.service.OperationLogService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 public class LogController {
 
     private final OperationLogService operationLogService;
+    private final UserRepository userRepository;
 
     @GetMapping
     public ResponseEntity<ApiResponse<Page<OperationLogResponse>>> getLogs(
@@ -23,7 +26,9 @@ public class LogController {
             @RequestParam(required = false) Boolean success,
             Authentication authentication) {
         String username = authentication.getName();
-        Page<OperationLogResponse> logs = operationLogService.getLogs(page, size, username, success);
+        User user = userRepository.findByUsername(username).orElse(null);
+        boolean isAdmin = user != null && user.getId() == 1L;
+        Page<OperationLogResponse> logs = operationLogService.getLogs(page, size, isAdmin ? null : username, success);
         return ResponseEntity.ok(ApiResponse.success(logs));
     }
 }

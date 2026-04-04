@@ -1,8 +1,8 @@
 package com.scholarsmanuscript.service;
 
 import com.scholarsmanuscript.dto.response.OperationLogResponse;
-import com.scholarsmanuscript.entity.mongo.OperationLog;
-import com.scholarsmanuscript.repository.mongo.OperationLogRepository;
+import com.scholarsmanuscript.entity.OperationLog;
+import com.scholarsmanuscript.repository.OperationLogRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,7 +24,9 @@ public class OperationLogService {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
         Page<OperationLog> logs;
-        if (username != null && !username.isEmpty()) {
+        if (username != null && !username.isEmpty() && success != null) {
+            logs = operationLogRepository.findByUsernameAndSuccess(username, success, pageable);
+        } else if (username != null && !username.isEmpty()) {
             logs = operationLogRepository.findByUsername(username, pageable);
         } else if (success != null) {
             logs = operationLogRepository.findBySuccess(success, pageable);
@@ -38,18 +40,27 @@ public class OperationLogService {
     private OperationLogResponse mapToResponse(OperationLog log) {
         return OperationLogResponse.builder()
                 .id(log.getId())
+                .userId(log.getUserId())
                 .username(log.getUsername())
+                .operation(log.getOperation())
                 .methodName(log.getMethodName())
                 .className(log.getClassName())
                 .httpMethod(log.getHttpMethod())
                 .requestUri(log.getRequestUri())
-                .parameters(log.getParameters())
-                .result(log.getResult() != null && log.getResult().length() > 200
-                    ? log.getResult().substring(0, 200) + "..." : log.getResult())
+                .parameters(truncate(log.getParameters(), 500))
                 .executionTime(log.getExecutionTime())
+                .ip(log.getIp())
                 .success(log.getSuccess())
                 .errorMessage(log.getErrorMessage())
+                .errorTrace(log.getErrorTrace())
                 .createdAt(log.getCreatedAt())
                 .build();
+    }
+
+    private String truncate(String str, int maxLength) {
+        if (str == null || str.length() <= maxLength) {
+            return str;
+        }
+        return str.substring(0, maxLength);
     }
 }
