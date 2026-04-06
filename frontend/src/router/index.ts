@@ -73,6 +73,12 @@ const routes: RouteRecordRaw[] = [
     name: 'image-generation',
     component: ImageGenerationView,
     meta: { requiresAuth: true }
+  },
+  {
+    path: '/chat',
+    name: 'chat',
+    component: () => import('@/views/ChatView.vue'),
+    meta: { requiresAuth: true }
   }
 ]
 
