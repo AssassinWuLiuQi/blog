@@ -42,3 +42,8 @@ encryption:
 
 miniMax:
   api-key: ${MINI_MAX_API_KEY:}
+
+python:
+  service:
+    url: http://localhost:8000
+    timeout: 120
