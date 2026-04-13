@@ -33,6 +33,14 @@ jwt:
   refresh-expiration: 604800000
 
 app:
+  thread-pool:
+    core-size: ${SSE_CORE_SIZE:10}
+    max-size: ${SSE_MAX_SIZE:100}
+    keep-alive-seconds: ${SSE_KEEP_ALIVE:60}
+  http:
+    connect-timeout-seconds: ${HTTP_CONNECT_TIMEOUT:30}
+    read-timeout-seconds: ${HTTP_READ_TIMEOUT:0}
+    write-timeout-seconds: ${HTTP_WRITE_TIMEOUT:60}
   cors:
     allowed-origins: ${CORS_ORIGINS:http://localhost:5173}
 

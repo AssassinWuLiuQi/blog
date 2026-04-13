@@ -1,22 +1,23 @@
 package com.scholarsmanuscript.config;
 
+import lombok.RequiredArgsConstructor;
 import okhttp3.OkHttpClient;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.concurrent.TimeUnit;
-
 @Configuration
+@RequiredArgsConstructor
 public class OkHttpConfig {
 
+    private final AppConfig appConfig;
 
     @Bean
     public OkHttpClient okHttpClient() {
+        AppConfig.Http http = appConfig.getHttp();
         return new OkHttpClient.Builder()
-                .connectTimeout(30, TimeUnit.SECONDS)
-                .readTimeout(0, TimeUnit.SECONDS) // 0 means no timeout for streaming
-                .writeTimeout(30, TimeUnit.SECONDS)
+                .connectTimeout(http.getConnectTimeoutSeconds(), java.util.concurrent.TimeUnit.SECONDS)
+                .readTimeout(http.getReadTimeoutSeconds(), java.util.concurrent.TimeUnit.SECONDS)
+                .writeTimeout(http.getWriteTimeoutSeconds(), java.util.concurrent.TimeUnit.SECONDS)
                 .build();
     }
 }

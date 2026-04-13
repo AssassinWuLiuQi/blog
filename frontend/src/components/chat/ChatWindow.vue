@@ -88,8 +88,9 @@
 </template>
 
 <script setup>
-import { ref, watch, nextTick } from 'vue'
+import { ref, watch, nextTick, onUnmounted } from 'vue'
 import { useChatStore } from '@/stores/chat'
+import { createSSEStream } from '@/utils/sse'
 import ChatMessage from './ChatMessage.vue'
 import VoiceInput from './VoiceInput.vue'
 
@@ -103,6 +104,13 @@ const props = defineProps({
 const chatStore = useChatStore()
 const inputText = ref('')
 const streamingContent = ref('')
+const streamController = ref(null)
+
+onUnmounted(() => {
+  if (streamController.value) {
+    streamController.value.abort()
+  }
+})
 
 watch(() => props.sessionId, async (newId) => {
   if (newId) {
@@ -155,35 +163,39 @@ async function sendMessage() {
 }
 
 async function streamResponse(sessionId, text) {
-  const eventSource = new EventSource(`/api/chat/sessions/${sessionId}/stream`)
+  let fullResponse = ''
 
-  eventSource.addEventListener('message', (event) => {
-    try {
-      const data = JSON.parse(event.data)
+  streamController.value = createSSEStream(`/api/chat/sessions/${sessionId}/stream`, {
+    method: 'POST',
+    body: {
+      sessionId: sessionId,
+      content: text
+    },
+    onMessage: (data) => {
       if (data.content) {
-        streamingContent.value += data.content
+        fullResponse += data.content
+        streamingContent.value = fullResponse
       }
-    } catch (e) {
-      console.error('Parse error:', e)
-    }
-  })
-
-  eventSource.addEventListener('done', () => {
-    if (streamingContent.value) {
+    },
+    onClose: () => {
+      if (fullResponse) {
+        chatStore.addMessage({
+          messageId: Date.now(),
+          role: 'assistant',
+          content: fullResponse,
+          createdAt: new Date().toISOString()
+        })
+      }
+    },
+    onError: (err) => {
+      console.error('SSE error:', err)
       chatStore.addMessage({
         messageId: Date.now(),
         role: 'assistant',
-        content: streamingContent.value,
+        content: '抱歉，发生了错误。请稍后再试。',
         createdAt: new Date().toISOString()
       })
     }
-    eventSource.close()
-  })
-
-  await fetch(`/api/chat/sessions/${sessionId}/messages`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ content: text, useVoice: chatStore.useVoiceMode })
   })
 }
 

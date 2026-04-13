@@ -13,10 +13,9 @@ def build_chat_graph() -> StateGraph:
     workflow.add_node("synthesize_voice", synthesize_voice)
 
     workflow.set_entry_point("retrieve_knowledge")
-    workflow.add_edge("retrieve_knowledge", "route_query")
 
     workflow.add_conditional_edges(
-        "route_query",
+        "retrieve_knowledge",
         route_query,
         {
             "chat_completion": "chat_completion",

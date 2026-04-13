@@ -39,8 +39,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/public-key").permitAll()
-                        .requestMatchers("/api/image/**").authenticated()
-                        .requestMatchers("/api/chat/**").authenticated()
+//                        .requestMatchers("/api/image/**", "/api/chat/**").authenticated()
                         .dispatcherTypeMatchers(DispatcherType.ASYNC).permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .anyRequest().authenticated()

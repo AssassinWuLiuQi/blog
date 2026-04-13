@@ -13,7 +13,7 @@ class RetrievalService:
     """Vector retrieval service using Qdrant."""
 
     def __init__(self):
-        self.client = QdrantClient(host=settings.qdrant_host, port=settings.qdrant_port)
+        self.client = QdrantClient(url=f"http://{settings.qdrant_host}:{settings.qdrant_port}")
         self.collection_name = settings.collection_name
         self.embedding_model = SentenceTransformer(settings.embedding_model)
 

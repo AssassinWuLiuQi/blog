@@ -3,7 +3,6 @@ package com.scholarsmanuscript.controller;
 import com.scholarsmanuscript.dto.request.ChatRequest;
 import com.scholarsmanuscript.dto.response.ApiResponse;
 import com.scholarsmanuscript.dto.response.ChatResponse;
-import com.scholarsmanuscript.entity.ChatMessage;
 import com.scholarsmanuscript.service.ChatService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -15,8 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.Executor;
 
 @Slf4j
 @RestController
@@ -25,7 +23,7 @@ import java.util.concurrent.Executors;
 public class ChatController {
 
     private final ChatService chatService;
-    private final ExecutorService sseExecutor = Executors.newCachedThreadPool();
+    private final Executor sseExecutor;
 
     @GetMapping("/sessions")
     public ResponseEntity<ApiResponse<List<ChatResponse.Session>>> getUserSessions(
@@ -70,44 +68,12 @@ public class ChatController {
         Long userId = getUserId(authentication);
         SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
 
-        sseExecutor.execute(() -> {
-            try {
-                chatService.sendMessage(userId, request);
-
-                List<ChatMessage> recentMessages = chatService.getRecentMessages(id, 10);
-
-                for (ChatMessage msg : recentMessages) {
-                    String role = msg.getRole().name();
-                    String content = msg.getContent();
-                    emitter.send(SseEmitter.event()
-                            .name("message")
-                            .data("{\"role\":\"" + role + "\",\"content\":\"" + escapeJson(content) + "\"}"));
-                }
-
-                emitter.send(SseEmitter.event()
-                        .name("done")
-                        .data(""));
-
-                emitter.complete();
-            } catch (Exception e) {
-                log.error("SSE stream error", e);
-                emitter.completeWithError(e);
-            }
-        });
+        sseExecutor.execute(() -> chatService.streamChat(userId, request, emitter));
 
         return emitter;
     }
 
     private Long getUserId(Authentication authentication) {
         return 1L;
-    }
-
-    private String escapeJson(String text) {
-        if (text == null) return "";
-        return text.replace("\\", "\\\\")
-                .replace("\"", "\\\"")
-                .replace("\n", "\\n")
-                .replace("\r", "\\r")
-                .replace("\t", "\\t");
     }
 }

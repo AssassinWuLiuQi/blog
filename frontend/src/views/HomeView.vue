@@ -1,11 +1,15 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useRouter } from 'vue-router'
 import AppLayout from '@/components/layout/AppLayout.vue'
-import { usePostStore } from '@/stores/post'
-import SurfaceCard from '@/components/common/SurfaceCard.vue'
+import HeroBanner from '@/components/common/HeroBanner.vue'
+import ToolCard from '@/components/common/ToolCard.vue'
+import PostCard from '@/components/common/PostCard.vue'
 import GradientButton from '@/components/common/GradientButton.vue'
+import { usePostStore } from '@/stores/post'
 import type { Post } from '@/types'
 
+const router = useRouter()
 const postStore = usePostStore()
 
 const recentPosts = computed<Post[]>(() => postStore.recentPosts)
@@ -14,37 +18,34 @@ const recentPosts = computed<Post[]>(() => postStore.recentPosts)
 <template>
   <AppLayout section-title="首页">
     <div class="p-8">
-    <!-- Welcome Section -->
-    <section class="mb-12">
-      <h1 class="text-display-md text-on-surface mb-4">欢迎回来</h1>
-      <p class="text-body-lg text-on-surface-variant">探索最新的技术文章和学术文献</p>
-    </section>
+      <!-- Section 1: HeroBanner -->
+      <HeroBanner />
 
-    <!-- Recent Posts Section -->
-    <section>
-      <div class="flex items-center justify-between mb-6">
-        <h2 class="text-xl font-semibold text-on-surface">最新文章</h2>
-        <GradientButton label="查看全部" />
-      </div>
+      <!-- Section 2: Tool Cards -->
+      <section class="mb-12">
+        <h2 class="text-xl font-semibold text-on-surface mb-6">特色工具入口</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <ToolCard title="Tiptap 编辑器" icon="edit_note" description="富文本编辑，支持 Markdown 导出" />
+          <ToolCard title="TTS 语音合成" icon="text_to_speech" description="文本转语音，多音色可选" />
+          <ToolCard title="AI 图像生成" icon="image" description="图像生成与风格迁移" />
+        </div>
+      </section>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <SurfaceCard
-          v-for="post in recentPosts"
-          :key="post.id"
-          class="hover:shadow-md transition-shadow cursor-pointer"
-        >
-          <div class="flex flex-col h-full">
-            <span class="text-xs text-primary font-medium mb-2">{{ post.category }}</span>
-            <h3 class="text-lg font-semibold text-on-surface mb-2 line-clamp-2">{{ post.title }}</h3>
-            <p class="text-sm text-on-surface-variant mb-4 line-clamp-3 flex-1">{{ post.summary }}</p>
-            <div class="flex items-center justify-between text-xs text-on-surface-variant">
-              <span>{{ post.date }}</span>
-              <span>{{ post.readTime }}</span>
-            </div>
-          </div>
-        </SurfaceCard>
-      </div>
-    </section>
+      <!-- Section 3: Post Cards -->
+      <section>
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-xl font-semibold text-on-surface">最新文章</h2>
+          <GradientButton label="查看全部" @click="router.push('/archive')" />
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <PostCard
+            v-for="post in recentPosts"
+            :key="post.id"
+            v-bind="post"
+            @click="router.push(`/article/${post.id}`)"
+          />
+        </div>
+      </section>
     </div>
   </AppLayout>
 </template>

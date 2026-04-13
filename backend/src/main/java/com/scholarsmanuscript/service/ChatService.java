@@ -10,11 +10,13 @@ import com.scholarsmanuscript.exception.ErrorCode;
 import com.scholarsmanuscript.repository.ChatMessageRepository;
 import com.scholarsmanuscript.repository.ChatSessionRepository;
 import com.scholarsmanuscript.repository.UserRepository;
+import com.scholarsmanuscript.utils.SseEmitterUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -115,8 +117,8 @@ public class ChatService {
         ChatMessage userMessage = ChatMessage.builder()
                 .role(ChatMessage.Role.user)
                 .content(request.getContent())
+                .session(session)
                 .build();
-        session.addMessage(userMessage);
         messageRepository.save(userMessage);
 
         log.info("Python service URL: {}", pythonServiceUrl);
@@ -132,5 +134,33 @@ public class ChatService {
 
     public List<ChatMessage> getRecentMessages(Long sessionId, int limit) {
         return messageRepository.findLastNMessages(sessionId, limit);
+    }
+
+    public void streamChat(Long userId, ChatRequest request, SseEmitter emitter) {
+        try {
+            ChatResponse response = sendMessage(userId, request);
+            List<ChatMessage> recentMessages = getRecentMessages(response.getSessionId(), 10);
+
+            for (ChatMessage msg : recentMessages) {
+                String role = msg.getRole().name();
+                String content = msg.getContent();
+                String json = "{\"role\":\"" + role + "\",\"content\":\"" + escapeJson(content) + "\"}";
+                SseEmitterUtil.data(emitter, json);
+            }
+
+            SseEmitterUtil.complete(emitter);
+        } catch (Exception e) {
+            log.error("SSE stream error", e);
+            SseEmitterUtil.completeWithError(emitter, e);
+        }
+    }
+
+    private String escapeJson(String text) {
+        if (text == null) return "";
+        return text.replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("\n", "\\n")
+                .replace("\r", "\\r")
+                .replace("\t", "\\t");
     }
 }
