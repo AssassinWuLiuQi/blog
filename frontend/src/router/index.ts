@@ -79,6 +79,12 @@ const routes: RouteRecordRaw[] = [
     name: 'chat',
     component: () => import('@/views/ChatView.vue'),
     meta: { requiresAuth: true }
+  },
+  {
+    path: '/music-generation',
+    name: 'music-generation',
+    component: () => import('@/views/MusicGenerationView.vue'),
+    meta: { requiresAuth: true }
   }
 ]
 

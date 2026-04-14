@@ -34,6 +34,7 @@ const navItems = [
   { path: '/', icon: 'home', label: '首页', exact: true },
   { path: '/tech-preview', icon: 'science', label: 'Editor-TTS', exact: false },
   { path: '/image-generation', icon: 'image', label: '图像生成', exact: false },
+  { path: '/music-generation', icon: 'music_note', label: '音乐生成', exact: false },
   { path: '/chat', icon: 'chat', label: '客服', exact: false },
   { path: '/logs', icon: 'history', label: '日志', exact: false },
   { path: '/gadgets', icon: 'widgets', label: '小工具', exact: false, hasChildren: true },
