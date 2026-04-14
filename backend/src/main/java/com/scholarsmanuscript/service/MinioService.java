@@ -24,6 +24,50 @@ public class MinioService {
     @Value("${minio.bucket}")
     private String bucket;
 
+    public String uploadFromBase64(String base64Data, String objectName) {
+        try {
+            // Extract content type and base64 payload
+            String contentType = "image/png";
+            String base64Payload = base64Data;
+
+            if (base64Data.contains(",")) {
+                String[] parts = base64Data.split(",");
+                String header = parts[0];
+                base64Payload = parts[1];
+
+                // Extract content type from header (e.g., "data:image/png;base64")
+                if (header.contains(":")) {
+                    String typePart = header.split(":")[1];
+                    if (typePart.contains(";")) {
+                        contentType = typePart.split(";")[0];
+                    } else {
+                        contentType = typePart;
+                    }
+                }
+            }
+
+            byte[] imageBytes = java.util.Base64.getDecoder().decode(base64Payload);
+            log.info("Decoded base64 image, size: {} bytes, contentType: {}", imageBytes.length, contentType);
+
+            String ext = contentType.split("/")[1];
+            String finalObjectName = "images/" + objectName + "." + ext;
+
+            try (ByteArrayInputStream bais = new ByteArrayInputStream(imageBytes)) {
+                upload(bais, finalObjectName, contentType, imageBytes.length);
+            }
+
+            String presignedUrl = getPresignedUrl(finalObjectName);
+            log.info("Successfully uploaded base64 image to MinIO: {}", finalObjectName);
+            return presignedUrl;
+        } catch (IllegalArgumentException e) {
+            log.error("Invalid base64 data provided", e);
+            throw new RuntimeException("Invalid base64 data: " + e.getMessage(), e);
+        } catch (Exception e) {
+            log.error("Failed to upload base64 image to MinIO", e);
+            throw new RuntimeException("Failed to upload base64 image: " + e.getMessage(), e);
+        }
+    }
+
     public String uploadFromUrl(String imageUrl) {
         try {
             log.info("Downloading image from: {}", imageUrl);
@@ -47,6 +91,32 @@ public class MinioService {
         } catch (IOException e) {
             log.error("Failed to upload image from URL: {}", imageUrl, e);
             throw new RuntimeException("Failed to upload image: " + e.getMessage(), e);
+        }
+    }
+
+    public String uploadAudioFromUrl(String audioUrl) {
+        try {
+            log.info("Downloading audio from: {}", audioUrl);
+            URL url = new URL(audioUrl);
+            byte[] audioBytes;
+
+            try (InputStream in = url.openStream()) {
+                audioBytes = in.readAllBytes();
+            }
+
+            log.info("Downloaded {} bytes, uploading audio to MinIO", audioBytes.length);
+
+            String objectName = "audio/" + UUID.randomUUID() + ".mp3";
+            try (ByteArrayInputStream bais = new ByteArrayInputStream(audioBytes)) {
+                upload(bais, objectName, "audio/mpeg", audioBytes.length);
+            }
+
+            String presignedUrl = getPresignedUrl(objectName);
+            log.info("Successfully uploaded audio to MinIO: {}", objectName);
+            return presignedUrl;
+        } catch (IOException e) {
+            log.error("Failed to upload audio from URL: {}", audioUrl, e);
+            throw new RuntimeException("Failed to upload audio: " + e.getMessage(), e);
         }
     }
 
