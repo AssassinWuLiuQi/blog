@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: 'class',
   content: [
     "./index.html",
     "./src/**/*.{vue,js,ts,jsx,tsx}",
@@ -7,21 +8,21 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: '#003f87',
-        'primary-container': '#0056b3',
+        primary: 'var(--primary)',
+        'primary-container': 'var(--primary-container)',
         'primary/8': 'rgba(0, 63, 135, 0.08)',
-        surface: '#f7f9fb',
-        background: '#f7f9fb',
-        'surface-container-low': '#eceef0',
-        'surface-container': '#eceef0',
-        'surface-container-lowest': '#ffffff',
-        'surface-container-high': '#dde1e6',
-        'on-surface': '#191c1e',
-        'on-surface-variant': '#424752',
-        tertiary: '#722b00',
-        'tertiary-container': '#ffdbcc',
-        outline: '#c2c6d4',
-        'outline-variant': '#c2c6d4',
+        surface: 'var(--surface)',
+        background: 'var(--surface)',
+        'surface-container-low': 'var(--surface-container-low)',
+        'surface-container': 'var(--surface-container)',
+        'surface-container-lowest': 'var(--surface-container-lowest)',
+        'surface-container-high': 'var(--surface-container-high)',
+        'on-surface': 'var(--on-surface)',
+        'on-surface-variant': 'var(--on-surface-variant)',
+        tertiary: 'var(--tertiary)',
+        'tertiary-container': 'var(--tertiary-container)',
+        outline: 'var(--outline)',
+        'outline-variant': 'var(--outline-variant)',
         error: '#dc2626',
         'error/5': 'rgba(220, 38, 38, 0.05)',
         success: '#16a34a',
