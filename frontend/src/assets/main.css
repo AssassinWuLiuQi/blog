@@ -49,6 +49,99 @@
   --radius-full: 9999px;
 }
 
+/* Dark Theme */
+[data-theme="dark"] {
+  /* Colors - Surface */
+  --surface: #1a1a1a;
+  --surface-container-low: #242424;
+  --surface-container: #2a2a2a;
+  --surface-container-lowest: #1f1f1f;
+  --surface-container-high: #363636;
+
+  /* Colors - On Surface */
+  --on-surface: #e8e8e8;
+  --on-surface-variant: #a0a0a0;
+
+  /* Colors - Primary - slightly brighter for dark mode */
+  --primary: #4a9eff;
+  --primary-container: #0056b3;
+  --on-primary: #ffffff;
+
+  /* Colors - Tertiary */
+  --tertiary: #ff8a5c;
+  --tertiary-container: #5c2a15;
+  --on-tertiary: #ffffff;
+
+  /* Colors - Outline */
+  --outline: #5a5a5a;
+  --outline-variant: #3a3a3a;
+
+  /* Glass Effect - darker for dark mode */
+  .glass {
+    background-color: rgba(30, 30, 30, 0.85);
+  }
+
+  /* Shadow - lighter for dark mode */
+  .shadow-ambient {
+    box-shadow: 0 40px 80px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Element Plus Message Dark Mode */
+  .el-message {
+    --el-message-bg-color: #2a2a2a;
+    --el-message-border-color: #3a3a3a;
+    --el-message-text-color: #e8e8e8;
+  }
+
+  .el-message--error {
+    --el-message-bg-color: #3d1f1f;
+    --el-message-border-color: #5c3030;
+    --el-message-text-color: #fca5a5;
+  }
+
+  .el-message--success {
+    --el-message-bg-color: #1f3d1f;
+    --el-message-border-color: #305c30;
+    --el-message-text-color: #86efac;
+  }
+
+  .el-message--warning {
+    --el-message-bg-color: #3d3d1f;
+    --el-message-border-color: #5c5c30;
+    --el-message-text-color: #fde047;
+  }
+
+  /* Element Plus Collapse Dark Mode */
+  .el-collapse {
+    --el-collapse-border-color: #3a3a3a;
+    --el-collapse-header-bg-color: #1a1a1a;
+    --el-collapse-content-bg-color: transparent;
+  }
+
+  /* Element Plus Input Dark Mode */
+  .el-input__wrapper {
+    background-color: #242424 !important;
+  }
+
+  .el-input__inner {
+    color: #e8e8e8;
+  }
+
+  .el-input__inner::placeholder {
+    color: #5a5a5a;
+  }
+
+  /* Element Plus Button Dark Mode */
+  .el-button {
+    --el-button-bg-color: #2a2a2a;
+    --el-button-border-color: #5a5a5a;
+    --el-button-text-color: #e8e8e8;
+    --el-button-hover-bg-color: #363636;
+    --el-button-hover-border-color: #5a5a5a;
+    --el-button-hover-text-color: #ffffff;
+  }
+}
+
 /* Base Styles */
 body {
   font-family: var(--font-family-body);
