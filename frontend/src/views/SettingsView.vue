@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import type { Ref } from 'vue'
+import { ref, computed } from 'vue'
 import AppLayout from '@/components/layout/AppLayout.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useUIStore } from '@/stores/ui'
@@ -12,7 +11,12 @@ import type { UserPreferences } from '@/types'
 const authStore = useAuthStore()
 const uiStore = useUIStore()
 
-const theme = ref<string>('light')
+// Add computed to sync with uiStore
+const themePreference = computed({
+  get: () => uiStore.theme,
+  set: (val: 'light' | 'dark' | 'system') => uiStore.setTheme(val)
+})
+
 const fontSize = ref<string>('medium')
 const autoPlayTTS = ref<boolean>(false)
 const voiceSpeed = ref<number>(1.0)
@@ -27,7 +31,7 @@ const isPasswordLoading = ref<boolean>(false)
 
 const handleSave = (): void => {
   const preferences: UserPreferences = {
-    theme: theme.value as 'light' | 'dark',
+    theme: themePreference.value as 'light' | 'dark',
     fontSize: fontSize.value as 'small' | 'medium' | 'large',
     autoPlayTTS: autoPlayTTS.value,
     voiceSpeed: voiceSpeed.value
@@ -122,22 +126,32 @@ const handlePasswordChange = async (): Promise<void> => {
           <label class="text-sm text-on-surface-variant mb-2 block">主题</label>
           <div class="flex gap-3">
             <button
-              @click="theme = 'light'"
+              @click="themePreference = 'light'"
               class="px-4 py-2 rounded-lg text-sm transition-all"
-              :class="theme === 'light'
+              :class="themePreference === 'light'
                 ? 'bg-primary text-white'
                 : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high'"
             >
               浅色
             </button>
             <button
-              @click="theme = 'dark'"
+              @click="themePreference = 'dark'"
               class="px-4 py-2 rounded-lg text-sm transition-all"
-              :class="theme === 'dark'
+              :class="themePreference === 'dark'
                 ? 'bg-primary text-white'
                 : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high'"
             >
               深色
+            </button>
+            <!-- Add system option -->
+            <button
+              @click="themePreference = 'system'"
+              class="px-4 py-2 rounded-lg text-sm transition-all"
+              :class="themePreference === 'system'
+                ? 'bg-primary text-white'
+                : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high'"
+            >
+              跟随系统
             </button>
           </div>
         </div>
