@@ -48,7 +48,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <header class="bg-white/80 backdrop-blur-md border-b border-outline-variant/10 transition-all duration-300 flex items-center justify-between px-6 relative z-30">
+  <header class="bg-surface-container-lowest/80 backdrop-blur-md border-b border-outline-variant/10 transition-all duration-300 flex items-center justify-between px-6 relative z-30">
     <!-- Left: Section Title -->
     <div class="flex items-center gap-3">
       <h2 class="text-lg font-semibold text-on-surface tracking-tight">{{ sectionTitle }}</h2>
@@ -91,7 +91,7 @@ onUnmounted(() => {
         <transition name="dropdown">
           <div
             v-if="showDropdown"
-            class="absolute right-0 top-full mt-2 w-56 bg-white rounded-xl shadow-xl border border-outline-variant/10 py-1.5 z-40"
+            class="absolute right-0 top-full mt-2 w-56 bg-surface-container-lowest rounded-xl shadow-xl border border-outline-variant/10 py-1.5 z-40"
           >
             <!-- User Info Header -->
             <div class="px-4 py-3 border-b border-outline-variant/10">
