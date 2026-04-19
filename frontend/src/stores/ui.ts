@@ -18,6 +18,7 @@ export const useUIStore = defineStore('ui', () => {
   // Theme State
   const theme: Ref<'light' | 'dark' | 'system'> = ref('system')
   const effectiveTheme: Ref<'light' | 'dark'> = ref('light')
+  let systemThemeListenerAdded = false
 
   // TTS State
   const ttsPlaying: Ref<boolean> = ref(false)
@@ -86,7 +87,8 @@ export const useUIStore = defineStore('ui', () => {
     applyTheme()
 
     // Listen for system theme changes
-    if (typeof window !== 'undefined' && window.matchMedia) {
+    if (!systemThemeListenerAdded && typeof window !== 'undefined' && window.matchMedia) {
+      systemThemeListenerAdded = true
       window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
         if (theme.value === 'system') {
           applyTheme()
