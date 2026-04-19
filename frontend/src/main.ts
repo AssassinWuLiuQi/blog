@@ -5,6 +5,7 @@ import 'element-plus/dist/index.css'
 import App from './App.vue'
 import router from './router'
 import { useAuthStore } from './stores/auth'
+import { useUIStore } from '@/stores/ui'
 import { setPublicKey } from './utils/crypto'
 import componentPlugins from './plugins/components'
 import './assets/main.css'
@@ -25,6 +26,10 @@ fetch('/api/auth/public-key')
   .catch(console.error)
 
 app.mount('#app')
+
+// Initialize theme after app is mounted
+const uiStore = useUIStore()
+uiStore.initTheme()
 
 // Fetch current user after app is mounted
 const authStore = useAuthStore()
