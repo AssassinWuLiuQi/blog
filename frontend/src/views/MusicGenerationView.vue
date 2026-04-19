@@ -11,7 +11,14 @@ type ResultMode = 'empty' | 'lyrics' | 'audio'
 const resultMode = ref<ResultMode>('empty')
 const currentLyrics = ref('')
 const currentAudioUrl = ref('')
+const currentTitle = ref('')
+const currentGenre = ref('')
+const currentDuration = ref('0:00')
+const currentSampleRate = ref('44.1 kHz')
 const isLoading = ref(false)
+const currentTime = ref(0)
+const duration = ref(0)
+const isPlaying = ref(false)
 
 // History drawer
 const historyDrawerVisible = ref(false)
@@ -22,14 +29,23 @@ const hasMore = ref(true)
 const loadingMore = ref(false)
 const refreshing = ref(false)
 
+// Audio element ref
+const audioRef = ref<HTMLAudioElement | null>(null)
+
 const handleLyricsResult = (lyrics: string) => {
   currentLyrics.value = lyrics
   resultMode.value = 'lyrics'
 }
 
-const handleMusicResult = (audioUrl: string) => {
+const handleMusicResult = (audioUrl: string, title?: string, genre?: string) => {
   currentAudioUrl.value = audioUrl
+  currentTitle.value = title || 'Untitled'
+  currentGenre.value = genre || ''
   resultMode.value = 'audio'
+  if (audioRef.value) {
+    audioRef.value.src = audioUrl
+    audioRef.value.load()
+  }
 }
 
 const copyLyrics = async () => {
@@ -39,7 +55,7 @@ const copyLyrics = async () => {
 const downloadAudio = () => {
   const a = document.createElement('a')
   a.href = currentAudioUrl.value
-  a.download = 'generated-music.mp3'
+  a.download = currentTitle.value + '.mp3' || 'generated-music.mp3'
   a.target = '_blank'
   a.click()
 }
@@ -89,8 +105,58 @@ const handleHistoryScroll = (event: Event) => {
 const playFromHistory = (item: MusicHistoryItem) => {
   if (item.audioUrl) {
     currentAudioUrl.value = item.audioUrl
+    currentTitle.value = item.prompt.substring(0, 30) || 'Untitled'
+    currentGenre.value = item.isInstrumental ? '纯音乐' : ''
     resultMode.value = 'audio'
     historyDrawerVisible.value = false
+    if (audioRef.value) {
+      audioRef.value.src = item.audioUrl
+      audioRef.value.load()
+    }
+  }
+}
+
+const formatTime = (seconds: number): string => {
+  const mins = Math.floor(seconds / 60)
+  const secs = Math.floor(seconds % 60)
+  return `${mins}:${secs.toString().padStart(2, '0')}`
+}
+
+const onTimeUpdate = () => {
+  if (audioRef.value) {
+    currentTime.value = audioRef.value.currentTime
+  }
+}
+
+const onLoadedMetadata = () => {
+  if (audioRef.value) {
+    duration.value = audioRef.value.duration
+    currentDuration.value = formatTime(audioRef.value.duration)
+  }
+}
+
+const onEnded = () => {
+  isPlaying.value = false
+}
+
+const togglePlay = () => {
+  if (audioRef.value) {
+    if (isPlaying.value) {
+      audioRef.value.pause()
+    } else {
+      audioRef.value.play()
+    }
+    isPlaying.value = !isPlaying.value
+  }
+}
+
+const seek = (event: MouseEvent) => {
+  const el = event.currentTarget as HTMLElement
+  const rect = el.getBoundingClientRect()
+  const percent = (event.clientX - rect.left) / rect.width
+  if (audioRef.value && duration.value > 0) {
+    audioRef.value.currentTime = percent * duration.value
+    currentTime.value = audioRef.value.currentTime
   }
 }
 
@@ -106,103 +172,165 @@ watch(historyDrawerVisible, (visible) => {
 
 <template>
   <AppLayout section-title="音乐生成">
-    <div class="flex flex-1 h-[calc(100vh-4rem)]">
-      <!-- Left: MusicPanel (1/3) -->
+    <div class="flex flex-1 h-[calc(100vh-4rem)] bg-[#f7f9fb]">
+      <!-- Left: MusicPanel (Creation Zone) -->
       <MusicPanel
-        class="w-1/3"
+        class="w-[880px] shrink-0"
         @lyrics-result="handleLyricsResult"
         @music-result="handleMusicResult"
         @loading="isLoading = $event"
       />
 
-      <!-- Right: Results (2/3) -->
-      <div class="flex-1 w-2/3 bg-white p-8 flex flex-col">
-        <!-- Header -->
-        <div class="flex items-center justify-between mb-6 shrink-0">
-          <div class="flex items-center gap-3">
-            <div class="w-2 h-8 rounded-full bg-gradient-to-b from-[#003f87] to-[#0056b3]"></div>
-            <h2 class="text-2xl font-semibold text-[#003f87]">生成结果</h2>
+      <!-- Right: Preview & History -->
+      <div class="flex-1 flex flex-col gap-6 p-8 overflow-auto">
+        <!-- Current Result Player -->
+        <div class="bg-white rounded-2xl shadow-[0_40px_52.5px_-15px_rgba(25,28,30,0.1)] p-6">
+          <div class="flex items-center gap-2 mb-4">
+            <svg class="w-4 h-4 text-[#003f87]" viewBox="0 0 10.5 11.67" fill="currentColor">
+              <path d="M2.33333 9.33333l0-7 1.16667 0 0 7-1.16667 0 0 0m2.33334 2.33334l0-11.66667 1.16666 0 0 11.66667-1.16666 0 0 0m-4.66667-4.66667l0-2.33333 1.16667 0 0 2.33333-1.16667 0 0 0m7 2.33333l0-7 1.16667 0 0 7-1.16667 0 0 0m2.33333-2.33333l0-2.33333 1.16667 0 0 2.33333-1.16667 0 0 0"/>
+            </svg>
+            <span class="text-xs font-bold text-[#003f87]">正在预览 (Current Preview)</span>
           </div>
-          <button
-            class="flex items-center gap-1 text-[#003f87] text-sm font-medium hover:opacity-80 transition-opacity"
-            @click="historyDrawerVisible = true"
-          >
-            <span>View All History</span>
-            <span class="material-symbols-outlined text-base">chevron_right</span>
-          </button>
+
+          <!-- Album Art / Play Area -->
+          <div class="relative w-full aspect-video bg-[#f2f4f6] rounded-xl overflow-hidden mb-4 flex items-center justify-center">
+            <template v-if="resultMode === 'audio' && currentAudioUrl">
+              <div class="w-full h-full bg-gradient-to-br from-[#003f87]/10 to-[#0056b3]/10 flex items-center justify-center">
+                <span class="material-symbols-outlined text-8xl text-[#003f87]/30">music_note</span>
+              </div>
+              <button
+                class="absolute inset-0 flex items-center justify-center bg-black/10 opacity-0 hover:opacity-100 transition-opacity"
+                @click="togglePlay"
+              >
+                <div class="w-16 h-16 bg-white/90 rounded-xl shadow-lg flex items-center justify-center">
+                  <span class="material-symbols-outlined text-4xl text-[#003f87] ml-1">
+                    {{ isPlaying ? 'pause' : 'play_arrow' }}
+                  </span>
+                </div>
+              </button>
+            </template>
+            <template v-else>
+              <div class="flex flex-col items-center gap-3 text-[#424752]">
+                <span class="material-symbols-outlined text-6xl">music_note</span>
+                <span class="text-sm">暂无预览</span>
+              </div>
+            </template>
+          </div>
+
+          <!-- Track Info -->
+          <div class="text-center mb-4">
+            <h3 class="text-lg font-bold text-[#191c1e] truncate">
+              {{ resultMode === 'audio' ? currentTitle : 'Manuscript_Nocturne_v2.mp3' }}
+            </h3>
+            <p class="text-xs text-[#424752]">
+              {{ currentGenre || 'Lofi Jazz' }} • {{ currentDuration || '3:42' }} • {{ currentSampleRate }}
+            </p>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="mb-2 cursor-pointer" @click="seek">
+            <div class="w-full h-1.5 bg-[#eceef0] rounded-full overflow-hidden">
+              <div
+                class="h-full bg-[#003f87] rounded-full transition-all"
+                :style="{ width: duration > 0 ? `${(currentTime / duration) * 100}%` : '0%' }"
+              />
+            </div>
+            <div class="flex justify-between mt-1">
+              <span class="text-[10px] text-[#424752] font-mono">{{ formatTime(currentTime) }}</span>
+              <span class="text-[10px] text-[#424752] font-mono">{{ currentDuration }}</span>
+            </div>
+          </div>
+
+          <!-- Controls -->
+          <div class="flex items-center justify-center gap-8">
+            <button class="text-[#424752] hover:text-[#191c1e] transition-colors">
+              <span class="material-symbols-outlined text-xl">shuffle</span>
+            </button>
+            <button class="text-[#424752] hover:text-[#191c1e] transition-colors">
+              <span class="material-symbols-outlined text-xl">skip_previous</span>
+            </button>
+            <button
+              class="w-12 h-12 rounded-full bg-[#003f87] text-white flex items-center justify-center hover:bg-[#0056b3] transition-colors"
+              @click="togglePlay"
+            >
+              <span class="material-symbols-outlined text-2xl ml-0.5">
+                {{ isPlaying ? 'pause' : 'play_arrow' }}
+              </span>
+            </button>
+            <button class="text-[#424752] hover:text-[#191c1e] transition-colors">
+              <span class="material-symbols-outlined text-xl">skip_next</span>
+            </button>
+            <button class="text-[#424752] hover:text-[#191c1e] transition-colors">
+              <span class="material-symbols-outlined text-xl">repeat</span>
+            </button>
+          </div>
+
+          <!-- Audio element (hidden) -->
+          <audio
+            ref="audioRef"
+            class="hidden"
+            @timeupdate="onTimeUpdate"
+            @loadedmetadata="onLoadedMetadata"
+            @ended="onEnded"
+          />
         </div>
 
-        <!-- Result Area -->
-        <div class="flex-1 overflow-auto relative">
-          <!-- Loading overlay -->
-          <div
-            v-if="isLoading"
-            class="absolute inset-0 flex items-center justify-center bg-white/70 z-10 rounded-2xl"
-          >
-            <div class="flex flex-col items-center gap-3">
-              <span class="material-symbols-outlined text-5xl text-[#003f87] animate-spin">progress_activity</span>
-              <p class="text-sm text-[#424752]">正在生成，请稍候...</p>
-            </div>
-          </div>
-
-          <!-- Empty state -->
-          <div
-            v-if="resultMode === 'empty' && !isLoading"
-            class="h-full flex flex-col items-center justify-center rounded-2xl bg-[#f2f4f6]/5 border-2 border-[#c2c6d4]/10"
-          >
-            <div class="relative mb-6">
-              <div class="w-24 h-24 rounded-2xl bg-gradient-to-br from-[#003f87]/10 to-[#0056b3]/10 flex items-center justify-center">
-                <span class="material-symbols-outlined text-6xl text-[#003f87]/20">music_note</span>
-              </div>
-              <div class="absolute -top-2 -left-2 w-4 h-4 border-l-2 border-t-2 border-[#003f87]/20 rounded-tl-lg"></div>
-              <div class="absolute -bottom-2 -right-2 w-4 h-4 border-r-2 border-b-2 border-[#003f87]/20 rounded-br-lg"></div>
-            </div>
-            <h3 class="text-2xl font-medium text-[#191c1e] mb-3">No music yet</h3>
-            <p class="text-base text-[#424752] max-w-md text-center mb-8">
-              使用左侧面板生成歌词或音乐。
-            </p>
-            <div class="flex items-center gap-3">
-              <div class="w-16 h-1 rounded-full bg-[#c2c6d4]/30"></div>
-              <div class="w-8 h-1 rounded-full bg-[#003f87]/20"></div>
-              <div class="w-16 h-1 rounded-full bg-[#c2c6d4]/30"></div>
-            </div>
-          </div>
-
-          <!-- Lyrics result -->
-          <div v-if="resultMode === 'lyrics'" class="h-full flex flex-col">
-            <div class="flex items-center justify-between mb-4">
-              <span class="text-sm font-semibold text-[#424752]">Generated Lyrics</span>
-              <button
-                class="flex items-center gap-1 text-xs font-semibold text-[#003f87] hover:bg-[#003f87]/5 px-3 py-1.5 rounded transition-colors"
-                @click="copyLyrics"
-              >
-                <span class="material-symbols-outlined text-base">content_copy</span>
-                复制
-              </button>
-            </div>
-            <div class="flex-1 overflow-auto bg-[#f7f9fb] rounded-xl p-6">
-              <pre class="text-sm text-[#191c1e] whitespace-pre-wrap leading-relaxed font-sans">{{ currentLyrics }}</pre>
-            </div>
-          </div>
-
-          <!-- Audio result -->
-          <div v-if="resultMode === 'audio'" class="h-full flex flex-col items-center justify-center gap-6">
-            <div class="w-32 h-32 rounded-2xl bg-gradient-to-br from-[#003f87]/10 to-[#0056b3]/10 flex items-center justify-center">
-              <span class="material-symbols-outlined text-6xl text-[#003f87]/60">music_note</span>
-            </div>
-            <p class="text-sm text-[#424752]">音乐生成完成</p>
-            <audio
-              :src="currentAudioUrl"
-              controls
-              class="w-full max-w-lg"
-            />
+        <!-- History Records -->
+        <div class="bg-white rounded-2xl shadow-[0_40px_52.5px_-15px_rgba(25,28,30,0.1)] p-6 flex-1 overflow-hidden flex flex-col">
+          <div class="flex items-center justify-between mb-4">
+            <h4 class="text-sm font-bold text-[#191c1e]">历史记录 (History)</h4>
             <button
-              class="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-[#003f87] border border-[#003f87]/20 rounded-lg hover:bg-[#003f87]/5 transition-colors"
-              @click="downloadAudio"
+              class="text-xs text-[#003f87] hover:underline"
+              @click="historyDrawerVisible = true"
             >
-              <span class="material-symbols-outlined text-base">download</span>
-              下载 MP3
+              查看全部
             </button>
+          </div>
+
+          <div class="flex-1 overflow-auto">
+            <div class="flex flex-col gap-3">
+              <div
+                v-for="item in historyList.slice(0, 4)"
+                :key="item.id"
+                class="flex items-center gap-3 p-3 bg-white/80 rounded-lg hover:bg-[#f7f9fb] transition-colors cursor-pointer group"
+                @click="playFromHistory(item)"
+              >
+                <!-- Thumbnail -->
+                <div class="w-12 h-12 bg-[#eceef0] rounded flex items-center justify-center shrink-0 relative overflow-hidden">
+                  <span class="material-symbols-outlined text-[#424752]/50">music_note</span>
+                  <div class="absolute inset-0 bg-[#003f87]/10 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                    <span class="material-symbols-outlined text-white text-lg">play_arrow</span>
+                  </div>
+                </div>
+
+                <!-- Info -->
+                <div class="flex-1 min-w-0">
+                  <p class="text-xs font-bold text-[#191c1e] truncate">{{ item.displayTitle }}</p>
+                  <p class="text-[10px] text-[#424752]/70 truncate">"{{ item.prompt.substring(0, 20) }}..."</p>
+                  <span
+                    v-if="item.isInstrumental"
+                    class="inline-block mt-1 px-1.5 py-0.5 text-[8px] font-medium rounded bg-[#eceef0] text-[#424752]"
+                  >
+                    纯音乐
+                  </span>
+                  <span
+                    v-else
+                    class="inline-block mt-1 px-1.5 py-0.5 text-[8px] font-medium rounded bg-[#dbeafe] text-[#1e40af]"
+                  >
+                    {{ item.model }}
+                  </span>
+                </div>
+
+                <!-- More icon -->
+                <button class="text-[#424752]/20 hover:text-[#424752] transition-colors">
+                  <span class="material-symbols-outlined text-lg">more_vert</span>
+                </button>
+              </div>
+
+              <div v-if="historyList.length === 0 && !loadingMore" class="text-center py-8 text-[#424752] text-sm">
+                暂无历史记录
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -214,6 +342,7 @@ watch(historyDrawerVisible, (visible) => {
         direction="rtl"
         size="480px"
         :with-header="false"
+        :z-index="50"
       >
         <div class="h-full flex flex-col overflow-hidden">
           <div class="shrink-0 flex items-center justify-between px-6 py-5 border-b border-[#c2c6d4]/10">

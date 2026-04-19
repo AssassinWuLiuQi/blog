@@ -17,6 +17,7 @@ const hasMore = ref(true)
 const loadingMore = ref(false)
 
 const historyList = ref<ImageHistoryItem[]>([])
+const refreshing = ref(false)
 
 const loadHistory = async (): Promise<void> => {
   if (loadingMore.value || !hasMore.value) return
@@ -32,6 +33,26 @@ const loadHistory = async (): Promise<void> => {
     console.error('Failed to load history:', error)
   } finally {
     loadingMore.value = false
+  }
+}
+
+const handleRefresh = async (): Promise<void> => {
+  if (refreshing.value) return
+  refreshing.value = true
+  currentPage.value = 0
+  hasMore.value = true
+  historyList.value = []
+  try {
+    const items = await fetchImageHistory(0, pageSize.value)
+    if (items.length < pageSize.value) {
+      hasMore.value = false
+    }
+    historyList.value = items
+    currentPage.value = 1
+  } catch (error) {
+    console.error('Failed to refresh history:', error)
+  } finally {
+    refreshing.value = false
   }
 }
 
@@ -233,12 +254,21 @@ watch(historyDrawerVisible, (visible) => {
               </div>
               <h2 class="text-xl font-semibold text-[#191c1e]">Generation History</h2>
             </div>
-            <button
-              class="w-8 h-8 rounded-full hover:bg-[#c2c6d4]/10 flex items-center justify-center transition-colors"
-              @click="historyDrawerVisible = false"
-            >
-              <span class="material-symbols-outlined text-lg text-[#424752]">close</span>
-            </button>
+            <div class="flex items-center gap-1">
+              <button
+                class="w-8 h-8 rounded-full hover:bg-[#c2c6d4]/10 flex items-center justify-center transition-colors disabled:opacity-50"
+                :disabled="refreshing"
+                @click="handleRefresh"
+              >
+                <span class="material-symbols-outlined text-lg text-[#424752]" :class="{ 'animate-spin': refreshing }">refresh</span>
+              </button>
+              <button
+                class="w-8 h-8 rounded-full hover:bg-[#c2c6d4]/10 flex items-center justify-center transition-colors"
+                @click="historyDrawerVisible = false"
+              >
+                <span class="material-symbols-outlined text-lg text-[#424752]">close</span>
+              </button>
+            </div>
           </div>
 
           <!-- History List -->

@@ -341,7 +341,9 @@ onBeforeUnmount(() => {
 }
 
 .chinese-manuscript blockquote {
-  @apply my-8 pl-6 border-l-4 border-primary/20 italic text-on-surface-variant bg-surface-container-low/50 py-4 pr-4 rounded-r-lg;
+  @apply my-8 pl-6 border-l-4 italic text-on-surface-variant py-4 pr-4 rounded-r-lg;
+  border-left-color: rgba(0, 63, 135, 0.2);
+  background-color: rgba(236, 238, 240, 0.5);
 }
 
 .chinese-manuscript pre {

@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.scholarsmanuscript.dto.request.ImageGenerationRequest.SubjectReference;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -56,6 +58,32 @@ public class ImageService {
         body.put("response_format", request.getResponseFormat());
         body.put("prompt_optimizer", request.getPromptOptimizer());
         body.put("aigc_watermark", request.getAigcWatermark());
+
+        // Handle subject reference (image-to-image)
+        if (request.getSubjectReference() != null && !request.getSubjectReference().isEmpty()) {
+            List<Map<String, String>> subjectRefs = new ArrayList<>();
+            for (SubjectReference ref : request.getSubjectReference()) {
+                String imageFile = ref.getImageFile();
+                // If image is base64 encoded, upload to MinIO first
+                if (imageFile != null && imageFile.startsWith("data:image")) {
+                    try {
+                        imageFile = minioService.uploadFromBase64(imageFile, "reference-" + System.currentTimeMillis() + ".png");
+                        log.info("Uploaded base64 reference image to MinIO: {}", imageFile);
+                    } catch (Exception e) {
+                        log.error("Failed to upload base64 reference image to MinIO", e);
+                        return ImageGenerationResponse.builder()
+                                .statusCode(500)
+                                .statusMsg("Failed to upload reference image: " + e.getMessage())
+                                .build();
+                    }
+                }
+                Map<String, String> refMap = new HashMap<>();
+                refMap.put("type", ref.getType() != null ? ref.getType() : "character");
+                refMap.put("image_file", imageFile);
+                subjectRefs.add(refMap);
+            }
+            body.put("subject_reference", subjectRefs);
+        }
 
         Request httpRequest = new Request.Builder()
                 .url(MINI_MAX_API_URL + "/image_generation")

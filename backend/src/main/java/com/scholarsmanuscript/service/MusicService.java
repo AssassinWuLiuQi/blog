@@ -83,16 +83,10 @@ public class MusicService {
             builder.statusMsg((String) baseResp.get("status_msg"));
         }
 
-        // MiniMax lyrics API returns lyrics in data.text
-        Object data = responseMap.get("data");
-        if (data instanceof Map) {
-            Map<String, Object> dataMap = (Map<String, Object>) data;
-            String lyrics = (String) dataMap.get("text");
-            if (lyrics == null) {
-                lyrics = (String) dataMap.get("lyrics");
-            }
-            builder.lyrics(lyrics);
-        }
+        // MiniMax lyrics API returns directly: song_title, style_tags, lyrics
+        builder.songTitle((String) responseMap.get("song_title"));
+        builder.styleTags((String) responseMap.get("style_tags"));
+        builder.lyrics((String) responseMap.get("lyrics"));
 
         return builder.build();
     }
@@ -177,7 +171,7 @@ public class MusicService {
         Object data = responseMap.get("data");
         if (data instanceof Map) {
             Map<String, Object> dataMap = (Map<String, Object>) data;
-            builder.audioUrl((String) dataMap.get("audio"));
+            builder.audioUrl((String) dataMap.get("audio_url"));
         }
 
         return builder.build();

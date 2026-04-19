@@ -35,17 +35,47 @@ const decrementCount = (): void => {
 }
 
 const incrementCount = (): void => {
-  if (imageCount.value < 4) imageCount.value++
+  if (imageCount.value < 9) imageCount.value++
 }
 
 // Seed
 const seed = ref('')
 const useSeed = ref(false)
+const fileInputRef = ref<HTMLInputElement | null>(null)
+
+const handleFileSelect = (event: Event): void => {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (file) {
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const result = e.target?.result as string
+      referenceImage.value = result
+    }
+    reader.readAsDataURL(file)
+  }
+}
+
+const handleUploadClick = (): void => {
+  fileInputRef.value?.click()
+}
+
+const clearReferenceImage = (): void => {
+  referenceImage.value = null
+  if (fileInputRef.value) {
+    fileInputRef.value.value = ''
+  }
+}
 
 const isGenerating = ref(false)
 const errorMessage = ref('')
 
-const canGenerate = computed(() => prompt.value.trim().length > 0 && !isGenerating.value)
+const canGenerate = computed(() => {
+  if (selectedMode.value === 'image-to-image') {
+    return prompt.value.trim().length > 0 && referenceImage.value && !isGenerating.value
+  }
+  return prompt.value.trim().length > 0 && !isGenerating.value
+})
 
 const handleGenerate = async (): Promise<void> => {
   if (!canGenerate.value) return
@@ -62,6 +92,16 @@ const handleGenerate = async (): Promise<void> => {
       responseFormat: 'url',
       promptOptimizer: promptOptimizer.value,
       aigcWatermark: aigcWatermark.value
+    }
+
+    // Add subject reference for image-to-image mode
+    if (selectedMode.value === 'image-to-image' && referenceImage.value) {
+      request.subjectReference = [
+        {
+          type: 'character',
+          imageFile: referenceImage.value
+        }
+      ]
     }
 
     const response = await generateImage(request)
@@ -134,10 +174,13 @@ defineExpose({ fillForm })
             文生图 (Text-to-Image)
           </button>
           <button
-            class="flex-1 py-2.5 px-4 rounded-md text-sm font-medium transition-all cursor-not-allowed opacity-50"
-            disabled
+            class="flex-1 py-2.5 px-4 rounded-md text-sm font-medium transition-all"
+            :class="selectedMode === 'image-to-image'
+              ? 'bg-white text-[#003f87] shadow-[0px_1px_1.75px_0px_rgba(0,0,0,0.05)]'
+              : 'text-[#424752]'"
+            @click="selectedMode = 'image-to-image'"
           >
-            图生图 (Image-to-Image) 暂未开放
+            图生图 (Image-to-Image)
           </button>
         </div>
 
@@ -160,17 +203,34 @@ defineExpose({ fillForm })
           <label class="text-xs font-bold text-[#424752] tracking-wide uppercase">
             参考图像 (Reference Image)
           </label>
-          <div class="border-2 border-dashed border-[#c2c6d4] rounded p-8 flex flex-col items-center justify-center gap-2 bg-[#f2f4f6]">
+          <input
+            ref="fileInputRef"
+            type="file"
+            accept="image/*"
+            class="hidden"
+            @change="handleFileSelect"
+          />
+          <div
+            v-if="!referenceImage"
+            class="border-2 border-dashed border-[#c2c6d4] rounded p-8 flex flex-col items-center justify-center gap-2 bg-[#f2f4f6] cursor-pointer hover:border-[#003f87] hover:bg-[#f2f4f6]/80 transition-colors"
+            @click="handleUploadClick"
+          >
             <SvgIcon name="image-upload" class="w-5 h-6.25 text-[#c2c6d4]" />
             <span class="text-xs font-medium text-[#424752]">点击或拖拽参考图至此处</span>
           </div>
-
-          <!-- Reference Intensity Slider -->
-          <!-- <div class="flex items-center justify-between">
-            <span class="text-xs font-medium text-[#424752]">参考强度</span>
-            <span class="text-sm font-bold text-[#003f87]">{{ referenceIntensity }}%</span>
+          <div v-else class="relative">
+            <img
+              :src="referenceImage"
+              alt="Reference"
+              class="w-full h-40 object-cover rounded"
+            />
+            <button
+              class="absolute top-2 right-2 w-6 h-6 bg-black/50 rounded-full flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+              @click="clearReferenceImage"
+            >
+              <span class="text-xs font-bold">×</span>
+            </button>
           </div>
-          <div class="h-1.5 bg-[#e6e8ea] rounded"></div> -->
         </div>
 
         <!-- Model Selection -->

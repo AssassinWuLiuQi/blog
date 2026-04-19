@@ -48,7 +48,7 @@ const isItemActive = (item: typeof navItems[0]): boolean => {
 
 <template>
   <aside
-    class="fixed left-0 top-0 h-screen flex flex-col bg-white border-r border-outline-variant/10 transition-all duration-300 ease-in-out z-50"
+    class="fixed left-0 top-0 h-screen flex flex-col bg-white border-r border-outline-variant/10 transition-all duration-300 ease-in-out z-30"
     :class="isCollapsed ? 'w-16' : 'w-64'"
   >
     <!-- Toggle Button -->

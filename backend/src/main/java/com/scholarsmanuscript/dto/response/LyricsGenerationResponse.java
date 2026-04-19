@@ -7,6 +7,8 @@ import lombok.Data;
 @Builder
 public class LyricsGenerationResponse {
 
+    private String songTitle;
+    private String styleTags;
     private String lyrics;
     private Integer statusCode;
     private String statusMsg;

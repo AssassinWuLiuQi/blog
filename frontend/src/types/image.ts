@@ -6,6 +6,12 @@ export interface ImageGenerationRequest {
   responseFormat?: 'url' | 'base64'
   promptOptimizer?: boolean
   aigcWatermark?: boolean
+  subjectReference?: SubjectReference[]
+}
+
+export interface SubjectReference {
+  type?: 'character'
+  imageFile: string
 }
 
 export interface ImageGenerationResponse {
