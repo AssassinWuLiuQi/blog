@@ -11,6 +11,17 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
     embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2"
 
+    # DashScope Rerank
+    dashscope_api_key: str = ""
+    rerank_model: str = "text-rerank"
+    rerank_top_k: int = 20
+    rerank_top_n: int = 5
+
+    # RAG
+    heading_pattern: str = r'^#{1,6}\s+|^【[^】]+】|^\[[^\]]+\]$'
+    max_chars_per_chunk: int = 500
+    max_file_size_mb: int = 50
+
     class Config:
         env_file = ".env"
         extra = "allow"
