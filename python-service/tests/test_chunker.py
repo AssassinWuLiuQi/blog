@@ -13,6 +13,15 @@ def test_parse_unsupported_format():
     with pytest.raises(ValueError, match="Unsupported file format"):
         parse_document(content, "test.xyz")
 
+def test_parse_pdf_unsupported():
+    content = b"fake pdf content"
+    with pytest.raises(ValueError, match="Unsupported file format"):
+        parse_document(content, "test.xyz")
+
+def test_parse_docx_unsupported():
+    with pytest.raises(ValueError, match="Unsupported file format"):
+        parse_document(b"fake", "test.doc")
+
 
 def test_chunk_by_headings():
     text = """# 标题一

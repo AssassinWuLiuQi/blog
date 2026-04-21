@@ -2,12 +2,42 @@ import re
 from typing import List, Dict
 
 
+def parse_pdf(content: bytes) -> str:
+    """Extract text from PDF using pdfplumber."""
+    import pdfplumber
+    from io import BytesIO
+
+    text_parts = []
+    with pdfplumber.open(BytesIO(content)) as pdf:
+        for page in pdf.pages:
+            page_text = page.extract_text()
+            if page_text:
+                text_parts.append(page_text)
+    return '\n\n'.join(text_parts)
+
+
+def parse_docx(content: bytes) -> str:
+    """Extract text from DOCX using python-docx."""
+    from docx import Document
+    from io import BytesIO
+
+    doc = Document(BytesIO(content))
+    paragraphs = [p.text for p in doc.paragraphs if p.text.strip()]
+    return '\n\n'.join(paragraphs)
+
+
 def parse_document(content: bytes, filename: str) -> str:
     """Parse document content and extract plain text."""
     ext = filename.lower().split('.')[-1]
 
     if ext == 'txt':
         return content.decode('utf-8', errors='replace')
+
+    if ext == 'pdf':
+        return parse_pdf(content)
+
+    if ext == 'docx':
+        return parse_docx(content)
 
     raise ValueError(f"Unsupported file format: {ext}")
 
