@@ -1,15 +1,22 @@
 from typing import List, Optional
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, HTTPException, BackgroundTasks
+from fastapi import FastAPI, HTTPException, BackgroundTasks, UploadFile, File, Form, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sse_starlette.sse import EventSourceResponse
 from langchain_core.messages import HumanMessage, AIMessage
 import json
+import hashlib
 
 from chat_service.graph.chat_graph import chat_graph
 from chat_service.services.retrieval import RetrievalService
 from chat_service.config import get_settings
+from chat_service.rag import (
+    chunk_by_headings,
+    parse_document,
+    RAGRetriever,
+    DashScopeReranker,
+)
 
 settings = get_settings()
 
@@ -18,17 +25,17 @@ class ChatRequest(BaseModel):
     messages: List[dict]
     user_id: str = "anonymous"
     session_id: str = "default"
-    use_voice: bool = False
     response_mode: str = "streaming"
 
 
 class ChatResponse(BaseModel):
     content: str
     session_id: str
-    use_voice: bool = False
 
 
 retrieval_service = RetrievalService()
+rag_retriever = RAGRetriever()
+rag_reranker = DashScopeReranker()
 
 
 @asynccontextmanager
@@ -75,7 +82,6 @@ async def stream_chat(request: ChatRequest):
             "user_id": request.user_id,
             "session_id": request.session_id,
             "retrieved_docs": [],
-            "use_voice": request.use_voice,
             "response_mode": request.response_mode,
             "current_response": ""
         }
@@ -119,7 +125,6 @@ async def sync_chat(request: ChatRequest) -> ChatResponse:
         "user_id": request.user_id,
         "session_id": request.session_id,
         "retrieved_docs": [],
-        "use_voice": request.use_voice,
         "response_mode": "sync",
         "current_response": ""
     }
@@ -128,8 +133,7 @@ async def sync_chat(request: ChatRequest) -> ChatResponse:
 
     return ChatResponse(
         content=result.get("current_response", ""),
-        session_id=request.session_id,
-        use_voice=request.use_voice
+        session_id=request.session_id
     )
 
 
@@ -141,6 +145,100 @@ async def add_knowledge(content: str, metadata: Optional[dict] = None):
         return {"status": "success", "message": "Document added"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/rag/ingest")
+async def ingest_document(
+    file: UploadFile = File(...),
+    title: Optional[str] = Form(None),
+    heading_pattern: Optional[str] = Form(None),
+    max_chars: Optional[int] = Form(None),
+):
+    """Upload and ingest a document."""
+    # Validate file size
+    settings = get_settings()
+    max_size = settings.max_file_size_mb * 1024 * 1024
+    content = await file.read()
+    if len(content) > max_size:
+        raise HTTPException(
+            status_code=413,
+            detail=f"File too large. Max size: {settings.max_file_size_mb}MB"
+        )
+
+    # Validate file type
+    ext = file.filename.lower().split('.')[-1]
+    if ext not in ['txt', 'pdf', 'docx']:
+        raise HTTPException(
+            status_code=400,
+            detail="Unsupported file format. Use txt, pdf, or docx"
+        )
+
+    # Generate doc_id
+    doc_id = hashlib.md5(content).hexdigest()[:12]
+
+    # Use title from form or filename
+    doc_title = title or file.filename
+
+    # Parse document
+    try:
+        text = parse_document(content, file.filename)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    # Chunk text
+    pattern = heading_pattern or settings.heading_pattern
+    chars_limit = max_chars or settings.max_chars_per_chunk
+    chunks = chunk_by_headings(text, heading_pattern=pattern, max_chars_per_chunk=chars_limit)
+
+    # Add metadata
+    for chunk in chunks:
+        chunk["doc_id"] = doc_id
+        chunk["source_file"] = file.filename
+
+    # Store in Qdrant
+    rag_retriever.add_chunks(chunks, doc_id, file.filename)
+
+    return {
+        "status": "success",
+        "doc_id": doc_id,
+        "chunks": len(chunks),
+        "title": doc_title,
+    }
+
+
+@app.get("/api/rag/search")
+async def search_documents(
+    q: str = Query(..., description="Search query"),
+    top_k: int = Query(20, description="Number of initial results"),
+    top_n: int = Query(5, description="Number of final results after rerank"),
+):
+    """Search documents with reranking."""
+    settings = get_settings()
+
+    # Vector search
+    results = rag_retriever.retrieve(q, top_k=top_k)
+
+    if not results:
+        return {"query": q, "results": []}
+
+    # Rerank
+    documents = [r["content"] for r in results]
+    reranked = rag_reranker.rerank(q, documents, top_n=top_n)
+
+    # Build response with original metadata
+    doc_index_map = {i: r for i, r in enumerate(results)}
+    response_results = []
+    for item in reranked:
+        original = doc_index_map.get(item["index"], {})
+        response_results.append({
+            "content": item["content"],
+            "title": original.get("title", ""),
+            "score": item["score"],
+            "doc_id": original.get("doc_id", ""),
+            "chunk_index": original.get("chunk_index", 0),
+        })
+
+    return {"query": q, "results": response_results}
 
 
 if __name__ == "__main__":
