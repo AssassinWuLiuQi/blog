@@ -3,9 +3,14 @@ from langchain_core.messages import HumanMessage
 from chat_service.state import ChatState
 from chat_service.services.retrieval import RetrievalService
 from chat_service.services.minimax_client import MiniMaxClient
+from chat_service.rag.retriever import RAGRetriever
+from chat_service.rag.reranker import DashScopeReranker
+from chat_service.config import get_settings
 
 retrieval_service = RetrievalService()
 minimax_client = MiniMaxClient()
+rag_retriever = RAGRetriever()
+rag_reranker = DashScopeReranker()
 
 SYSTEM_PROMPT = """你是一个博客网站的智能客服助手，名为"小博"。
 
@@ -23,15 +28,41 @@ SYSTEM_PROMPT = """你是一个博客网站的智能客服助手，名为"小博
 
 
 async def retrieve_knowledge(state: ChatState) -> Dict[str, Any]:
-    """Retrieve relevant documents from knowledge base."""
+    """Retrieve relevant documents from knowledge base with reranking."""
     user_message = state["messages"][-1].content if state["messages"] else ""
 
-    try:
-        docs = retrieval_service.retrieve(user_message, top_k=5)
-    except Exception:
-        docs = []
+    settings = get_settings()
 
-    return {"retrieved_docs": docs}
+    try:
+        # Vector search
+        docs = rag_retriever.retrieve(user_message, top_k=settings.rerank_top_k)
+
+        if not docs:
+            return {"retrieved_docs": []}
+
+        # Rerank
+        documents = [d["content"] for d in docs]
+        reranked = rag_reranker.rerank(
+            user_message,
+            documents,
+            top_n=settings.rerank_top_n
+        )
+
+        # Extract final documents with metadata
+        doc_map = {i: d for i, d in enumerate(docs)}
+        final_docs = []
+        for item in reranked:
+            original = doc_map.get(item["index"], {})
+            final_docs.append({
+                "content": item["content"],
+                "title": original.get("title", ""),
+                "score": item["score"],
+            })
+
+        return {"retrieved_docs": final_docs}
+
+    except Exception:
+        return {"retrieved_docs": []}
 
 
 async def chat_completion(state: ChatState) -> Dict[str, Any]:
@@ -60,6 +91,3 @@ async def chat_completion(state: ChatState) -> Dict[str, Any]:
         return {"current_response": response_content}
 
 
-async def synthesize_voice(state: ChatState) -> Dict[str, Any]:
-    """Prepare for voice synthesis (placeholder for TTS integration)."""
-    return {"use_voice": True}
