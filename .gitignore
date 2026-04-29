@@ -66,3 +66,4 @@ __pycache__/
 # Build artifacts
 dist/
 *.zip
+memory/deploy-server-ip.md
