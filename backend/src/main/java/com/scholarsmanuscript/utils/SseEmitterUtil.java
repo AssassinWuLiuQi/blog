@@ -1,5 +1,6 @@
 package com.scholarsmanuscript.utils;
 
+import com.alibaba.fastjson2.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -21,7 +22,10 @@ public class SseEmitterUtil {
 
     public static void data(SseEmitter emitter, String data) {
         try {
-            emitter.send(SseEmitter.event().name("data").data(data));
+            JSONObject json = new JSONObject();
+            json.put("step", 100);
+            json.put("data", data);
+            emitter.send(SseEmitter.event().name("message").data(json.toJSONString()));
         } catch (IOException e) {
             log.error("Failed to send data event: {}", e.getMessage());
             emitter.completeWithError(e);

@@ -74,7 +74,7 @@ const forward30 = (): void => {
 </script>
 
 <template>
-  <div class="bg-gradient-to-br from-blue-900 to-blue-950 p-8 rounded-xl shadow-xl shadow-blue-900/10 text-white flex flex-col items-center">
+  <div class="bg-gradient-to-br from-blue-800 to-blue-950 dark:from-blue-600 dark:to-blue-900 p-8 rounded-xl shadow-xl shadow-blue-800/10 dark:shadow-blue-500/10 text-white flex flex-col items-center">
     <!-- EQ Icon with Pulse Effect -->
     <div class="w-16 h-16 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center mb-6 relative">
       <div class="absolute inset-0 border-2 border-white/20 rounded-full" :class="{ 'animate-pulse': isPlaying }"></div>
@@ -110,7 +110,7 @@ const forward30 = (): void => {
       <!-- Play/Pause Button -->
       <button
         @click="togglePlay"
-        class="w-14 h-14 bg-white text-blue-900 rounded-full flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-transform"
+        class="w-14 h-14 bg-white text-blue-800 dark:text-blue-600 rounded-full flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-transform"
       >
         <span class="material-symbols-outlined text-4xl">
           {{ isPlaying ? 'pause' : 'play_arrow' }}

@@ -69,24 +69,24 @@ const handleLogin = async (): Promise<void> => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-background flex flex-col">
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
     <main class="flex-grow flex items-center justify-center px-6 py-20">
-      <div class="w-full max-w-md bg-surface-container-lowest overflow-hidden rounded-xl border border-outline-variant/10 p-8 md:p-12 login-card">
+      <div class="w-full max-w-md bg-white dark:bg-gray-800 overflow-hidden rounded-xl border border-gray-300/20 dark:border-gray-700 p-8 md:p-12 login-card">
         <header class="mb-10 text-center">
-          <h1 class="text-3xl font-headline font-bold text-primary tracking-wide mb-3">MxJin</h1>
-          <p class="text-on-surface-variant text-sm font-light">欢迎归来，记录您的思想碎片。</p>
+          <h1 class="text-3xl font-headline font-bold text-blue-800 dark:text-blue-400 tracking-wide mb-3">MxJin</h1>
+          <p class="text-gray-600 dark:text-gray-400 text-sm font-light">欢迎归来，记录您的思想碎片。</p>
         </header>
 
         <form @submit.prevent="handleLogin" class="space-y-8">
 
           <div class="space-y-6">
             <div class="relative">
-              <label class="block text-[11px] uppercase tracking-widest text-on-surface-variant mb-2 ml-1">账号 / 邮箱</label>
+              <label class="block text-[11px] uppercase tracking-widest text-gray-600 dark:text-gray-400 mb-2 ml-1">账号 / 邮箱</label>
               <div class="relative group">
-                <span class="material-symbols-outlined absolute left-0 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors duration-300">person</span>
+                <span class="material-symbols-outlined absolute left-0 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-800 dark:group-focus-within:text-blue-400 transition-colors duration-300">person</span>
                 <input
                   v-model="form.username"
-                  class="w-full bg-transparent border-none border-b-2 border-outline-variant/30 focus:ring-0 focus:border-primary pl-8 pb-3 text-sm transition-all duration-300 placeholder:text-outline/50"
+                  class="w-full bg-transparent border-none border-b-2 border-gray-300/30 dark:border-gray-600/30 focus:ring-0 focus:border-blue-800 dark:focus:border-blue-400 pl-8 pb-3 text-sm transition-all duration-300 placeholder:text-gray-400"
                   placeholder="输入您的账号"
                   type="text"
                 />
@@ -94,12 +94,12 @@ const handleLogin = async (): Promise<void> => {
             </div>
 
             <div class="relative">
-              <label class="block text-[11px] uppercase tracking-widest text-on-surface-variant mb-2 ml-1">访问密码</label>
+              <label class="block text-[11px] uppercase tracking-widest text-gray-600 dark:text-gray-400 mb-2 ml-1">访问密码</label>
               <div class="relative group">
-                <span class="material-symbols-outlined absolute left-0 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors duration-300">lock</span>
+                <span class="material-symbols-outlined absolute left-0 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-800 dark:group-focus-within:text-blue-400 transition-colors duration-300">lock</span>
                 <input
                   v-model="form.password"
-                  class="w-full bg-transparent border-none border-b-2 border-outline-variant/30 focus:ring-0 focus:border-primary pl-8 pb-3 text-sm transition-all duration-300 placeholder:text-outline/50"
+                  class="w-full bg-transparent border-none border-b-2 border-gray-300/30 dark:border-gray-600/30 focus:ring-0 focus:border-blue-800 dark:focus:border-blue-400 pl-8 pb-3 text-sm transition-all duration-300 placeholder:text-gray-400"
                   placeholder="输入您的密码"
                   type="password"
                 />
@@ -110,31 +110,31 @@ const handleLogin = async (): Promise<void> => {
           <div class="flex items-center justify-between text-xs">
             <label class="flex items-center cursor-pointer group">
               <input
-                class="w-4 h-4 rounded-sm border-outline-variant text-primary focus:ring-primary/20 transition-all"
+                class="w-4 h-4 rounded-sm border-gray-300 text-blue-800 dark:text-blue-400 focus:ring-blue-800/20 dark:focus:ring-blue-400/20 transition-all"
                 type="checkbox"
               />
-              <span class="ml-2 text-on-surface-variant group-hover:text-on-surface transition-colors">记住我</span>
+              <span class="ml-2 text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-gray-100 transition-colors">记住我</span>
             </label>
-            <a class="text-on-surface-variant hover:text-primary transition-colors" href="#">忘记密码？</a>
+            <a class="text-gray-600 dark:text-gray-400 hover:text-blue-800 dark:hover:text-blue-400 transition-colors" href="#">忘记密码？</a>
           </div>
 
           <GradientButton label="立即登录" type="submit" class="w-full" :disabled="isLoading" />
         </form>
 
         <div class="mt-10 text-center">
-          <p class="text-sm text-on-surface-variant font-light">
+          <p class="text-sm text-gray-600 dark:text-gray-400 font-light">
             还没有账号？
-            <router-link class="text-primary font-medium hover:underline underline-offset-4 ml-1 transition-all" to="/register">立即注册</router-link>
+            <router-link class="text-blue-800 dark:text-blue-400 font-medium hover:underline underline-offset-4 ml-1 transition-all" to="/register">立即注册</router-link>
           </p>
         </div>
       </div>
     </main>
 
-    <footer class="w-full py-12 border-t border-slate-100">
+    <footer class="w-full py-12 border-t border-slate-100 dark:border-gray-800">
       <div class="max-w-[1080px] mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
         <div class="flex flex-col items-center md:items-start gap-1">
-          <span class="font-bold text-slate-700">MxJin</span>
-          <p class="text-sm leading-relaxed text-slate-500">MxJin</p>
+          <span class="font-bold text-slate-700 dark:text-gray-300">MxJin</span>
+          <p class="text-sm leading-relaxed text-slate-500 dark:text-gray-500">MxJin</p>
         </div>
       </div>
     </footer>

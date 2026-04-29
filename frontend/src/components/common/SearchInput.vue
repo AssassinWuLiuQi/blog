@@ -16,7 +16,7 @@ const emit = defineEmits<{
 
 <template>
   <div class="relative group">
-    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none">
+    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-600 dark:text-gray-400 pointer-events-none">
       search
     </span>
     <input
@@ -24,7 +24,7 @@ const emit = defineEmits<{
       :value="modelValue"
       @input="$emit('update:modelValue', $event.target.value)"
       :placeholder="placeholder"
-      class="w-full pl-10 pr-4 py-1.5 bg-surface-container-low border-none rounded-full focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all text-sm"
+      class="w-full pl-10 pr-4 py-1.5 bg-gray-100 dark:bg-gray-800 border-none rounded-full focus:outline-none focus:ring-2 focus:ring-blue-800/20 dark:focus:ring-blue-500/20 transition-all text-sm"
     />
   </div>
 </template>

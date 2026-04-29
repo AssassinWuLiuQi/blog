@@ -151,24 +151,24 @@ defineExpose({ fillForm })
 </script>
 
 <template>
-  <aside class="flex flex-col bg-[#f7f9fb] h-full border-r border-[#c2c6d403]">
+  <aside class="flex flex-col bg-gray-50 dark:bg-gray-900 h-full border-r border-gray-300/10 dark:border-gray-600/10">
     <!-- Left Column: Unified Generation Controls -->
     <div class="flex-1 p-6 flex flex-col gap-6 overflow-auto">
       <!-- Header Section -->
       <div class="flex items-center gap-2">
-        <div class="w-1.5 h-6 rounded-full bg-gradient-to-b from-[#003f87] to-[#0056b3]"></div>
-        <h2 class="text-lg font-bold text-[#003f87]">创作实验室</h2>
+        <div class="w-1.5 h-6 rounded-full bg-gradient-to-b from-blue-800 to-blue-700 dark:from-blue-500 dark:to-blue-700"></div>
+        <h2 class="text-lg font-bold text-blue-800 dark:text-blue-500">创作实验室</h2>
       </div>
 
       <!-- Unified Input Container -->
-      <div class="bg-white rounded-lg shadow-[0px_1px_1.75px_0px_rgba(0,0,0,0.05)] p-5 flex flex-col gap-5">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-[0px_1px_1.75px_0px_rgba(0,0,0,0.05)] p-5 flex flex-col gap-5">
         <!-- Tab Switcher -->
-        <div class="flex gap-1 p-1 bg-[#f2f4f6] rounded">
+        <div class="flex gap-1 p-1 bg-gray-50 dark:bg-gray-800 rounded">
           <button
             class="flex-1 py-2.5 px-4 rounded-md text-sm font-medium transition-all"
             :class="selectedMode === 'text-to-image'
-              ? 'bg-white text-[#003f87] shadow-[0px_1px_1.75px_0px_rgba(0,0,0,0.05)]'
-              : 'text-[#424752]'"
+              ? 'bg-white dark:bg-gray-800 text-blue-800 dark:text-blue-400 shadow-[0px_1px_1.75px_0px_rgba(0,0,0,0.05)]'
+              : 'text-gray-500 dark:text-gray-400'"
             @click="selectedMode = 'text-to-image'"
           >
             文生图 (Text-to-Image)
@@ -176,8 +176,8 @@ defineExpose({ fillForm })
           <button
             class="flex-1 py-2.5 px-4 rounded-md text-sm font-medium transition-all"
             :class="selectedMode === 'image-to-image'
-              ? 'bg-white text-[#003f87] shadow-[0px_1px_1.75px_0px_rgba(0,0,0,0.05)]'
-              : 'text-[#424752]'"
+              ? 'bg-white dark:bg-gray-800 text-blue-800 dark:text-blue-400 shadow-[0px_1px_1.75px_0px_rgba(0,0,0,0.05)]'
+              : 'text-gray-500 dark:text-gray-400'"
             @click="selectedMode = 'image-to-image'"
           >
             图生图 (Image-to-Image)
@@ -186,7 +186,7 @@ defineExpose({ fillForm })
 
         <!-- Prompt -->
         <div class="flex flex-col gap-2">
-          <label class="text-xs font-bold text-[#424752] tracking-wide uppercase">
+          <label class="text-xs font-bold text-gray-500 dark:text-gray-400 tracking-wide uppercase">
             提示词 (Prompt / Instructions)
           </label>
           <textarea
@@ -194,13 +194,13 @@ defineExpose({ fillForm })
             rows="5"
             maxlength="1500"
             placeholder="描述您想要生成的学术图像或输入修改指令..."
-            class="w-full px-4 py-3 bg-[#f2f4f6] rounded border border-transparent focus:border-[#003f87] focus:outline-none text-sm text-[#424752] placeholder-[#c2c6d4] resize-none"
+            class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 rounded border border-transparent focus:border-blue-800 dark:focus:border-blue-500 focus:outline-none text-sm text-gray-500 dark:text-gray-400 placeholder-gray-400/40 resize-none"
           />
         </div>
 
         <!-- Reference Image (Image-to-Image mode) -->
         <div v-if="selectedMode === 'image-to-image'" class="flex flex-col gap-4">
-          <label class="text-xs font-bold text-[#424752] tracking-wide uppercase">
+          <label class="text-xs font-bold text-gray-500 dark:text-gray-400 tracking-wide uppercase">
             参考图像 (Reference Image)
           </label>
           <input
@@ -212,11 +212,11 @@ defineExpose({ fillForm })
           />
           <div
             v-if="!referenceImage"
-            class="border-2 border-dashed border-[#c2c6d4] rounded p-8 flex flex-col items-center justify-center gap-2 bg-[#f2f4f6] cursor-pointer hover:border-[#003f87] hover:bg-[#f2f4f6]/80 transition-colors"
+            class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded p-8 flex flex-col items-center justify-center gap-2 bg-gray-50 dark:bg-gray-800 cursor-pointer hover:border-blue-800 dark:hover:border-blue-500 hover:bg-gray-50/80 dark:hover:bg-gray-800/80 transition-colors"
             @click="handleUploadClick"
           >
-            <SvgIcon name="image-upload" class="w-5 h-6.25 text-[#c2c6d4]" />
-            <span class="text-xs font-medium text-[#424752]">点击或拖拽参考图至此处</span>
+            <SvgIcon name="image-upload" class="w-5 h-6.25 text-gray-400 dark:text-gray-500" />
+            <span class="text-xs font-medium text-gray-500 dark:text-gray-400">点击或拖拽参考图至此处</span>
           </div>
           <div v-else class="relative">
             <img
@@ -235,15 +235,15 @@ defineExpose({ fillForm })
 
         <!-- Model Selection -->
         <div class="flex flex-col gap-2">
-          <label class="text-xs font-bold text-[#424752] tracking-wide uppercase">模型选择</label>
+          <label class="text-xs font-bold text-gray-500 dark:text-gray-400 tracking-wide uppercase">模型选择</label>
           <div class="flex gap-2">
             <button
               v-for="model in models"
               :key="model.id"
               class="px-3 py-1.5 rounded-xl text-xs font-medium transition-all"
               :class="selectedModel === model.id
-                ? 'bg-[#003f8701] text-[#003f87] border border-[#003f87]'
-                : 'text-[#424752] border border-[#c2c6d4]'"
+                ? 'bg-blue-800/10 text-blue-800 dark:bg-blue-500/10 dark:text-blue-400 border border-blue-800 dark:border-blue-500'
+                : 'text-gray-500 dark:text-gray-400 border border-gray-300 dark:border-gray-600'"
               @click="handleModelSelect(model.id)"
             >
               {{ model.label }}
@@ -253,14 +253,14 @@ defineExpose({ fillForm })
 
         <!-- Dimensions -->
         <div class="flex flex-col gap-2">
-          <div class="flex justify-between text-xs font-bold text-[#424752] tracking-wide uppercase">
+          <div class="flex justify-between text-xs font-bold text-gray-500 dark:text-gray-400 tracking-wide uppercase">
             <span>图片尺寸</span>
             <span>生成数量</span>
           </div>
           <div class="flex gap-3">
             <select
               v-model="aspectRatio"
-              class="flex-1 px-3 py-2 bg-[#f2f4f6] rounded text-sm text-[#424752] border border-transparent focus:border-[#003f87] focus:outline-none appearance-none cursor-pointer"
+              class="flex-1 px-3 py-2 bg-gray-50 dark:bg-gray-800 rounded text-sm text-gray-500 dark:text-gray-400 border border-transparent focus:border-blue-800 dark:focus:border-blue-500 focus:outline-none appearance-none cursor-pointer"
             >
               <option value="1:1">1:1 (正方形)</option>
               <option value="16:9">16:9 (宽屏)</option>
@@ -273,14 +273,14 @@ defineExpose({ fillForm })
             </select>
             <div class="flex items-center gap-1">
               <button
-                class="w-8 h-8 rounded bg-[#f2f4f6] text-[#424752] hover:bg-[#e6e8ea] transition-colors flex items-center justify-center"
+                class="w-8 h-8 rounded bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center justify-center"
                 @click="decrementCount"
               >
                 <span class="text-sm font-bold">−</span>
               </button>
-              <span class="w-8 text-center text-sm font-bold text-[#003f87]">{{ imageCount }}</span>
+              <span class="w-8 text-center text-sm font-bold text-blue-800 dark:text-blue-500">{{ imageCount }}</span>
               <button
-                class="w-8 h-8 rounded bg-[#f2f4f6] text-[#424752] hover:bg-[#e6e8ea] transition-colors flex items-center justify-center"
+                class="w-8 h-8 rounded bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center justify-center"
                 @click="incrementCount"
               >
                 <span class="text-sm font-bold">+</span>
@@ -294,15 +294,15 @@ defineExpose({ fillForm })
           <el-collapse-item name="advanced">
             <template #title>
               <div class="flex items-center gap-2 pl-2 py-1">
-                <SvgIcon name="settings" class="w-3.5 h-3.5 text-[#003f87]" />
-                <span class="text-xs font-bold text-[#424752] tracking-wide">高级设置</span>
+                <SvgIcon name="settings" class="w-3.5 h-3.5 text-blue-800 dark:text-blue-500" />
+                <span class="text-xs font-bold text-gray-500 dark:text-gray-400 tracking-wide">高级设置</span>
               </div>
             </template>
             <!-- Advanced Settings Content -->
-            <div class="bg-[#f2f4f6] rounded-lg p-4 space-y-4">
+            <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 space-y-4">
               <!-- Seed Input -->
               <div class="space-y-2">
-                <label class="text-[11px] font-bold text-[#424752] tracking-wide uppercase">随机种子 (Seed)</label>
+                <label class="text-[11px] font-bold text-gray-500 dark:text-gray-400 tracking-wide uppercase">随机种子 (Seed)</label>
                 <div class="flex gap-2">
                   <el-input
                     v-model="seed"
@@ -323,19 +323,19 @@ defineExpose({ fillForm })
               </div>
 
               <!-- Divider -->
-              <div class="border-t border-[#c2c6d4]/40"></div>
+              <div class="border-t border-gray-300/40 dark:border-gray-600/40"></div>
 
               <!-- Toggle Rows -->
               <div class="space-y-3">
                 <!-- Prompt Optimizer -->
                 <div class="flex items-center justify-between">
                   <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-[#003f87]/10 to-[#0056b3]/10 flex items-center justify-center">
-                      <SvgIcon name="star" class="w-5 h-5 text-[#003f87]" />
+                    <div class="w-10 h-10 rounded-lg bg-blue-800/10 dark:bg-blue-500/10 flex items-center justify-center">
+                      <SvgIcon name="star" class="w-5 h-5 text-blue-800 dark:text-blue-500" />
                     </div>
                     <div>
-                      <span class="text-sm font-medium text-[#424752]">Prompt 优化</span>
-                      <p class="text-[11px] text-[#8f96a1]">自动优化描述词以获得更好的效果</p>
+                      <span class="text-sm font-medium text-gray-900 dark:text-gray-100">Prompt 优化</span>
+                      <p class="text-[11px] text-gray-500 dark:text-gray-400">自动优化描述词以获得更好的效果</p>
                     </div>
                   </div>
                   <el-switch v-model="promptOptimizer" />
@@ -344,12 +344,12 @@ defineExpose({ fillForm })
                 <!-- AI Watermark -->
                 <div class="flex items-center justify-between">
                   <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-[#003f87]/10 to-[#0056b3]/10 flex items-center justify-center">
-                      <SvgIcon name="tag" class="w-5 h-5 text-[#003f87]" />
+                    <div class="w-10 h-10 rounded-lg bg-blue-800/10 dark:bg-blue-500/10 flex items-center justify-center">
+                      <SvgIcon name="tag" class="w-5 h-5 text-blue-800 dark:text-blue-500" />
                     </div>
                     <div>
-                      <span class="text-sm font-medium text-[#424752]">AI 水印</span>
-                      <p class="text-[11px] text-[#8f96a1]">为生成的图像添加 AI 内容标识</p>
+                      <span class="text-sm font-medium text-gray-900 dark:text-gray-100">AI 水印</span>
+                      <p class="text-[11px] text-gray-500 dark:text-gray-400">为生成的图像添加 AI 内容标识</p>
                     </div>
                   </div>
                   <el-switch v-model="aigcWatermark" />
@@ -362,14 +362,14 @@ defineExpose({ fillForm })
         <!-- Action Buttons -->
         <div class="flex gap-3 pt-2 justify-center">
           <button
-            class="px-6 py-3 bg-[#e6e8ea] text-[#191c1e] font-bold text-sm rounded"
+            class="px-6 py-3 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 font-bold text-sm rounded"
             @click="handleReset"
           >
             重置
           </button>
           <button
             :disabled="!canGenerate"
-            class="relative px-8 py-3 bg-gradient-to-r from-[#003f87] to-[#0056b3] text-white font-bold text-sm rounded shadow-[0px_2px_3.5px_-2px_rgba(0,0,0,0.1),0px_4px_5.25px_-1px_rgba(0,0,0,0.1)] disabled:opacity-50 disabled:cursor-not-allowed"
+            class="relative px-8 py-3 bg-gradient-to-r from-blue-800 to-blue-700 dark:from-blue-500 dark:to-blue-700 text-white font-bold text-sm rounded shadow-[0px_2px_3.5px_-2px_rgba(0,0,0,0.1),0px_4px_5.25px_-1px_rgba(0,0,0,0.1)] disabled:opacity-50 disabled:cursor-not-allowed"
             @click="handleGenerate"
           >
             <span v-if="isGenerating">生成中...</span>
@@ -383,7 +383,7 @@ defineExpose({ fillForm })
         <!-- Error Message -->
         <div
           v-if="errorMessage"
-          class="p-3 bg-red-50 text-red-600 text-sm rounded-lg"
+          class="p-3 bg-red-500/5 dark:bg-red-500/10 text-red-600 dark:text-red-400 text-sm rounded-lg"
         >
           {{ errorMessage }}
         </div>

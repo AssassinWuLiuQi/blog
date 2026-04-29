@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import type { Ref, ComputedRef } from 'vue'
-import AppLayout from '@/components/layout/AppLayout.vue'
 import { usePostStore } from '@/stores/post'
 import SearchInput from '@/components/common/SearchInput.vue'
 import SurfaceCard from '@/components/common/SurfaceCard.vue'
@@ -42,12 +41,11 @@ const years = computed<string[]>(() => {
 </script>
 
 <template>
-  <AppLayout section-title="归档">
-    <div class="p-8">
+  <div class="p-8">
       <!-- Header -->
       <div class="mb-8">
-        <h1 class="text-display-sm text-on-surface mb-2">文章归档</h1>
-        <p class="text-body-md text-on-surface-variant">按时间线浏览所有文章</p>
+        <h1 class="text-display-sm text-gray-900 dark:text-gray-100 mb-2">文章归档</h1>
+        <p class="text-body-md text-gray-600 dark:text-gray-400">按时间线浏览所有文章</p>
       </div>
 
       <!-- Search -->
@@ -62,8 +60,8 @@ const years = computed<string[]>(() => {
           @click="selectedYear = 'all'"
           class="px-4 py-1.5 rounded-full text-sm transition-all"
           :class="selectedYear === 'all'
-            ? 'bg-primary text-white'
-            : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high'"
+            ? 'bg-blue-800 dark:bg-blue-500 text-white'
+            : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'"
         >
           全部
         </button>
@@ -73,8 +71,8 @@ const years = computed<string[]>(() => {
           @click="selectedYear = year"
           class="px-4 py-1.5 rounded-full text-sm transition-all"
           :class="selectedYear === year
-            ? 'bg-primary text-white'
-            : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high'"
+            ? 'bg-blue-800 dark:bg-blue-500 text-white'
+            : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'"
         >
           {{ year }}
         </button>
@@ -83,7 +81,7 @@ const years = computed<string[]>(() => {
       <!-- Posts List -->
       <div class="space-y-8">
         <div v-for="year in years" :key="year" v-show="selectedYear === 'all' || selectedYear === year">
-          <h2 class="text-xl font-semibold text-primary mb-4 sticky top-0 bg-surface z-10 py-2">
+          <h2 class="text-xl font-semibold text-blue-800 dark:text-blue-400 mb-4 sticky top-0 bg-gray-50 dark:bg-gray-900 z-10 py-2">
             {{ year }}年
           </h2>
           <div class="space-y-4">
@@ -95,13 +93,13 @@ const years = computed<string[]>(() => {
               <div class="flex items-start justify-between gap-4">
                 <div class="flex-1">
                   <div class="flex items-center gap-3 mb-2">
-                    <span class="px-2 py-0.5 bg-primary/10 text-primary text-xs rounded">{{ post.category }}</span>
-                    <span class="text-xs text-on-surface-variant">{{ post.date }}</span>
+                    <span class="px-2 py-0.5 bg-blue-800/10 dark:bg-blue-500/10 text-blue-800 dark:text-blue-400 text-xs rounded">{{ post.category }}</span>
+                    <span class="text-xs text-gray-600 dark:text-gray-400">{{ post.date }}</span>
                   </div>
-                  <h3 class="text-lg font-medium text-on-surface mb-2">{{ post.title }}</h3>
-                  <p class="text-sm text-on-surface-variant line-clamp-2">{{ post.summary }}</p>
+                  <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">{{ post.title }}</h3>
+                  <p class="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">{{ post.summary }}</p>
                 </div>
-                <div class="flex flex-col items-end text-xs text-on-surface-variant">
+                <div class="flex flex-col items-end text-xs text-gray-600 dark:text-gray-400">
                   <span>{{ post.readTime }}</span>
                   <span class="mt-1">{{ post.author }}</span>
                 </div>
@@ -113,11 +111,10 @@ const years = computed<string[]>(() => {
 
       <!-- Empty State -->
       <div v-if="filteredPosts.length === 0" class="text-center py-12">
-        <span class="material-symbols-outlined text-6xl text-on-surface-variant mb-4">search_off</span>
-        <p class="text-lg text-on-surface-variant">没有找到相关文章</p>
+        <span class="material-symbols-outlined text-6xl text-gray-600 dark:text-gray-400 mb-4">search_off</span>
+        <p class="text-lg text-gray-600 dark:text-gray-400">没有找到相关文章</p>
       </div>
     </div>
-  </AppLayout>
 </template>
 
 <style scoped>

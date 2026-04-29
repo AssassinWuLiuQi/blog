@@ -111,15 +111,15 @@ const selectedVoice = (): string => {
 </script>
 
 <template>
-  <div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant/10">
+  <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-300/20 dark:border-gray-700">
     <!-- Header -->
-    <h3 class="text-xs font-bold uppercase tracking-widest text-primary mb-4 flex items-center gap-2">
+    <h3 class="text-xs font-bold uppercase tracking-widest text-blue-800 dark:text-blue-400 mb-4 flex items-center gap-2">
       <span class="material-symbols-outlined text-sm">settings_voice</span>
       语音引擎配置
       <button
         v-if="settingsSummary"
         @click="showAdvanced = !showAdvanced"
-        class="ml-auto text-xs font-normal uppercase tracking-normal text-on-surface-variant hover:text-primary flex items-center gap-1"
+        class="ml-auto text-xs font-normal uppercase tracking-normal text-gray-600 dark:text-gray-400 hover:text-blue-800 dark:hover:text-blue-400 flex items-center gap-1"
       >
         <span>{{ settingsSummary }}</span>
         <span class="material-symbols-outlined text-sm">{{ showAdvanced ? 'expand_less' : 'expand_more' }}</span>
@@ -127,7 +127,7 @@ const selectedVoice = (): string => {
       <button
         v-else
         @click="showAdvanced = !showAdvanced"
-        class="ml-auto material-symbols-outlined text-on-surface-variant hover:text-primary"
+        class="ml-auto material-symbols-outlined text-gray-600 dark:text-gray-400 hover:text-blue-800 dark:hover:text-blue-400"
       >
         {{ showAdvanced ? 'expand_less' : 'expand_more' }}
       </button>
@@ -137,23 +137,23 @@ const selectedVoice = (): string => {
     <div class="space-y-4">
       <!-- Voice Selection -->
       <div class="flex flex-col gap-1.5">
-        <label class="text-xs text-on-surface-variant font-medium">当前音色</label>
-        <div v-if="isLoading" class="p-3 bg-surface-container rounded-lg border border-outline-variant/20 text-sm text-on-surface-variant">
+        <label class="text-xs text-gray-600 dark:text-gray-400 font-medium">当前音色</label>
+        <div v-if="isLoading" class="p-3 bg-gray-100 dark:bg-gray-700 rounded-lg border border-gray-300/20 dark:border-gray-600/20 text-sm text-gray-600 dark:text-gray-400">
           加载中...
         </div>
-        <div v-else-if="error" class="p-3 bg-surface-container rounded-lg border border-outline-variant/20 text-sm text-error">
+        <div v-else-if="error" class="p-3 bg-gray-100 dark:bg-gray-700 rounded-lg border border-gray-300/20 dark:border-gray-600/20 text-sm text-red-600 dark:text-red-400">
           {{ error }}
         </div>
-        <div v-else class="flex items-center justify-between p-3 bg-surface-container rounded-lg border border-outline-variant/20">
+        <div v-else class="flex items-center justify-between p-3 bg-gray-100 dark:bg-gray-700 rounded-lg border border-gray-300/20 dark:border-gray-600/20">
           <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-primary">
+            <div class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-800 dark:text-blue-400">
               <span class="material-symbols-outlined text-lg">face</span>
             </div>
-            <span class="text-sm font-semibold">{{ selectedVoice() }}</span>
+            <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">{{ selectedVoice() }}</span>
           </div>
           <select
             v-model="selectedVoiceId"
-            class="bg-transparent border-none text-sm text-on-surface-variant cursor-pointer focus:outline-none"
+            class="bg-transparent border-none text-sm text-gray-600 dark:text-gray-400 cursor-pointer focus:outline-none"
           >
             <option v-for="voice in voices" :key="voice.voiceId" :value="voice.voiceId">
               {{ voice.voiceName }}
@@ -164,10 +164,10 @@ const selectedVoice = (): string => {
 
       <!-- Emotion Selection -->
       <div class="flex flex-col gap-1.5">
-        <label class="text-xs text-on-surface-variant font-medium">情绪</label>
+        <label class="text-xs text-gray-600 dark:text-gray-400 font-medium">情绪</label>
         <select
           v-model="selectedEmotion"
-          class="p-3 bg-surface-container rounded-lg border border-outline-variant/20 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 cursor-pointer"
+          class="p-3 bg-gray-100 dark:bg-gray-700 rounded-lg border border-gray-300/20 dark:border-gray-600/20 text-sm focus:outline-none focus:ring-2 focus:ring-blue-800/50 dark:focus:ring-blue-500/50 cursor-pointer"
         >
           <option v-for="emo in emotions" :key="emo.value" :value="emo.value">
             {{ emo.label }}
@@ -178,8 +178,8 @@ const selectedVoice = (): string => {
       <!-- Speed Slider -->
       <div class="flex flex-col gap-1.5">
         <div class="flex justify-between items-center">
-          <label class="text-xs text-on-surface-variant font-medium">播放语速</label>
-          <span class="text-xs font-bold text-primary">{{ playbackSpeed.toFixed(1) }}x</span>
+          <label class="text-xs text-gray-600 dark:text-gray-400 font-medium">播放语速</label>
+          <span class="text-xs font-bold text-blue-800 dark:text-blue-400">{{ playbackSpeed.toFixed(1) }}x</span>
         </div>
         <input
           v-model="playbackSpeed"
@@ -187,14 +187,14 @@ const selectedVoice = (): string => {
           min="0.5"
           max="2.0"
           step="0.1"
-          class="w-full h-1 bg-outline-variant/30 rounded-lg appearance-none cursor-pointer accent-primary"
+          class="w-full h-1 bg-gray-300/30 dark:bg-gray-600/30 rounded-lg appearance-none cursor-pointer accent-blue-800 dark:accent-blue-400"
         />
       </div>
 
       <!-- Advanced Settings Toggle -->
       <button
         @click="showAdvanced = !showAdvanced"
-        class="flex items-center justify-between w-full p-3 bg-surface-container rounded-lg border border-outline-variant/20 text-sm text-on-surface-variant hover:bg-surface-container-high transition-colors"
+        class="flex items-center justify-between w-full p-3 bg-gray-100 dark:bg-gray-700 rounded-lg border border-gray-300/20 dark:border-gray-600/20 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
       >
         <span class="flex items-center gap-2">
           <span class="material-symbols-outlined text-base">tune</span>
@@ -204,12 +204,12 @@ const selectedVoice = (): string => {
       </button>
 
       <!-- Advanced Settings Panel -->
-      <div v-if="showAdvanced" class="space-y-4 p-4 bg-surface-container rounded-lg border border-outline-variant/10">
+      <div v-if="showAdvanced" class="space-y-4 p-4 bg-gray-100 dark:bg-gray-700 rounded-lg border border-gray-300/20 dark:border-gray-600/20">
         <!-- Volume -->
         <div class="flex flex-col gap-1.5">
           <div class="flex justify-between items-center">
-            <label class="text-xs text-on-surface-variant font-medium">音量</label>
-            <span class="text-xs font-bold text-primary">{{ advancedSettings.vol }}</span>
+            <label class="text-xs text-gray-600 dark:text-gray-400 font-medium">音量</label>
+            <span class="text-xs font-bold text-blue-800 dark:text-blue-400">{{ advancedSettings.vol }}</span>
           </div>
           <input
             v-model="advancedSettings.vol"
@@ -217,15 +217,15 @@ const selectedVoice = (): string => {
             min="1"
             max="10"
             step="0.5"
-            class="w-full h-1 bg-outline-variant/30 rounded-lg appearance-none cursor-pointer accent-primary"
+            class="w-full h-1 bg-gray-300/30 dark:bg-gray-600/30 rounded-lg appearance-none cursor-pointer accent-blue-800 dark:accent-blue-400"
           />
         </div>
 
         <!-- Pitch -->
         <div class="flex flex-col gap-1.5">
           <div class="flex justify-between items-center">
-            <label class="text-xs text-on-surface-variant font-medium">语调</label>
-            <span class="text-xs font-bold text-primary">{{ advancedSettings.pitch }}</span>
+            <label class="text-xs text-gray-600 dark:text-gray-400 font-medium">语调</label>
+            <span class="text-xs font-bold text-blue-800 dark:text-blue-400">{{ advancedSettings.pitch }}</span>
           </div>
           <input
             v-model="advancedSettings.pitch"
@@ -233,41 +233,41 @@ const selectedVoice = (): string => {
             min="-12"
             max="12"
             step="1"
-            class="w-full h-1 bg-outline-variant/30 rounded-lg appearance-none cursor-pointer accent-primary"
+            class="w-full h-1 bg-gray-300/30 dark:bg-gray-600/30 rounded-lg appearance-none cursor-pointer accent-blue-800 dark:accent-blue-400"
           />
         </div>
 
         <!-- Channel -->
         <div class="flex flex-col gap-1.5">
-          <label class="text-xs text-on-surface-variant font-medium">声道</label>
+          <label class="text-xs text-gray-600 dark:text-gray-400 font-medium">声道</label>
           <div class="flex gap-4">
             <label class="flex items-center gap-2 cursor-pointer">
               <input
                 type="radio"
                 v-model="advancedSettings.channel"
                 :value="1"
-                class="accent-primary"
+                class="accent-blue-800 dark:accent-blue-400"
               />
-              <span class="text-sm">单声道</span>
+              <span class="text-sm text-gray-900 dark:text-gray-100">单声道</span>
             </label>
             <label class="flex items-center gap-2 cursor-pointer">
               <input
                 type="radio"
                 v-model="advancedSettings.channel"
                 :value="2"
-                class="accent-primary"
+                class="accent-blue-800 dark:accent-blue-400"
               />
-              <span class="text-sm">双声道</span>
+              <span class="text-sm text-gray-900 dark:text-gray-100">双声道</span>
             </label>
           </div>
         </div>
 
         <!-- Sound Effects -->
         <div class="flex flex-col gap-1.5">
-          <label class="text-xs text-on-surface-variant font-medium">声音效果</label>
+          <label class="text-xs text-gray-600 dark:text-gray-400 font-medium">声音效果</label>
           <select
             v-model="advancedSettings.soundEffects"
-            class="p-2 bg-surface rounded-lg border border-outline-variant/20 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 cursor-pointer"
+            class="p-2 bg-white dark:bg-gray-800 rounded-lg border border-gray-300/20 dark:border-gray-600/20 text-sm focus:outline-none focus:ring-2 focus:ring-blue-800/50 dark:focus:ring-blue-500/50 cursor-pointer"
           >
             <option v-for="effect in soundEffects" :key="effect.value" :value="effect.value">
               {{ effect.label }}
@@ -276,14 +276,14 @@ const selectedVoice = (): string => {
         </div>
 
         <!-- Voice Effect Sliders -->
-        <div class="pt-2 border-t border-outline-variant/10">
-          <p class="text-xs text-on-surface-variant font-medium mb-3">声音效果器</p>
+        <div class="pt-2 border-t border-gray-300/20 dark:border-gray-600/20">
+          <p class="text-xs text-gray-600 dark:text-gray-400 font-medium mb-3">声音效果器</p>
 
           <!-- Voice Pitch -->
           <div class="flex flex-col gap-1.5 mb-3">
             <div class="flex justify-between items-center">
-              <label class="text-xs text-on-surface-variant">音高</label>
-              <span class="text-xs font-bold text-primary">{{ advancedSettings.voicePitch }}</span>
+              <label class="text-xs text-gray-600 dark:text-gray-400">音高</label>
+              <span class="text-xs font-bold text-blue-800 dark:text-blue-400">{{ advancedSettings.voicePitch }}</span>
             </div>
             <input
               v-model="advancedSettings.voicePitch"
@@ -291,15 +291,15 @@ const selectedVoice = (): string => {
               min="-100"
               max="100"
               step="5"
-              class="w-full h-1 bg-outline-variant/30 rounded-lg appearance-none cursor-pointer accent-primary"
+              class="w-full h-1 bg-gray-300/30 dark:bg-gray-600/30 rounded-lg appearance-none cursor-pointer accent-blue-800 dark:accent-blue-400"
             />
           </div>
 
           <!-- Voice Intensity -->
           <div class="flex flex-col gap-1.5 mb-3">
             <div class="flex justify-between items-center">
-              <label class="text-xs text-on-surface-variant">强度</label>
-              <span class="text-xs font-bold text-primary">{{ advancedSettings.voiceIntensity }}</span>
+              <label class="text-xs text-gray-600 dark:text-gray-400">强度</label>
+              <span class="text-xs font-bold text-blue-800 dark:text-blue-400">{{ advancedSettings.voiceIntensity }}</span>
             </div>
             <input
               v-model="advancedSettings.voiceIntensity"
@@ -307,15 +307,15 @@ const selectedVoice = (): string => {
               min="-100"
               max="100"
               step="5"
-              class="w-full h-1 bg-outline-variant/30 rounded-lg appearance-none cursor-pointer accent-primary"
+              class="w-full h-1 bg-gray-300/30 dark:bg-gray-600/30 rounded-lg appearance-none cursor-pointer accent-blue-800 dark:accent-blue-400"
             />
           </div>
 
           <!-- Voice Timbre -->
           <div class="flex flex-col gap-1.5">
             <div class="flex justify-between items-center">
-              <label class="text-xs text-on-surface-variant">音色</label>
-              <span class="text-xs font-bold text-primary">{{ advancedSettings.voiceTimbre }}</span>
+              <label class="text-xs text-gray-600 dark:text-gray-400">音色</label>
+              <span class="text-xs font-bold text-blue-800 dark:text-blue-400">{{ advancedSettings.voiceTimbre }}</span>
             </div>
             <input
               v-model="advancedSettings.voiceTimbre"
@@ -323,51 +323,51 @@ const selectedVoice = (): string => {
               min="-100"
               max="100"
               step="5"
-              class="w-full h-1 bg-outline-variant/30 rounded-lg appearance-none cursor-pointer accent-primary"
+              class="w-full h-1 bg-gray-300/30 dark:bg-gray-600/30 rounded-lg appearance-none cursor-pointer accent-blue-800 dark:accent-blue-400"
             />
           </div>
         </div>
 
         <!-- Toggles -->
-        <div class="pt-2 border-t border-outline-variant/10 space-y-2">
+        <div class="pt-2 border-t border-gray-300/20 dark:border-gray-600/20 space-y-2">
           <label class="flex items-center justify-between cursor-pointer">
-            <span class="text-xs text-on-surface-variant">恒定比特率（仅mp3）</span>
+            <span class="text-xs text-gray-600 dark:text-gray-400">恒定比特率（仅mp3）</span>
             <input
               type="checkbox"
               v-model="advancedSettings.forceCbr"
-              class="accent-primary"
+              class="accent-blue-800 dark:accent-blue-400"
             />
           </label>
           <label class="flex items-center justify-between cursor-pointer">
-            <span class="text-xs text-on-surface-variant">文本规范化</span>
+            <span class="text-xs text-gray-600 dark:text-gray-400">文本规范化</span>
             <input
               type="checkbox"
               v-model="advancedSettings.textNormalization"
-              class="accent-primary"
+              class="accent-blue-800 dark:accent-blue-400"
             />
           </label>
           <label class="flex items-center justify-between cursor-pointer">
-            <span class="text-xs text-on-surface-variant">Latex 公式朗读</span>
+            <span class="text-xs text-gray-600 dark:text-gray-400">Latex 公式朗读</span>
             <input
               type="checkbox"
               v-model="advancedSettings.latexRead"
-              class="accent-primary"
+              class="accent-blue-800 dark:accent-blue-400"
             />
           </label>
           <label class="flex items-center justify-between cursor-pointer">
-            <span class="text-xs text-on-surface-variant">开启字幕</span>
+            <span class="text-xs text-gray-600 dark:text-gray-400">开启字幕</span>
             <input
               type="checkbox"
               v-model="advancedSettings.subtitleEnable"
-              class="accent-primary"
+              class="accent-blue-800 dark:accent-blue-400"
             />
           </label>
           <label class="flex items-center justify-between cursor-pointer">
-            <span class="text-xs text-on-surface-variant">AIGC 水印</span>
+            <span class="text-xs text-gray-600 dark:text-gray-400">AIGC 水印</span>
             <input
               type="checkbox"
               v-model="advancedSettings.aigcWatermark"
-              class="accent-primary"
+              class="accent-blue-800 dark:accent-blue-400"
             />
           </label>
         </div>

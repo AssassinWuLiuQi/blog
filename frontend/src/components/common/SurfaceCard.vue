@@ -10,8 +10,8 @@ withDefaults(defineProps<Props>(), {
 
 <template>
   <div
-    class="bg-surface-container-lowest rounded-xl shadow-sm p-6"
-    :class="{ 'border border-outline-variant/10': border }"
+    class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6"
+    :class="{ 'border border-gray-300/20 dark:border-gray-700': border }"
   >
     <slot />
   </div>

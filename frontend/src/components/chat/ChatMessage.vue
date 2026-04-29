@@ -2,19 +2,19 @@
   <div
     :class="[
       'flex gap-3 p-4 rounded-lg',
-      message.role === 'user' ? 'bg-primary/10 flex-row-reverse' : 'bg-surface'
+      message.role === 'user' ? 'bg-blue-800/10 dark:bg-blue-500/10 flex-row-reverse' : 'bg-gray-100 dark:bg-gray-700'
     ]"
   >
     <div class="flex-shrink-0">
       <span
         v-if="message.role === 'user'"
-        class="material-symbols-outlined text-primary"
+        class="material-symbols-outlined text-blue-800 dark:text-blue-400"
       >
         person
       </span>
       <span
         v-else
-        class="material-symbols-outlined text-accent"
+        class="material-symbols-outlined text-blue-800 dark:text-blue-400"
       >
         smart_toy
       </span>
@@ -22,10 +22,10 @@
 
     <div class="flex-1 min-w-0">
       <div class="flex items-center gap-2 mb-1">
-        <span class="text-sm font-medium text-on-surface">
+        <span class="text-sm font-medium text-gray-900 dark:text-gray-100">
           {{ message.role === 'user' ? '你' : '小博' }}
         </span>
-        <span class="text-xs text-on-surface/50">
+        <span class="text-xs text-gray-600 dark:text-gray-400">
           {{ formatTime(message.createdAt) }}
         </span>
       </div>
@@ -36,7 +36,7 @@
           message.role === 'user' ? 'text-right' : ''
         ]"
       >
-        <p class="whitespace-pre-wrap break-words">{{ message.content }}</p>
+        <p class="whitespace-pre-wrap break-words text-gray-900 dark:text-gray-100">{{ message.content }}</p>
       </div>
     </div>
   </div>

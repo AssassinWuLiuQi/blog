@@ -2,176 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Design Tokens - The Scholar's Manuscript */
-:root {
-  /* Colors - Primary */
-  --primary: #003f87;
-  --primary-container: #0056b3;
-  --on-primary: #ffffff;
-  --primary-rgb: 0, 63, 135;
-
-  /* Colors - Surface */
-  --surface: #f7f9fb;
-  --surface-container-low: #eceef0;
-  --surface-container: #eceef0;
-  --surface-container-lowest: #ffffff;
-  --surface-container-high: #dde1e6;
-  --surface-rgb: 247, 249, 251;
-  --surface-container-low-rgb: 236, 238, 240;
-  --surface-container-rgb: 236, 238, 240;
-  --surface-container-lowest-rgb: 255, 255, 255;
-  --surface-container-high-rgb: 221, 225, 230;
-
-  /* Colors - On Surface */
-  --on-surface: #191c1e;
-  --on-surface-variant: #424752;
-  --on-surface-rgb: 25, 28, 30;
-  --on-surface-variant-rgb: 66, 71, 82;
-
-  /* Colors - Tertiary */
-  --tertiary: #722b00;
-  --tertiary-container: #ffdbcc;
-  --on-tertiary: #ffffff;
-  --tertiary-rgb: 114, 43, 0;
-
-  /* Colors - Outline */
-  --outline: #c2c6d4;
-  --outline-variant: #c2c6d4;
-  --outline-rgb: 194, 198, 212;
-  --outline-variant-rgb: 194, 198, 212;
-
-  /* Typography */
-  --font-family-display: 'Inter', 'PingFang SC', 'Noto Sans SC', sans-serif;
-  --font-family-body: 'Inter', 'PingFang SC', 'Noto Sans SC', sans-serif;
-
-  /* Spacing */
-  --spacing-2: 0.5rem;
-  --spacing-4: 1rem;
-  --spacing-6: 1.5rem;
-  --spacing-8: 2rem;
-  --spacing-12: 3rem;
-  --spacing-16: 4rem;
-  --spacing-24: 6rem;
-
-  /* Border Radius */
-  --radius-sm: 0.125rem;
-  --radius-md: 0.375rem;
-  --radius-lg: 0.5rem;
-  --radius-full: 9999px;
-}
-
-/* Dark Theme */
-[data-theme="dark"] {
-  /* Colors - Surface */
-  --surface: #1a1a1a;
-  --surface-container-low: #242424;
-  --surface-container: #2a2a2a;
-  --surface-container-lowest: #1f1f1f;
-  --surface-container-high: #363636;
-  --surface-rgb: 26, 26, 26;
-  --surface-container-low-rgb: 36, 36, 36;
-  --surface-container-rgb: 42, 42, 42;
-  --surface-container-lowest-rgb: 31, 31, 31;
-  --surface-container-high-rgb: 54, 54, 54;
-
-  /* Colors - On Surface */
-  --on-surface: #e8e8e8;
-  --on-surface-variant: #a0a0a0;
-  --on-surface-rgb: 232, 232, 232;
-  --on-surface-variant-rgb: 160, 160, 160;
-
-  /* Colors - Primary - slightly brighter for dark mode */
-  --primary: #4a9eff;
-  --primary-container: #0056b3;
-  --on-primary: #ffffff;
-  --primary-rgb: 74, 158, 255;
-
-  /* Colors - Tertiary */
-  --tertiary: #ff8a5c;
-  --tertiary-container: #5c2a15;
-  --on-tertiary: #ffffff;
-  --tertiary-rgb: 255, 138, 92;
-
-  /* Colors - Outline */
-  --outline: #5a5a5a;
-  --outline-variant: #3a3a3a;
-  --outline-rgb: 90, 90, 90;
-  --outline-variant-rgb: 58, 58, 58;
-
-  /* Glass Effect - darker for dark mode */
-  .glass {
-    background-color: rgba(30, 30, 30, 0.85);
-  }
-
-  /* Shadow - lighter for dark mode */
-  .shadow-ambient {
-    box-shadow: 0 40px 80px rgba(0, 0, 0, 0.3);
-  }
-
-  /* Element Plus Message Dark Mode */
-  .el-message {
-    --el-message-bg-color: #2a2a2a;
-    --el-message-border-color: #3a3a3a;
-    --el-message-text-color: #e8e8e8;
-  }
-
-  .el-message--error {
-    --el-message-bg-color: #3d1f1f;
-    --el-message-border-color: #5c3030;
-    --el-message-text-color: #fca5a5;
-  }
-
-  .el-message--success {
-    --el-message-bg-color: #1f3d1f;
-    --el-message-border-color: #305c30;
-    --el-message-text-color: #86efac;
-  }
-
-  .el-message--warning {
-    --el-message-bg-color: #3d3d1f;
-    --el-message-border-color: #5c5c30;
-    --el-message-text-color: #fde047;
-  }
-
-  /* Element Plus Collapse Dark Mode */
-  .el-collapse {
-    --el-collapse-border-color: #3a3a3a;
-    --el-collapse-header-bg-color: #1a1a1a;
-    --el-collapse-content-bg-color: transparent;
-  }
-
-  /* Element Plus Input Dark Mode */
-  .el-input__wrapper {
-    background-color: #242424 !important;
-  }
-
-  .el-input__inner {
-    color: #e8e8e8;
-  }
-
-  .el-input__inner::placeholder {
-    color: #5a5a5a;
-  }
-
-  /* Element Plus Button Dark Mode */
-  .el-button {
-    --el-button-bg-color: #2a2a2a;
-    --el-button-border-color: #5a5a5a;
-    --el-button-text-color: #e8e8e8;
-    --el-button-hover-bg-color: #363636;
-    --el-button-hover-border-color: #5a5a5a;
-    --el-button-hover-text-color: #ffffff;
-  }
-}
-
 /* Base Styles */
 body {
-  font-family: var(--font-family-body);
-  background-color: var(--surface);
-  color: var(--on-surface);
+  font-family: 'Inter', 'PingFang SC', 'Noto Sans SC', sans-serif;
+  @apply bg-gray-50 text-gray-900;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Dark Mode */
+.dark body {
+  @apply bg-gray-900 text-gray-100;
 }
 
 /* Utility Classes */
@@ -208,15 +50,19 @@ body {
 .text-label-md {
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--on-surface-variant);
+  @apply text-gray-600;
+}
+
+.dark .text-label-md {
+  @apply text-gray-400;
 }
 
 /* Gradient Button */
 .btn-primary {
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-container) 100%);
-  color: var(--on-primary);
+  background: linear-gradient(135deg, #003f87 0%, #0056b3 100%);
+  color: #ffffff;
   border: none;
-  border-radius: var(--radius-md);
+  border-radius: 0.375rem;
   padding: 0.625rem 1.25rem;
   font-weight: 500;
   cursor: pointer;
@@ -229,8 +75,7 @@ body {
 
 /* Surface Card */
 .card {
-  background-color: var(--surface-container-lowest);
-  border-radius: var(--radius-md);
+  @apply bg-white rounded-md;
 }
 
 /* Glass Effect */
@@ -240,54 +85,84 @@ body {
   -webkit-backdrop-filter: blur(20px);
 }
 
+.dark .glass {
+  background-color: rgba(30, 30, 30, 0.85);
+}
+
 /* Shadow */
 .shadow-ambient {
   box-shadow: 0 40px 80px rgba(25, 28, 30, 0.04);
 }
 
+.dark .shadow-ambient {
+  box-shadow: 0 40px 80px rgba(0, 0, 0, 0.3);
+}
+
 /* Element Plus Message Custom Styles */
 .el-message {
-  --el-message-bg-color: var(--surface-container-lowest);
-  --el-message-border-color: var(--outline-variant);
-  border-radius: var(--radius-md);
-  border: 1px solid var(--outline-variant);
+  background-color: #ffffff;
+  border-color: #c2c6d4;
+  border-radius: 0.375rem;
+  border: 1px solid #c2c6d4;
   box-shadow: 0 8px 24px rgba(25, 28, 30, 0.08);
 }
 
 .el-message--error {
-  --el-message-bg-color: #fef2f2;
-  --el-message-border-color: #fecaca;
-  --el-message-text-color: #991b1b;
+  background-color: #fef2f2;
+  border-color: #fecaca;
+  color: #991b1b;
 }
 
 .el-message--success {
-  --el-message-bg-color: #f0fdf4;
-  --el-message-border-color: #bbf7d0;
-  --el-message-text-color: #166534;
+  background-color: #f0fdf4;
+  border-color: #bbf7d0;
+  color: #166534;
 }
 
 .el-message--warning {
-  --el-message-bg-color: #fffbeb;
-  --el-message-border-color: #fed7aa;
-  --el-message-text-color: #92400e;
+  background-color: #fffbeb;
+  border-color: #fed7aa;
+  color: #92400e;
 }
 
 .el-message--info {
-  --el-message-bg-color: var(--surface-container-lowest);
-  --el-message-border-color: var(--outline-variant);
-  --el-message-text-color: var(--on-surface);
+  background-color: #ffffff;
+  border-color: #c2c6d4;
+  color: #191c1e;
+}
+
+.dark .el-message {
+  background-color: #2a2a2a;
+  border-color: #3a3a3a;
+  color: #e8e8e8;
+}
+
+.dark .el-message--error {
+  background-color: #3d1f1f;
+  border-color: #5c3030;
+  color: #fca5a5;
+}
+
+.dark .el-message--success {
+  background-color: #1f3d1f;
+  border-color: #305c30;
+  color: #86efac;
+}
+
+.dark .el-message--warning {
+  background-color: #3d3d1f;
+  border-color: #5c5c30;
+  color: #fde047;
 }
 
 /* Element Plus Collapse Custom Styles */
 .el-collapse {
-  --el-collapse-border-color: var(--outline);
-  --el-collapse-header-bg-color: var(--surface);
-  --el-collapse-content-bg-color: transparent;
+  border-color: #c2c6d4;
   border: none;
 }
 
 .el-collapse-item__header {
-  --el-text-color-regular: var(--on-surface-variant);
+  color: #424752;
   font-weight: 600;
   font-size: 12px;
   letter-spacing: 0.6px;
@@ -300,45 +175,75 @@ body {
 
 .el-collapse-item__content {
   padding-top: 16px;
-  color: var(--on-surface-variant);
+  color: #424752;
+}
+
+.dark .el-collapse {
+  --el-collapse-border-color: #3a3a3a;
+  --el-collapse-header-bg-color: #1a1a1a;
+  --el-collapse-content-bg-color: transparent;
 }
 
 /* Element Plus Input Custom Styles */
 .el-input__wrapper {
-  background-color: var(--surface) !important;
+  background-color: #f7f9fb !important;
   box-shadow: none !important;
   border-radius: 6px;
 }
 
 .el-input__wrapper:hover {
-  box-shadow: 0 0 0 1px var(--primary) inset !important;
+  box-shadow: 0 0 0 1px #003f87 inset !important;
 }
 
 .el-input__wrapper:focus {
-  box-shadow: 0 0 0 1px var(--primary) inset !important;
+  box-shadow: 0 0 0 1px #003f87 inset !important;
 }
 
 .el-input__inner {
-  color: var(--on-surface-variant);
+  color: #424752;
 }
 
 .el-input__inner::placeholder {
-  color: var(--outline);
+  color: #c2c6d4;
+}
+
+.dark .el-input__wrapper {
+  background-color: #242424 !important;
+}
+
+.dark .el-input__inner {
+  color: #e8e8e8;
+}
+
+.dark .el-input__inner::placeholder {
+  color: #5a5a5a;
 }
 
 /* Element Plus Switch Custom Styles */
 .el-switch {
-  --el-switch-off-color: var(--outline);
-  --el-switch-on-color: var(--primary);
+  --el-switch-off-color: #c2c6d4;
+  --el-switch-on-color: #003f87;
 }
 
 /* Element Plus Button Custom Styles */
 .el-button {
-  --el-button-bg-color: var(--surface);
-  --el-button-border-color: var(--outline);
-  --el-button-text-color: var(--on-surface-variant);
-  --el-button-hover-bg-color: var(--surface-container);
-  --el-button-hover-border-color: var(--outline);
-  --el-button-hover-text-color: var(--on-surface);
+  background-color: #f7f9fb;
+  border-color: #c2c6d4;
+  color: #424752;
   border-radius: 6px;
+}
+
+.el-button:hover {
+  background-color: #eceef0;
+  border-color: #c2c6d4;
+  color: #191c1e;
+}
+
+.dark .el-button {
+  --el-button-bg-color: #2a2a2a;
+  --el-button-border-color: #5a5a5a;
+  --el-button-text-color: #e8e8e8;
+  --el-button-hover-bg-color: #363636;
+  --el-button-hover-border-color: #5a5a5a;
+  --el-button-hover-text-color: #ffffff;
 }

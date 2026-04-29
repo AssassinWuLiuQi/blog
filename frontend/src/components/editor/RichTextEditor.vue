@@ -139,16 +139,16 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="flex flex-col bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/10 overflow-hidden h-full">
+  <div class="flex flex-col bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-300/20 dark:border-gray-700 overflow-hidden h-full">
     <!-- Toolbar -->
-    <div class="px-6 py-3 bg-surface-container-low flex items-center justify-between border-b border-outline-variant/20">
+    <div class="px-6 py-3 bg-gray-100 dark:bg-gray-900 flex items-center justify-between border-b border-gray-300/20 dark:border-gray-700">
       <!-- Left: Format & List Buttons -->
       <div class="flex items-center gap-1">
         <!-- Bold Button -->
         <button
           @click="toggleBold"
-          class="p-2 hover:bg-white rounded transition-colors"
-          :class="isActive('bold') ? 'text-primary' : 'text-on-surface-variant'"
+          class="p-2 hover:bg-white dark:hover:bg-gray-800 rounded transition-colors"
+          :class="isActive('bold') ? 'text-blue-800 dark:text-blue-400' : 'text-gray-600 dark:text-gray-400'"
           title="粗体"
         >
           <span class="material-symbols-outlined text-lg">format_bold</span>
@@ -157,8 +157,8 @@ onBeforeUnmount(() => {
         <!-- Italic Button -->
         <button
           @click="toggleItalic"
-          class="p-2 hover:bg-white rounded transition-colors"
-          :class="isActive('italic') ? 'text-primary' : 'text-on-surface-variant'"
+          class="p-2 hover:bg-white dark:hover:bg-gray-800 rounded transition-colors"
+          :class="isActive('italic') ? 'text-blue-800 dark:text-blue-400' : 'text-gray-600 dark:text-gray-400'"
           title="斜体"
         >
           <span class="material-symbols-outlined text-lg">format_italic</span>
@@ -167,22 +167,22 @@ onBeforeUnmount(() => {
         <!-- Strikethrough Button -->
         <button
           @click="toggleStrike"
-          class="p-2 hover:bg-white rounded transition-colors"
-          :class="isActive('strike') ? 'text-primary' : 'text-on-surface-variant'"
+          class="p-2 hover:bg-white dark:hover:bg-gray-800 rounded transition-colors"
+          :class="isActive('strike') ? 'text-blue-800 dark:text-blue-400' : 'text-gray-600 dark:text-gray-400'"
           title="删除线"
         >
           <span class="material-symbols-outlined text-lg">strikethrough_s</span>
         </button>
 
         <!-- Divider -->
-        <div class="w-px h-6 bg-outline-variant/30 mx-2"></div>
+        <div class="w-px h-6 bg-gray-300/30 dark:bg-gray-700 mx-2"></div>
 
         <!-- Heading Dropdown -->
         <div class="relative">
           <button
             @click="headingDropdownOpen = !headingDropdownOpen"
-            class="p-2 hover:bg-white rounded transition-colors flex items-center gap-1"
-            :class="isActive('heading') ? 'text-primary' : 'text-on-surface-variant'"
+            class="p-2 hover:bg-white dark:hover:bg-gray-800 rounded transition-colors flex items-center gap-1"
+            :class="isActive('heading') ? 'text-blue-800 dark:text-blue-400' : 'text-gray-600 dark:text-gray-400'"
             title="标题"
           >
             <span class="material-symbols-outlined text-lg">title</span>
@@ -191,14 +191,14 @@ onBeforeUnmount(() => {
           <!-- Dropdown Menu -->
           <div
             v-show="headingDropdownOpen"
-            class="absolute top-full left-0 mt-1 py-2 bg-white rounded-lg shadow-lg border border-outline-variant z-50 min-w-[120px]"
+            class="absolute top-full left-0 mt-1 py-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-300/20 dark:border-gray-700 z-50 min-w-[120px]"
           >
             <button
               v-for="level in [1, 2, 3, 4, 5, 6]"
               :key="level"
               @click="toggleHeading(level)"
-              class="w-full px-4 py-2 text-left hover:bg-surface-container-low transition-colors flex items-center gap-2"
-              :class="isActive('heading', { level }) ? 'text-primary font-medium' : 'text-on-surface-variant'"
+              class="w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
+              :class="isActive('heading', { level }) ? 'text-blue-800 dark:text-blue-400 font-medium' : 'text-gray-600 dark:text-gray-400'"
             >
               <span class="text-sm font-medium">标题 {{ level }}</span>
             </button>
@@ -208,8 +208,8 @@ onBeforeUnmount(() => {
         <!-- Code Block Button -->
         <button
           @click="toggleCodeBlock"
-          class="p-2 hover:bg-white rounded transition-colors"
-          :class="isActive('codeBlock') ? 'text-primary' : 'text-on-surface-variant'"
+          class="p-2 hover:bg-white dark:hover:bg-gray-800 rounded transition-colors"
+          :class="isActive('codeBlock') ? 'text-blue-800 dark:text-blue-400' : 'text-gray-600 dark:text-gray-400'"
           title="代码块"
         >
           <span class="material-symbols-outlined text-lg">data_object</span>
@@ -218,42 +218,42 @@ onBeforeUnmount(() => {
         <!-- Blockquote Button -->
         <button
           @click="toggleBlockquote"
-          class="p-2 hover:bg-white rounded transition-colors"
-          :class="isActive('blockquote') ? 'text-primary' : 'text-on-surface-variant'"
+          class="p-2 hover:bg-white dark:hover:bg-gray-800 rounded transition-colors"
+          :class="isActive('blockquote') ? 'text-blue-800 dark:text-blue-400' : 'text-gray-600 dark:text-gray-400'"
           title="引用"
         >
           <span class="material-symbols-outlined text-lg">format_quote</span>
         </button>
 
         <!-- Divider -->
-        <div class="w-px h-6 bg-outline-variant/30 mx-2"></div>
+        <div class="w-px h-6 bg-gray-300/30 dark:bg-gray-700 mx-2"></div>
 
         <!-- List Buttons -->
         <button
           @click="toggleBulletList"
-          class="p-2 hover:bg-white rounded transition-colors"
-          :class="isActive('bulletList') ? 'text-primary' : 'text-on-surface-variant'"
+          class="p-2 hover:bg-white dark:hover:bg-gray-800 rounded transition-colors"
+          :class="isActive('bulletList') ? 'text-blue-800 dark:text-blue-400' : 'text-gray-600 dark:text-gray-400'"
           title="无序列表"
         >
           <span class="material-symbols-outlined text-lg">format_list_bulleted</span>
         </button>
         <button
           @click="toggleOrderedList"
-          class="p-2 hover:bg-white rounded transition-colors"
-          :class="isActive('orderedList') ? 'text-primary' : 'text-on-surface-variant'"
+          class="p-2 hover:bg-white dark:hover:bg-gray-800 rounded transition-colors"
+          :class="isActive('orderedList') ? 'text-blue-800 dark:text-blue-400' : 'text-gray-600 dark:text-gray-400'"
           title="有序列表"
         >
           <span class="material-symbols-outlined text-lg">format_list_numbered</span>
         </button>
 
         <!-- Divider -->
-        <div class="w-px h-6 bg-outline-variant/30 mx-2"></div>
+        <div class="w-px h-6 bg-gray-300/30 dark:bg-gray-700 mx-2"></div>
 
         <!-- Color Dropdown -->
         <div class="relative">
           <button
             @click="colorDropdownOpen = !colorDropdownOpen"
-            class="p-2 hover:bg-white rounded transition-colors text-on-surface-variant flex items-center gap-1"
+            class="p-2 hover:bg-white dark:hover:bg-gray-800 rounded transition-colors text-gray-600 dark:text-gray-400 flex items-center gap-1"
             title="字体颜色"
           >
             <span class="material-symbols-outlined text-lg">palette</span>
@@ -262,27 +262,27 @@ onBeforeUnmount(() => {
           <!-- Color Dropdown Menu -->
           <div
             v-show="colorDropdownOpen"
-            class="absolute top-full left-0 mt-1 py-3 px-4 bg-white rounded-lg shadow-lg border border-outline-variant z-50 min-w-[180px]"
+            class="absolute top-full left-0 mt-1 py-3 px-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-300/20 dark:border-gray-700 z-50 min-w-[180px]"
           >
             <div class="grid grid-cols-4 gap-2 mb-3">
               <button
                 v-for="color in colors"
                 :key="color.value"
                 @click="setColor(color.value)"
-                class="w-8 h-8 rounded-full border border-outline-variant hover:scale-110 transition-transform"
+                class="w-8 h-8 rounded-full border border-gray-300 dark:border-gray-600 hover:scale-110 transition-transform"
                 :style="{ backgroundColor: color.value }"
                 :title="color.name"
               ></button>
             </div>
-            <div class="border-t border-outline-variant pt-3 mt-2">
-              <p class="text-xs text-on-surface-variant mb-2">字号</p>
+            <div class="border-t border-gray-300/20 dark:border-gray-700 pt-3 mt-2">
+              <p class="text-xs text-gray-600 dark:text-gray-400 mb-2">字号</p>
               <div class="flex flex-wrap gap-1">
                 <button
                   v-for="size in fontSizes"
                   :key="size.value"
                   @click="setFontSize(size.value)"
-                  class="px-2 py-1 text-xs rounded hover:bg-surface-container-low transition-colors"
-                  :class="isActive('textStyle', { fontSize: size.value }) ? 'bg-primary text-white' : 'text-on-surface-variant'"
+                  class="px-2 py-1 text-xs rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  :class="isActive('textStyle', { fontSize: size.value }) ? 'bg-blue-800 dark:bg-blue-500 text-white' : 'text-gray-600 dark:text-gray-400'"
                 >
                   {{ size.name }}
                 </button>
@@ -294,7 +294,7 @@ onBeforeUnmount(() => {
 
       <!-- Right: Auto-save Status + Export Button -->
       <div class="flex items-center gap-3">
-        <span class="text-xs text-on-surface-variant/60 italic">自动保存于 {{ autoSaveTime }}</span>
+        <span class="text-xs text-gray-600/60 dark:text-gray-400/60 italic">自动保存于 {{ autoSaveTime }}</span>
         <GradientButton label="导出稿件" @click="emit('export', editor?.getHTML())" />
       </div>
     </div>
@@ -341,9 +341,7 @@ onBeforeUnmount(() => {
 }
 
 .chinese-manuscript blockquote {
-  @apply my-8 pl-6 border-l-4 italic text-on-surface-variant py-4 pr-4 rounded-r-lg;
-  border-left-color: rgba(0, 63, 135, 0.2);
-  background-color: rgba(236, 238, 240, 0.5);
+  @apply my-8 pl-6 border-l-4 border-primary/20 italic text-on-surface-variant bg-surface-container-low/50 py-4 pr-4 rounded-r-lg;
 }
 
 .chinese-manuscript pre {

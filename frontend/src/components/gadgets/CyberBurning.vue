@@ -388,15 +388,15 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="relative w-full h-full bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 overflow-hidden">
+  <div class="relative w-full h-full bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 overflow-hidden">
     <!-- 控制面板 -->
-    <div class="absolute top-4 left-4 right-4 z-10 flex flex-wrap gap-4 p-4 bg-slate-900/60 backdrop-blur-md rounded-xl border border-slate-700/50">
+    <div class="absolute top-4 left-4 right-4 z-10 flex flex-wrap gap-4 p-4 bg-slate-900/60 dark:bg-slate-900/80 backdrop-blur-md rounded-xl border border-slate-700/50 dark:border-slate-600/50">
       <!-- 祭拜对象 -->
       <div class="flex flex-col gap-1">
-        <label class="text-[10px] uppercase tracking-wider text-amber-400/80">祭拜对象</label>
+        <label class="text-[10px] uppercase tracking-wider text-amber-400/80 dark:text-amber-300">祭拜对象</label>
         <select
           v-model="selectedRecipient"
-          class="bg-slate-800/80 text-amber-100 border border-slate-600/50 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+          class="bg-slate-800/80 dark:bg-slate-800 text-amber-100 dark:text-amber-200 border border-slate-600/50 dark:border-slate-500/50 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 dark:focus:ring-amber-400/50"
           @change="hasUserSelected = true"
         >
           <option v-for="r in recipients" :key="r.id" :value="r.id">
@@ -407,15 +407,15 @@ onUnmounted(() => {
 
       <!-- 祭品 -->
       <div class="flex flex-col gap-1">
-        <label class="text-[10px] uppercase tracking-wider text-amber-400/80">祭品</label>
+        <label class="text-[10px] uppercase tracking-wider text-amber-400/80 dark:text-amber-300">祭品</label>
         <div class="flex gap-1">
           <button
             v-for="item in items"
             :key="item.id"
             class="w-9 h-9 rounded-lg flex items-center justify-center text-lg transition-all duration-200"
             :class="selectedItems.includes(item.id)
-              ? 'bg-amber-600/60 ring-2 ring-amber-400 scale-110'
-              : 'bg-slate-700/50 hover:bg-slate-600/50'"
+              ? 'bg-amber-600/60 dark:bg-amber-700/60 ring-2 ring-amber-400 dark:ring-amber-300 scale-110'
+              : 'bg-slate-700/50 dark:bg-slate-600/50 hover:bg-slate-600/50 dark:hover:bg-slate-500/50'"
             :title="`${item.name} - ${item.price}冥币`"
             @click="selectedItems.includes(item.id) ? selectedItems.splice(selectedItems.indexOf(item.id), 1) : selectedItems.push(item.id)"
           >
@@ -426,7 +426,7 @@ onUnmounted(() => {
 
       <!-- 火焰颜色 -->
       <div class="flex flex-col gap-1">
-        <label class="text-[10px] uppercase tracking-wider text-amber-400/80">火焰</label>
+        <label class="text-[10px] uppercase tracking-wider text-amber-400/80 dark:text-amber-300">火焰</label>
         <div class="flex gap-1">
           <button
             v-for="flame in flameColors"
@@ -443,8 +443,8 @@ onUnmounted(() => {
 
     <!-- 标题 -->
     <div class="absolute top-36 left-1/2 -translate-x-1/2 text-center z-10">
-      <h2 class="text-3xl font-bold text-amber-100 mb-1">赛博烧纸</h2>
-      <p class="text-sm text-amber-200/50">点击纸钱即可燃烧 · 送给 {{ selectedRecipientName }}</p>
+      <h2 class="text-3xl font-bold text-amber-100 dark:text-amber-200 mb-1">赛博烧纸</h2>
+      <p class="text-sm text-amber-200/50 dark:text-amber-300/50">点击纸钱即可燃烧 · 送给 {{ selectedRecipientName }}</p>
     </div>
 
     <!-- Canvas -->

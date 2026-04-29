@@ -6,8 +6,3 @@ def route_query(state: ChatState) -> str:
     return "chat_completion"
 
 
-def should_synthesize_voice(state: ChatState) -> str:
-    """Determine if voice synthesis is needed."""
-    if state.get("use_voice", False):
-        return "synthesize_voice"
-    return "end"

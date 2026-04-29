@@ -1,17 +1,15 @@
 <script setup lang="ts">
 import SideNavBar from './SideNavBar.vue'
 import TopAppBar from './TopAppBar.vue'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { useRoute } from 'vue-router'
 
-interface Props {
-  sectionTitle?: string
-}
-
-withDefaults(defineProps<Props>(), {
-  sectionTitle: '首页'
-})
-
+const route = useRoute()
 const sidebarCollapsed = ref(false)
+
+const sectionTitle = computed(() => {
+  return route.meta.sectionTitle as string || '首页'
+})
 
 const handleSidebarToggle = (collapsed: boolean) => {
   sidebarCollapsed.value = collapsed
@@ -19,9 +17,12 @@ const handleSidebarToggle = (collapsed: boolean) => {
 </script>
 
 <template>
-  <div class="flex min-h-screen min-w-[1280px] bg-background">
+  <div class="flex min-h-screen">
     <!-- Sidebar -->
-    <SideNavBar class="fixed left-0 top-0 h-screen" @update:collapsed="handleSidebarToggle" />
+    <SideNavBar
+      class="fixed left-0 top-0 h-screen"
+      @update:collapsed="handleSidebarToggle"
+    />
 
     <!-- Main Container -->
     <div
@@ -31,9 +32,9 @@ const handleSidebarToggle = (collapsed: boolean) => {
       <!-- TopAppBar -->
       <TopAppBar class="shrink-0 h-16" :section-title="sectionTitle" />
 
-      <!-- Page Content Slot -->
+      <!-- Page Content -->
       <main class="flex-1 overflow-auto">
-        <slot />
+        <router-view />
       </main>
     </div>
   </div>

@@ -14,8 +14,8 @@ withDefaults(defineProps<Props>(), {
     :class="[
       'inline-flex items-center px-3 py-1 rounded-full text-sm font-medium transition-colors',
       active
-        ? 'bg-primary text-white'
-        : 'bg-primary/8 text-primary'
+        ? 'bg-blue-800 dark:bg-blue-500 text-white'
+        : 'bg-blue-800/20 dark:bg-blue-500/20 text-blue-800 dark:text-blue-400'
     ]"
   >
     {{ label }}

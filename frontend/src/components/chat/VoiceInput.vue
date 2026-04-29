@@ -6,7 +6,7 @@
         'p-2 rounded-full transition-all',
         isRecording
           ? 'bg-red-500 text-white animate-pulse'
-          : 'bg-surface hover:bg-primary/10 text-on-surface'
+          : 'bg-gray-100 dark:bg-gray-700 hover:bg-red-500/10 text-gray-900 dark:text-gray-100'
       ]"
       :title="isRecording ? '停止录音' : '开始语音输入'"
     >
@@ -20,7 +20,7 @@
       <span class="text-sm text-red-500">录音中...</span>
     </div>
 
-    <div v-if="transcript" class="flex-1 text-sm text-on-surface/70">
+    <div v-if="transcript" class="flex-1 text-sm text-gray-700 dark:text-gray-300">
       {{ transcript }}
     </div>
   </div>

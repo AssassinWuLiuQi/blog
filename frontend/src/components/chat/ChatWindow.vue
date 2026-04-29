@@ -1,12 +1,12 @@
 <template>
-  <div class="flex flex-col h-full bg-white rounded-xl shadow-lg overflow-hidden">
+  <div class="flex flex-col h-full bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
     <!-- Header -->
-    <div class="flex items-center justify-between px-4 py-3 border-b border-surface">
+    <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700">
       <div class="flex items-center gap-3">
-        <span class="material-symbols-outlined text-primary text-2xl">smart_toy</span>
+        <span class="material-symbols-outlined text-blue-800 dark:text-blue-400 text-2xl">smart_toy</span>
         <div>
-          <h3 class="font-medium text-on-surface">小博</h3>
-          <p class="text-xs text-on-surface/50">智能客服助手</p>
+          <h3 class="font-medium text-gray-900 dark:text-gray-100">小博</h3>
+          <p class="text-xs text-gray-600 dark:text-gray-400">智能客服助手</p>
         </div>
       </div>
 
@@ -14,7 +14,7 @@
         @click="chatStore.toggleVoiceMode()"
         :class="[
           'p-2 rounded-lg transition-colors',
-          chatStore.useVoiceMode ? 'bg-primary text-white' : 'hover:bg-surface'
+          chatStore.useVoiceMode ? 'bg-blue-800 dark:bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-gray-700'
         ]"
         title="语音模式"
       >
@@ -27,8 +27,8 @@
     <!-- Messages -->
     <div ref="messagesContainer" class="flex-1 overflow-y-auto p-4 space-y-4">
       <div v-if="chatStore.messages.length === 0" class="flex flex-col items-center justify-center h-full text-center">
-        <span class="material-symbols-outlined text-4xl text-on-surface/20 mb-2">chat</span>
-        <p class="text-on-surface/50">发送消息开始对话</p>
+        <span class="material-symbols-outlined text-4xl text-gray-400/20 dark:text-gray-600/20 mb-2">chat</span>
+        <p class="text-gray-600 dark:text-gray-400">发送消息开始对话</p>
       </div>
 
       <ChatMessage
@@ -37,21 +37,21 @@
         :message="msg"
       />
 
-      <div v-if="chatStore.isStreaming" class="flex gap-3 p-4 bg-surface rounded-lg">
-        <span class="material-symbols-outlined text-accent animate-pulse">smart_toy</span>
+      <div v-if="chatStore.isStreaming" class="flex gap-3 p-4 bg-gray-100 dark:bg-gray-700 rounded-lg">
+        <span class="material-symbols-outlined text-blue-800 dark:text-blue-400 animate-pulse">smart_toy</span>
         <div class="flex-1">
           <div class="flex items-center gap-2 mb-1">
-            <span class="text-sm font-medium text-on-surface">小博</span>
-            <span class="text-xs text-on-surface/50">输入中...</span>
+            <span class="text-sm font-medium text-gray-900 dark:text-gray-100">小博</span>
+            <span class="text-xs text-gray-600 dark:text-gray-400">输入中...</span>
           </div>
-          <span class="text-on-surface/70">{{ streamingContent }}</span>
-          <span class="inline-block w-2 h-4 bg-primary animate-pulse ml-1" />
+          <span class="text-gray-700 dark:text-gray-300">{{ streamingContent }}</span>
+          <span class="inline-block w-2 h-4 bg-blue-800 dark:bg-blue-400 animate-pulse ml-1" />
         </div>
       </div>
     </div>
 
     <!-- Input Area -->
-    <div class="border-t border-surface p-4 space-y-3">
+    <div class="border-t border-gray-200 dark:border-gray-700 p-4 space-y-3">
       <VoiceInput
         v-if="chatStore.useVoiceMode"
         @transcript="handleVoiceInput"
@@ -64,7 +64,7 @@
           @keyup.enter="sendMessage"
           type="text"
           placeholder="输入消息..."
-          class="flex-1 px-4 py-2 bg-surface rounded-lg border-0 focus:ring-2 focus:ring-primary outline-none"
+          class="flex-1 px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg border-0 focus:ring-2 focus:ring-blue-800/20 dark:focus:ring-blue-500/20 outline-none"
           :disabled="chatStore.isStreaming"
         />
 
@@ -74,8 +74,8 @@
           :class="[
             'px-4 py-2 rounded-lg font-medium transition-colors',
             inputText.trim() && !chatStore.isStreaming
-              ? 'bg-primary text-white hover:bg-primary/90'
-              : 'bg-surface text-on-surface/50 cursor-not-allowed'
+              ? 'bg-blue-800 dark:bg-blue-500 text-white hover:bg-blue-800/90 dark:hover:bg-blue-500/90'
+              : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 cursor-not-allowed'
           ]"
         >
           <span class="material-symbols-outlined">

@@ -48,10 +48,10 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <header class="bg-surface-container-lowest/80 backdrop-blur-md border-b border-outline-variant/10 transition-all duration-300 flex items-center justify-between px-6 relative z-30">
+  <header class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-b border-gray-300/20 dark:border-gray-700 transition-all duration-300 flex items-center justify-between px-6 relative z-30">
     <!-- Left: Section Title -->
     <div class="flex items-center gap-3">
-      <h2 class="text-lg font-semibold text-on-surface tracking-tight">{{ sectionTitle }}</h2>
+      <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 tracking-tight">{{ sectionTitle }}</h2>
     </div>
 
     <!-- Right: User Profile -->
@@ -59,7 +59,7 @@ onUnmounted(() => {
       <!-- Theme Toggle -->
       <button
         @click="uiStore.toggleTheme()"
-        class="p-2 rounded-lg hover:bg-surface-container-high transition-colors"
+        class="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
         :title="uiStore.effectiveTheme === 'light' ? '切换到深色模式' : '切换到浅色模式'"
       >
         <!-- Sun icon (shown in light mode, click to go dark) -->
@@ -75,14 +75,14 @@ onUnmounted(() => {
       <!-- User Profile -->
       <div class="relative" ref="dropdownRef">
         <button
-          class="flex items-center gap-3 p-1.5 rounded-xl hover:bg-surface-container-low transition-colors duration-200"
+          class="flex items-center gap-3 p-1.5 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
           @click="toggleDropdown"
         >
           <div class="text-right hidden sm:block">
-            <p class="text-sm font-medium text-on-surface leading-none">{{ authStore.userName }}</p>
-            <p class="text-xs text-on-surface-variant mt-0.5">{{ authStore.userRole || '用户' }}</p>
+            <p class="text-sm font-medium text-gray-900 dark:text-gray-100 leading-none">{{ authStore.userName }}</p>
+            <p class="text-xs text-gray-600 dark:text-gray-400 mt-0.5">{{ authStore.userRole || '用户' }}</p>
           </div>
-          <div class="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-primary-container flex items-center justify-center text-white text-sm font-medium shadow-sm">
+          <div class="w-9 h-9 rounded-full bg-gradient-to-br from-blue-800 to-blue-700 dark:from-blue-500 dark:to-blue-700 flex items-center justify-center text-white text-sm font-medium shadow-sm">
             {{ authStore.userName?.charAt(0).toUpperCase() || 'U' }}
           </div>
         </button>
@@ -91,30 +91,30 @@ onUnmounted(() => {
         <transition name="dropdown">
           <div
             v-if="showDropdown"
-            class="absolute right-0 top-full mt-2 w-56 bg-surface-container-lowest rounded-xl shadow-xl border border-outline-variant/10 py-1.5 z-40"
+            class="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-300/20 dark:border-gray-700 py-1.5 z-40"
           >
             <!-- User Info Header -->
-            <div class="px-4 py-3 border-b border-outline-variant/10">
-              <p class="text-sm font-medium text-on-surface">{{ authStore.userName }}</p>
-              <p class="text-xs text-on-surface-variant mt-0.5">{{ authStore.userRole || '用户' }}</p>
+            <div class="px-4 py-3 border-b border-gray-300/20 dark:border-gray-700">
+              <p class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ authStore.userName }}</p>
+              <p class="text-xs text-gray-600 dark:text-gray-400 mt-0.5">{{ authStore.userRole || '用户' }}</p>
             </div>
 
             <!-- Menu Items -->
             <div class="py-1">
               <router-link
                 to="/settings"
-                class="flex items-center gap-3 px-4 py-2.5 text-sm text-on-surface hover:bg-surface-container-low transition-colors duration-150"
+                class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-150"
                 @click="closeDropdown"
               >
-                <span class="material-symbols-outlined text-lg text-on-surface-variant">settings</span>
+                <span class="material-symbols-outlined text-lg text-gray-600 dark:text-gray-400">settings</span>
                 <span>账号设置</span>
               </router-link>
             </div>
 
             <!-- Divider -->
-            <div class="border-t border-outline-variant/10 py-1">
+            <div class="border-t border-gray-300/20 dark:border-gray-700 py-1">
               <button
-                class="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-error hover:bg-error/5 transition-colors duration-150"
+                class="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-150"
                 @click="handleLogout"
               >
                 <span class="material-symbols-outlined text-lg">logout</span>

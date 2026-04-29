@@ -75,7 +75,7 @@ export const useUIStore = defineStore('ui', () => {
   function applyTheme(): void {
     effectiveTheme.value = getEffectiveTheme()
     if (typeof document !== 'undefined') {
-      document.documentElement.setAttribute('data-theme', effectiveTheme.value)
+      document.documentElement.classList.toggle('dark', effectiveTheme.value === 'dark')
     }
   }
 

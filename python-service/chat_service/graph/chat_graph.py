@@ -1,7 +1,7 @@
 from langgraph.graph import StateGraph, END
 from chat_service.state import ChatState
-from chat_service.graph.nodes import retrieve_knowledge, chat_completion, synthesize_voice
-from chat_service.graph.edges import route_query, should_synthesize_voice
+from chat_service.graph.nodes import retrieve_knowledge, chat_completion
+from chat_service.graph.edges import route_query
 
 
 def build_chat_graph() -> StateGraph:
@@ -10,8 +10,6 @@ def build_chat_graph() -> StateGraph:
 
     workflow.add_node("retrieve_knowledge", retrieve_knowledge)
     workflow.add_node("chat_completion", chat_completion)
-    workflow.add_node("synthesize_voice", synthesize_voice)
-
     workflow.set_entry_point("retrieve_knowledge")
 
     workflow.add_conditional_edges(
@@ -22,16 +20,7 @@ def build_chat_graph() -> StateGraph:
         }
     )
 
-    workflow.add_conditional_edges(
-        "chat_completion",
-        should_synthesize_voice,
-        {
-            "synthesize_voice": "synthesize_voice",
-            "end": END
-        }
-    )
-
-    workflow.add_edge("synthesize_voice", END)
+    workflow.add_edge("chat_completion", END)
 
     return workflow.compile()
 

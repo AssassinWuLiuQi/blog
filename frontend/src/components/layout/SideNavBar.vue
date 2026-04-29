@@ -48,30 +48,30 @@ const isItemActive = (item: typeof navItems[0]): boolean => {
 
 <template>
   <aside
-    class="fixed left-0 top-0 h-screen flex flex-col bg-white border-r border-outline-variant/10 transition-all duration-300 ease-in-out z-30"
+    class="fixed left-0 top-0 h-screen flex flex-col bg-white dark:bg-gray-800 border-r border-gray-300/20 dark:border-gray-700 transition-all duration-300 ease-in-out z-30"
     :class="isCollapsed ? 'w-16' : 'w-64'"
   >
     <!-- Toggle Button -->
     <button
-      class="absolute -right-3 top-20 w-6 h-6 bg-white border border-outline-variant/20 rounded-full flex items-center justify-center shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
+      class="absolute -right-3 top-20 w-6 h-6 bg-white dark:bg-gray-800 border border-gray-300/20 dark:border-gray-700 rounded-full flex items-center justify-center shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
       @click="toggleCollapse"
     >
       <span
-        class="material-symbols-outlined text-sm text-on-surface-variant transition-transform duration-300"
+        class="material-symbols-outlined text-sm text-gray-600 dark:text-gray-400 transition-transform duration-300"
         :class="isCollapsed ? 'rotate-180' : ''"
       >chevron_right</span>
     </button>
 
     <!-- Logo Section -->
-    <div class="h-16 flex items-center px-4 border-b border-outline-variant/10">
+    <div class="h-16 flex items-center px-4 border-b border-gray-300/20 dark:border-gray-700">
       <div class="flex items-center gap-3">
-        <div class="w-9 h-9 bg-gradient-to-br from-primary to-primary-container rounded-xl flex items-center justify-center shadow-md shrink-0">
+        <div class="w-9 h-9 bg-gradient-to-br from-blue-800 to-blue-700 dark:from-blue-500 dark:to-blue-700 rounded-xl flex items-center justify-center shadow-md shrink-0">
           <span class="material-symbols-outlined text-sm text-white" style="font-variation-settings: 'FILL' 1;">menu_book</span>
         </div>
         <transition name="fade-slide">
           <div v-if="!isCollapsed" class="overflow-hidden">
-            <h1 class="text-lg font-bold text-on-surface tracking-tight leading-none">MxJin</h1>
-            <p class="text-[10px] text-on-surface-variant tracking-wider">Mxjin's Blog</p>
+            <h1 class="text-lg font-bold text-gray-900 dark:text-gray-100 tracking-tight leading-none">MxJin</h1>
+            <p class="text-[10px] text-gray-600 dark:text-gray-400 tracking-wider">Mxjin's Blog</p>
           </div>
         </transition>
       </div>
@@ -86,8 +86,8 @@ const isItemActive = (item: typeof navItems[0]): boolean => {
             class="nav-item group flex items-center gap-3 py-2.5 rounded-xl transition-all duration-200 cursor-pointer"
             :class="[
               isItemActive(item) && !item.hasChildren
-                ? 'bg-primary/8 text-primary font-medium'
-                : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface',
+                ? 'bg-blue-800/20 dark:bg-blue-500/20 text-blue-800 dark:text-blue-400 font-medium'
+                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100',
               isCollapsed ? 'justify-center px-0 w-12 mx-auto' : 'px-3'
             ]"
             :href="'#'"
@@ -95,7 +95,7 @@ const isItemActive = (item: typeof navItems[0]): boolean => {
           >
             <span
               class="material-symbols-outlined text-xl shrink-0 transition-colors duration-200"
-              :class="isItemActive(item) && !item.hasChildren ? 'text-primary' : 'text-on-surface-variant group-hover:text-on-surface'"
+              :class="isItemActive(item) && !item.hasChildren ? 'text-blue-800 dark:text-blue-400' : 'text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-gray-100'"
               :style="isItemActive(item) && !item.hasChildren ? 'font-variation-settings: \'FILL\' 1;' : ''"
             >{{ item.icon }}</span>
             <transition name="fade-slide">
@@ -113,7 +113,7 @@ const isItemActive = (item: typeof navItems[0]): boolean => {
           <!-- Active Indicator -->
           <div
             v-if="isItemActive(item) && !item.hasChildren && !isCollapsed"
-            class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary rounded-r-full"
+            class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-blue-800 dark:bg-blue-500 rounded-r-full"
           />
         </div>
 
@@ -122,13 +122,13 @@ const isItemActive = (item: typeof navItems[0]): boolean => {
           <div v-show="gadgetsOpen && !isCollapsed && item.hasChildren" class="ml-4 py-1 space-y-0.5">
             <a
               class="sub-item flex items-center gap-2 py-2 pl-3 pr-2 rounded-lg text-sm transition-all duration-200"
-              :class="isActive('/gadgets/cyber-burning') ? 'text-primary font-medium bg-primary/5' : 'text-on-surface-variant hover:text-primary hover:bg-surface-container-low'"
+              :class="isActive('/gadgets/cyber-burning') ? 'text-blue-800 dark:text-blue-400 font-medium bg-blue-800/5 dark:bg-blue-500/5' : 'text-gray-600 dark:text-gray-400 hover:text-blue-800 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700'"
               href="#"
               @click.prevent="navigate('/gadgets/cyber-burning')"
             >
               <span
                 class="w-1.5 h-1.5 rounded-full shrink-0 transition-colors duration-200"
-                :class="isActive('/gadgets/cyber-burning') ? 'bg-primary' : 'bg-outline'"
+                :class="isActive('/gadgets/cyber-burning') ? 'bg-blue-800 dark:bg-blue-500' : 'bg-gray-300 dark:bg-gray-600'"
               />
               <span>赛博烧纸</span>
             </a>
@@ -138,12 +138,12 @@ const isItemActive = (item: typeof navItems[0]): boolean => {
     </nav>
 
     <!-- Bottom Section -->
-    <div class="p-2 border-t border-outline-variant/10 space-y-1">
+    <div class="p-2 border-t border-gray-300/20 dark:border-gray-700 space-y-1">
       <!-- Settings -->
       <a
         class="nav-item group flex items-center gap-3 py-2.5 rounded-xl transition-all duration-200"
         :class="[
-          isActive('/settings') ? 'bg-primary/8 text-primary font-medium' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface',
+          isActive('/settings') ? 'bg-blue-800/20 dark:bg-blue-500/20 text-blue-800 dark:text-blue-400 font-medium' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100',
           isCollapsed ? 'justify-center px-0 w-12 mx-auto' : 'px-3'
         ]"
         href="#"

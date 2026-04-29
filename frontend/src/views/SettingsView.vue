@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import AppLayout from '@/components/layout/AppLayout.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useUIStore } from '@/stores/ui'
 import SurfaceCard from '@/components/common/SurfaceCard.vue'
@@ -97,22 +96,21 @@ const handlePasswordChange = async (): Promise<void> => {
 </script>
 
 <template>
-  <AppLayout section-title="设置">
-    <div class="p-8 max-w-3xl mx-auto">
+  <div class="p-8 max-w-3xl mx-auto">
       <!-- Header -->
       <div class="mb-8">
-        <h1 class="text-display-sm text-on-surface mb-2">设置</h1>
-        <p class="text-body-md text-on-surface-variant">管理您的偏好设置</p>
+        <h1 class="text-display-sm text-gray-900 dark:text-gray-100 mb-2">设置</h1>
+        <p class="text-body-md text-gray-600 dark:text-gray-400">管理您的偏好设置</p>
       </div>
 
       <!-- User Settings -->
       <SurfaceCard class="mb-6">
-        <h3 class="text-lg font-semibold text-on-surface mb-4">用户信息</h3>
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">用户信息</h3>
         <div class="flex items-center gap-4 mb-4">
-          <span class="material-symbols-outlined text-4xl text-on-surface-variant">account_circle</span>
+          <span class="material-symbols-outlined text-4xl text-gray-600 dark:text-gray-400">account_circle</span>
           <div>
-            <p class="font-medium text-on-surface">{{ authStore.user?.name }}</p>
-            <p class="text-sm text-on-surface-variant">{{ authStore.user?.role }}</p>
+            <p class="font-medium text-gray-900 dark:text-gray-100">{{ authStore.user?.name }}</p>
+            <p class="text-sm text-gray-600 dark:text-gray-400">{{ authStore.user?.role }}</p>
           </div>
         </div>
         <GradientButton label="编辑资料" />
@@ -120,17 +118,17 @@ const handlePasswordChange = async (): Promise<void> => {
 
       <!-- Appearance Settings -->
       <SurfaceCard class="mb-6">
-        <h3 class="text-lg font-semibold text-on-surface mb-4">外观</h3>
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">外观</h3>
 
         <div class="mb-4">
-          <label class="text-sm text-on-surface-variant mb-2 block">主题</label>
+          <label class="text-sm text-gray-600 dark:text-gray-400 mb-2 block">主题</label>
           <div class="flex gap-3">
             <button
               @click="themePreference = 'light'"
               class="px-4 py-2 rounded-lg text-sm transition-all"
               :class="themePreference === 'light'
-                ? 'bg-primary text-white'
-                : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high'"
+                ? 'bg-blue-800 dark:bg-blue-500 text-white'
+                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'"
             >
               浅色
             </button>
@@ -138,8 +136,8 @@ const handlePasswordChange = async (): Promise<void> => {
               @click="themePreference = 'dark'"
               class="px-4 py-2 rounded-lg text-sm transition-all"
               :class="themePreference === 'dark'
-                ? 'bg-primary text-white'
-                : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high'"
+                ? 'bg-blue-800 dark:bg-blue-500 text-white'
+                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'"
             >
               深色
             </button>
@@ -148,8 +146,8 @@ const handlePasswordChange = async (): Promise<void> => {
               @click="themePreference = 'system'"
               class="px-4 py-2 rounded-lg text-sm transition-all"
               :class="themePreference === 'system'
-                ? 'bg-primary text-white'
-                : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high'"
+                ? 'bg-blue-800 dark:bg-blue-500 text-white'
+                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'"
             >
               跟随系统
             </button>
@@ -157,10 +155,10 @@ const handlePasswordChange = async (): Promise<void> => {
         </div>
 
         <div>
-          <label class="text-sm text-on-surface-variant mb-2 block">字体大小</label>
+          <label class="text-sm text-gray-600 dark:text-gray-400 mb-2 block">字体大小</label>
           <select
             v-model="fontSize"
-            class="w-full px-4 py-2 bg-surface-container-low border-none rounded-lg text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/20"
+            class="w-full px-4 py-2 bg-gray-100 dark:bg-gray-800 border-none rounded-lg text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-800/20 dark:focus:ring-blue-500/20"
           >
             <option value="small">小</option>
             <option value="medium">中</option>
@@ -171,30 +169,30 @@ const handlePasswordChange = async (): Promise<void> => {
 
       <!-- Voice Settings -->
       <SurfaceCard class="mb-6">
-        <h3 class="text-lg font-semibold text-on-surface mb-4">语音设置</h3>
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">语音设置</h3>
 
         <div class="mb-4">
           <label class="flex items-center gap-3 cursor-pointer">
             <input
               type="checkbox"
               v-model="autoPlayTTS"
-              class="w-5 h-5 accent-primary"
+              class="w-5 h-5 accent-blue-800 dark:accent-blue-400"
             />
-            <span class="text-sm text-on-surface">自动播放语音朗读</span>
+            <span class="text-sm text-gray-900 dark:text-gray-100">自动播放语音朗读</span>
           </label>
         </div>
 
         <div>
-          <label class="text-sm text-on-surface-variant mb-2 block">语音速度: {{ voiceSpeed }}x</label>
+          <label class="text-sm text-gray-600 dark:text-gray-400 mb-2 block">语音速度: {{ voiceSpeed }}x</label>
           <input
             type="range"
             v-model="voiceSpeed"
             min="0.5"
             max="2"
             step="0.1"
-            class="w-full accent-primary"
+            class="w-full accent-blue-800 dark:accent-blue-400"
           />
-          <div class="flex justify-between text-xs text-on-surface-variant mt-1">
+          <div class="flex justify-between text-xs text-gray-600 dark:text-gray-400 mt-1">
             <span>0.5x</span>
             <span>1x</span>
             <span>1.5x</span>
@@ -205,20 +203,20 @@ const handlePasswordChange = async (): Promise<void> => {
 
       <!-- Notification Settings -->
       <SurfaceCard class="mb-6">
-        <h3 class="text-lg font-semibold text-on-surface mb-4">通知</h3>
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">通知</h3>
 
         <div class="space-y-3">
           <label class="flex items-center gap-3 cursor-pointer">
-            <input type="checkbox" class="w-5 h-5 accent-primary" checked />
-            <span class="text-sm text-on-surface">新文章通知</span>
+            <input type="checkbox" class="w-5 h-5 accent-blue-800 dark:accent-blue-400" checked />
+            <span class="text-sm text-gray-900 dark:text-gray-100">新文章通知</span>
           </label>
           <label class="flex items-center gap-3 cursor-pointer">
-            <input type="checkbox" class="w-5 h-5 accent-primary" checked />
-            <span class="text-sm text-on-surface">评论回复通知</span>
+            <input type="checkbox" class="w-5 h-5 accent-blue-800 dark:accent-blue-400" checked />
+            <span class="text-sm text-gray-900 dark:text-gray-100">评论回复通知</span>
           </label>
           <label class="flex items-center gap-3 cursor-pointer">
-            <input type="checkbox" class="w-5 h-5 accent-primary" />
-            <span class="text-sm text-on-surface">系统公告</span>
+            <input type="checkbox" class="w-5 h-5 accent-blue-800 dark:accent-blue-400" />
+            <span class="text-sm text-gray-900 dark:text-gray-100">系统公告</span>
           </label>
         </div>
       </SurfaceCard>
@@ -226,53 +224,53 @@ const handlePasswordChange = async (): Promise<void> => {
       <!-- Password Change -->
       <SurfaceCard class="mb-6">
         <div class="flex items-center justify-between mb-4">
-          <h3 class="text-lg font-semibold text-on-surface">修改密码</h3>
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">修改密码</h3>
           <button
             v-if="!showPasswordForm"
             @click="showPasswordForm = true"
-            class="text-sm text-primary hover:underline"
+            class="text-sm text-blue-800 dark:text-blue-400 hover:underline"
           >
             修改密码
           </button>
           <button
             v-else
             @click="showPasswordForm = false; passwordError = ''"
-            class="text-sm text-on-surface-variant hover:text-on-surface"
+            class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
           >
             取消
           </button>
         </div>
 
         <div v-if="showPasswordForm">
-          <div v-if="passwordError" class="bg-error/10 text-error text-sm px-4 py-3 rounded-lg mb-4">
+          <div v-if="passwordError" class="bg-red-600/10 text-red-600 text-sm px-4 py-3 rounded-lg mb-4">
             {{ passwordError }}
           </div>
 
           <div class="space-y-4">
             <div>
-              <label class="text-sm text-on-surface-variant mb-2 block">当前密码</label>
+              <label class="text-sm text-gray-600 dark:text-gray-400 mb-2 block">当前密码</label>
               <input
                 v-model="oldPassword"
                 type="password"
-                class="w-full px-4 py-2 bg-surface-container-low border-none rounded-lg text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/20"
+                class="w-full px-4 py-2 bg-gray-100 dark:bg-gray-800 border-none rounded-lg text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-800/20 dark:focus:ring-blue-500/20"
                 placeholder="输入当前密码"
               />
             </div>
             <div>
-              <label class="text-sm text-on-surface-variant mb-2 block">新密码</label>
+              <label class="text-sm text-gray-600 dark:text-gray-400 mb-2 block">新密码</label>
               <input
                 v-model="newPassword"
                 type="password"
-                class="w-full px-4 py-2 bg-surface-container-low border-none rounded-lg text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/20"
+                class="w-full px-4 py-2 bg-gray-100 dark:bg-gray-800 border-none rounded-lg text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-800/20 dark:focus:ring-blue-500/20"
                 placeholder="输入新密码"
               />
             </div>
             <div>
-              <label class="text-sm text-on-surface-variant mb-2 block">确认新密码</label>
+              <label class="text-sm text-gray-600 dark:text-gray-400 mb-2 block">确认新密码</label>
               <input
                 v-model="confirmPassword"
                 type="password"
-                class="w-full px-4 py-2 bg-surface-container-low border-none rounded-lg text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/20"
+                class="w-full px-4 py-2 bg-gray-100 dark:bg-gray-800 border-none rounded-lg text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-800/20 dark:focus:ring-blue-500/20"
                 placeholder="再次输入新密码"
               />
             </div>
@@ -292,5 +290,4 @@ const handlePasswordChange = async (): Promise<void> => {
         <GradientButton label="保存设置" @click="handleSave" />
       </div>
     </div>
-  </AppLayout>
 </template>

@@ -3,10 +3,10 @@ import { createSSERawStream } from '@/utils/sse'
 import type { TtsRequest } from '@/types/tts'
 
 const STEP_DATA = 100
-const STEP_COMPLETE = 1000
 
 // 目标缓冲采样点数
 const TARGET_BUFFER_SAMPLES = 8192
+const INITIAL_BUFFER_SIZE = 65536 // 64K samples initial, grows exponentially
 
 export function useTTS(options: { sampleRate?: number; bufferSize?: number; channels?: number } = {}) {
   const {
@@ -19,12 +19,12 @@ export function useTTS(options: { sampleRate?: number; bufferSize?: number; chan
   const processor = ref<ScriptProcessorNode | null>(null)
   const pcmQueue = ref<Float32Array[]>([])
   const isPlaying = ref(false)
-  const isStreamEnded = ref(false)
   const currentController = ref<AbortController | null>(null)
 
-  // 累积 Float32 数据的缓冲区
-  const float32Buffer = ref<Float32Array>(new Float32Array(0))
-  const targetSamples = TARGET_BUFFER_SAMPLES
+  // 预分配的可增长 Float32 缓冲区 + 有效长度追踪
+  let float32Buf = new Float32Array(INITIAL_BUFFER_SIZE)
+  let bufLen = 0
+  let streamEnded = false
 
   const initAudio = (): void => {
     if (audioContext.value) return
@@ -36,6 +36,8 @@ export function useTTS(options: { sampleRate?: number; bufferSize?: number; chan
       const output = e.outputBuffer.getChannelData(0)
       if (pcmQueue.value.length === 0) {
         output.fill(0)
+        // 流结束且队列为空时停止
+        if (streamEnded) stop()
         return
       }
       let offset = 0
@@ -61,13 +63,13 @@ export function useTTS(options: { sampleRate?: number; bufferSize?: number; chan
       currentController.value = null
     }
     pcmQueue.value = []
-    float32Buffer.value = new Float32Array(0)
+    bufLen = 0
+    streamEnded = false
     isPlaying.value = false
-    isStreamEnded.value = false
   }
 
   /**
-   * 将 hex 字符串转换为 Float32Array
+   * 将 hex 字符串转换为 Float32Array (PCM16 → Float32)
    */
   const hexToFloat32 = (hexString: string, isLittleEndian: boolean = false): Float32Array | null => {
     if (hexString.length % 2 !== 0) {
@@ -75,51 +77,42 @@ export function useTTS(options: { sampleRate?: number; bufferSize?: number; chan
       hexString = hexString.slice(0, -1)
       if (hexString.length === 0) return null
     }
-    const byteLength = hexString.length / 2
-    const bytes = new Uint8Array(byteLength)
+    const bytes = new Uint8Array(hexString.length / 2)
     for (let i = 0; i < hexString.length; i += 2) {
       bytes[i / 2] = parseInt(hexString.substring(i, i + 2), 16)
     }
-    const int16Array = new Int16Array(byteLength)
-    const float32 = new Float32Array(byteLength)
-    if (isLittleEndian) {
-      for (let i = 0; i < byteLength; i++) {
-        int16Array[i] = bytes[i * 2] | (bytes[i * 2 + 1] << 8)
-        float32[i] = int16Array[i] / 32768
-      }
-    } else {
-      for (let i = 0; i < byteLength; i++) {
-        const b0 = bytes[i * 2]
-        const b1 = bytes[i * 2 + 1]
-        int16Array[i] = (b0 << 8) | b1
-        float32[i] = int16Array[i] / 32768
-      }
+    const sampleCount = bytes.length / 2
+    const float32 = new Float32Array(sampleCount)
+    const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength)
+    for (let i = 0; i < sampleCount; i++) {
+      float32[i] = view.getInt16(i * 2, isLittleEndian) / 32768
     }
     return float32
   }
 
-  /**
-   * 合并新数据到临时缓冲区
-   */
-  const mergeToFloat32Buffer = (newData: Float32Array): void => {
-    const combined = new Float32Array(float32Buffer.value.length + newData.length)
-    combined.set(float32Buffer.value, 0)
-    combined.set(newData, float32Buffer.value.length)
-    float32Buffer.value = combined
+  const appendAudioData = (newData: Float32Array): void => {
+    const needed = bufLen + newData.length
+    if (needed > float32Buf.length) {
+      // 指数增长：翻倍直到够用
+      let newSize = float32Buf.length * 2
+      while (newSize < needed) newSize *= 2
+      const newBuf = new Float32Array(newSize)
+      newBuf.set(float32Buf.subarray(0, bufLen), 0)
+      float32Buf = newBuf
+    }
+    float32Buf.set(newData, bufLen)
+    bufLen += newData.length
   }
 
-  /**
-   * 处理临时缓冲区，提取固定长度的数据块
-   */
-  const processFloat32Buffer = (): void => {
-    while (float32Buffer.value.length >= targetSamples) {
-      const chunk = float32Buffer.value.subarray(0, targetSamples)
+  const refillPcmQueue = (): void => {
+    const targetSamples = TARGET_BUFFER_SAMPLES
+    while (bufLen >= targetSamples) {
+      const chunk = new Float32Array(targetSamples)
+      chunk.set(float32Buf.subarray(0, targetSamples), 0)
       pcmQueue.value.push(chunk)
-      if (float32Buffer.value.length > targetSamples) {
-        float32Buffer.value = float32Buffer.value.subarray(targetSamples)
-      } else {
-        float32Buffer.value = new Float32Array(0)
-      }
+      const remaining = bufLen - targetSamples
+      float32Buf.copyWithin(0, targetSamples, bufLen)
+      bufLen = remaining
     }
   }
 
@@ -159,45 +152,29 @@ export function useTTS(options: { sampleRate?: number; bufferSize?: number; chan
 
     currentController.value = createSSERawStream('/api/tts/speech', {
       body,
-      onOpen: () => {},
       onMessage: (msg) => {
-        const response = typeof msg.data === 'string' ? JSON.parse(msg.data) : msg.data
+        let response: { step?: number; data?: string }
+        try {
+          response = typeof msg.data === 'string' ? JSON.parse(msg.data) : msg.data
+        } catch {
+          return
+        }
         if (!response || typeof response !== 'object') return
-        switch (response.step) {
-          case STEP_DATA:
-            if (response.data) {
-              const float32 = hexToFloat32(response.data, true)
-              if (!float32 || float32.length === 0) break
-              mergeToFloat32Buffer(float32)
-              processFloat32Buffer()
-            }
-            break
-          case STEP_COMPLETE:
-            isStreamEnded.value = true
-            break
+        if (response.step === STEP_DATA && response.data) {
+          const float32 = hexToFloat32(response.data, true)
+          if (!float32 || float32.length === 0) return
+          appendAudioData(float32)
+          refillPcmQueue()
         }
       },
       onClose: () => {
-        float32Buffer.value = new Float32Array(0)
-        isStreamEnded.value = true
-        waitForQueueEmpty()
+        streamEnded = true
+        bufLen = 0
       },
-      onError: (_err: Error) => {
-        isStreamEnded.value = true
+      onError: () => {
         stop()
       }
     })
-  }
-
-  const waitForQueueEmpty = (): void => {
-    const check = (): void => {
-      if (pcmQueue.value.length === 0) {
-        stop()
-      } else {
-        setTimeout(check, 100)
-      }
-    }
-    setTimeout(check, 100)
   }
 
   const pause = (): void => {

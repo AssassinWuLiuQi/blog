@@ -240,6 +240,7 @@ public class TtsService {
         if (Boolean.TRUE.equals(request.getAigcWatermark())) {
             body.put("aigc_watermark", true);
         }
+        body.put("stream_options", Map.of("exclude_aggregated_audio", true));
 
         return body;
     }

@@ -1,90 +1,23 @@
-<template>
-  <div class="h-[calc(100vh-64px)] flex">
-    <!-- Sidebar -->
-    <div class="w-72 border-r border-surface flex flex-col bg-white">
-      <div class="p-4 border-b border-surface">
-        <button
-          @click="createNewSession"
-          class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
-        >
-          <span class="material-symbols-outlined">add</span>
-          新建对话
-        </button>
-      </div>
-
-      <div class="flex-1 overflow-y-auto">
-        <div class="p-2 space-y-1">
-          <div
-            v-for="session in chatStore.sortedSessions"
-            :key="session.id"
-            :class="[
-              'flex items-center justify-between p-3 rounded-lg cursor-pointer group transition-colors',
-              chatStore.currentSession?.id === session.id
-                ? 'bg-primary/10'
-                : 'hover:bg-surface'
-            ]"
-            @click="selectSession(session)"
-          >
-            <div class="flex-1 min-w-0">
-              <p class="text-sm font-medium text-on-surface truncate">
-                {{ session.sessionName }}
-              </p>
-              <p class="text-xs text-on-surface/50">
-                {{ session.messageCount }} 条消息
-              </p>
-            </div>
-
-            <button
-              @click.stop="deleteSession(session.id)"
-              class="p-1 opacity-0 group-hover:opacity-100 hover:bg-red-100 rounded transition-all"
-            >
-              <span class="material-symbols-outlined text-red-500 text-sm">delete</span>
-            </button>
-          </div>
-
-          <div v-if="chatStore.sessions.length === 0" class="text-center py-8 text-on-surface/50">
-            <span class="material-symbols-outlined text-3xl">chat</span>
-            <p class="mt-2 text-sm">暂无对话记录</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Chat Area -->
-    <div class="flex-1 flex flex-col">
-      <ChatWindow
-        v-if="chatStore.currentSession"
-        :sessionId="chatStore.currentSession.id"
-      />
-
-      <div v-else class="flex-1 flex items-center justify-center bg-surface">
-        <div class="text-center">
-          <span class="material-symbols-outlined text-6xl text-on-surface/20">forum</span>
-          <p class="mt-4 text-on-surface/50">选择一个对话或创建新对话</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</template>
-
-<script setup>
-import { onMounted } from 'vue'
-import { useChatStore } from '@/stores/chat'
+<script setup lang="ts">
+import { ref } from 'vue'
 import ChatWindow from '@/components/chat/ChatWindow.vue'
+import ChatSessionDrawer from '@/components/chat/ChatSessionDrawer.vue'
+import { useChatStore } from '@/stores/chat'
 
 const chatStore = useChatStore()
-
-onMounted(async () => {
-  await chatStore.fetchSessions()
-})
+const drawerOpen = ref(true)
 
 async function createNewSession() {
   const session = await chatStore.createSession()
   await chatStore.fetchSession(session.id)
+  drawerOpen.value = false
 }
 
 function selectSession(session) {
-  chatStore.fetchSession(session.id)
+  if (session) {
+    chatStore.fetchSession(session.id)
+  }
+  drawerOpen.value = false
 }
 
 async function deleteSession(id) {
@@ -93,3 +26,67 @@ async function deleteSession(id) {
   }
 }
 </script>
+
+<template>
+  <!-- Toggle Button -->
+  <button
+    @click="drawerOpen = !drawerOpen"
+    :class="[
+      'fixed top-20 z-40 w-8 h-16 flex items-center justify-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-r-lg shadow-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-all',
+      drawerOpen ? 'left-[17rem]' : 'left-0'
+    ]"
+  >
+    <span class="material-symbols-outlined text-gray-600 dark:text-gray-400 text-xl transition-transform duration-300" :class="drawerOpen ? 'rotate-180' : ''">
+      chevron_right
+    </span>
+  </button>
+
+  <!-- Session Drawer -->
+  <ChatSessionDrawer
+    :open="drawerOpen"
+    @close="drawerOpen = false"
+    @select="selectSession"
+    @delete="deleteSession"
+  />
+
+  <!-- Overlay when drawer is open on mobile -->
+  <transition name="fade">
+    <div
+      v-if="drawerOpen"
+      class="fixed inset-0 bg-black/20 z-30 lg:hidden"
+      @click="drawerOpen = false"
+    />
+  </transition>
+
+  <!-- Chat Area -->
+  <div class="flex-1 flex flex-col">
+    <ChatWindow
+      v-if="chatStore.currentSession"
+      :sessionId="chatStore.currentSession.id"
+    />
+
+    <div v-else class="flex-1 flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+      <div class="text-center">
+        <span class="material-symbols-outlined text-6xl text-gray-400/20 dark:text-gray-600/20">forum</span>
+        <p class="mt-4 text-gray-600 dark:text-gray-400">选择一个对话或创建新对话</p>
+        <button
+          @click="createNewSession"
+          class="mt-4 px-4 py-2 bg-blue-800 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-800/90 dark:hover:bg-blue-500/90 transition-colors"
+        >
+          新建对话
+        </button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>
